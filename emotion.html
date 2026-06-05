@@ -837,6 +837,7 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15}h2{font-siz
         <!-- PANEL: INICIO -->
         <div id="pat-panel-inicio" class="em-dashboard-panel">
           <div id="pat-next-session"></div>
+          <div id="pat-pending-recos" style="margin-bottom:20px"></div>
           <div class="em-stats-grid" id="pat-stats">
             <div class="em-stat-card"><div class="em-stat-card-header"><div class="em-stat-card-title">Sesiones totales</div><div class="em-stat-card-icon mint">📅</div></div><div class="em-stat-card-value" id="ps-total">—</div></div>
             <div class="em-stat-card"><div class="em-stat-card-header"><div class="em-stat-card-title">Completadas</div><div class="em-stat-card-icon green">✅</div></div><div class="em-stat-card-value" id="ps-completadas">—</div></div>
@@ -884,7 +885,7 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15}h2{font-siz
         <!-- PANEL: HISTORIAL -->
         <div id="pat-panel-historial" class="em-dashboard-panel em-hidden">
           <div class="em-page-header"><h2 class="em-page-title">📋 Historial de sesiones</h2></div>
-          <div class="em-table-wrapper"><table class="em-table"><thead><tr><th>Fecha</th><th>Psicólogo</th><th>Duración</th><th>Estado</th><th>Monto</th></tr></thead><tbody id="pat-historial-body"><tr><td colspan="5" style="text-align:center;padding:40px;color:var(--em-text-light)">Sin historial de sesiones</td></tr></tbody></table></div>
+          <div class="em-table-wrapper"><table class="em-table"><thead><tr><th>Fecha</th><th>Psicólogo</th><th>Duración</th><th>Estado</th><th>Monto</th><th>Notas</th></tr></thead><tbody id="pat-historial-body"><tr><td colspan="6" style="text-align:center;padding:40px;color:var(--em-text-light)">Sin historial de sesiones</td></tr></tbody></table></div>
         </div>
         <!-- PANEL: PERFIL -->
         <div id="pat-panel-perfil" class="em-dashboard-panel em-hidden">
@@ -1148,7 +1149,7 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15}h2{font-siz
         <!-- SESSIONS TABLE -->
         <div id="admin-panel-sessions" class="em-dashboard-panel em-hidden">
           <div class="em-page-header"><h2 class="em-page-title">📅 Sesiones</h2></div>
-          <div class="em-table-wrapper"><table class="em-table"><thead><tr><th>Fecha</th><th>Paciente</th><th>Psicólogo</th><th>Hora</th><th>Estado</th><th>Monto</th></tr></thead><tbody id="admin-sessions-body"></tbody></table></div>
+          <div class="em-table-wrapper"><table class="em-table"><thead><tr><th>Fecha</th><th>Paciente</th><th>Psicólogo</th><th>Hora</th><th>Estado</th><th>Monto</th><th>Recibido</th></tr></thead><tbody id="admin-sessions-body"></tbody></table></div>
         </div>
         <!-- FINANCE -->
         <div id="admin-panel-finance" class="em-dashboard-panel em-hidden">
@@ -1242,7 +1243,7 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15}h2{font-siz
         <!-- SESIONES -->
         <div id="cd-panel-sesiones" class="em-dashboard-panel em-hidden">
           <div class="em-page-header"><h2 class="em-page-title">📅 Sesiones de la clínica</h2></div>
-          <div class="em-table-wrapper"><table class="em-table"><thead><tr><th>Fecha</th><th>Psicólogo</th><th>Hora</th><th>Estado</th><th>Duración</th></tr></thead><tbody id="cd-sessions-body"><tr><td colspan="5" style="text-align:center;padding:40px;color:var(--em-text-light)">Sin sesiones</td></tr></tbody></table></div>
+          <div class="em-table-wrapper"><table class="em-table"><thead><tr><th>Fecha</th><th>Psicólogo</th><th>Hora</th><th>Estado</th><th>Duración</th><th>Recibido</th></tr></thead><tbody id="cd-sessions-body"><tr><td colspan="6" style="text-align:center;padding:40px;color:var(--em-text-light)">Sin sesiones</td></tr></tbody></table></div>
         </div>
         <!-- SUPERVISORES -->
         <div id="cd-panel-supervisores" class="em-dashboard-panel em-hidden">
@@ -1479,9 +1480,19 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15}h2{font-siz
             <div class="em-notes-panel">
               <div class="em-notes-panel-header">📝 Notas clínicas <span class="em-notes-panel-badge">PRIVADO</span></div>
               <div class="em-notes-panel-body">
-                <div class="em-notes-field"><label>Diagnóstico / Observaciones</label><textarea class="em-notes-textarea" id="notes-diagnostico" placeholder="Escribe observaciones clínicas..."></textarea></div>
-                <div class="em-notes-field"><label>Ejercicios / Tareas</label><textarea class="em-notes-textarea" id="notes-ejercicios" placeholder="Tareas para el paciente..."></textarea></div>
-                <div class="em-notes-field"><label>Recomendaciones</label><textarea class="em-notes-textarea" id="notes-recomendaciones" placeholder="Recomendaciones generales..."></textarea></div>
+                <div class="em-notes-field">
+                  <label>🔒 Diagnóstico / Observaciones <span style="font-size:.7rem;background:rgba(237,137,54,.2);color:#ed8936;padding:2px 6px;border-radius:4px">PRIVADO</span></label>
+                  <textarea class="em-notes-textarea" id="notes-diagnostico" placeholder="Observaciones clínicas (no visible para el paciente)..."></textarea>
+                </div>
+                <div class="em-notes-field">
+                  <label>📋 Ejercicios / Tareas <span style="font-size:.7rem;background:rgba(56,178,172,.15);color:var(--em-mint);padding:2px 6px;border-radius:4px">→ PACIENTE</span></label>
+                  <textarea class="em-notes-textarea" id="notes-ejercicios" placeholder="Tareas para el paciente (se enviará al finalizar)..."></textarea>
+                </div>
+                <div class="em-notes-field">
+                  <label>💡 Recomendaciones <span style="font-size:.7rem;background:rgba(56,178,172,.15);color:var(--em-mint);padding:2px 6px;border-radius:4px">→ PACIENTE</span></label>
+                  <textarea class="em-notes-textarea" id="notes-recomendaciones" placeholder="Recomendaciones (se enviará al finalizar)..."></textarea>
+                </div>
+                <button class="em-btn em-btn-danger" style="width:100%;margin-top:8px" onclick="requestEndSession()">🏁 Finalizar y enviar al paciente</button>
               </div>
             </div>
           </div>
@@ -1510,22 +1521,32 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15}h2{font-siz
     <div class="em-modal">
       <div class="em-modal-header"><h3 class="em-modal-title">🏁 Finalizar sesión</h3></div>
       <div class="em-modal-body">
-        <p style="color:var(--em-text-light);margin-bottom:20px">¿Seguro que deseas finalizar la sesión? Revisa tus notas antes de confirmar.</p>
-        <div class="em-form-group"><label class="em-label">Ejercicios para el paciente</label><textarea class="em-textarea" id="end-ejercicios" placeholder="Tareas o ejercicios..."></textarea></div>
-        <div class="em-form-group"><label class="em-label">Recomendaciones</label><textarea class="em-textarea" id="end-recomendaciones" placeholder="Recomendaciones generales..."></textarea></div>
+        <p style="color:var(--em-text-light);margin-bottom:16px;font-size:.9rem">Revisa tus notas. Los ejercicios y recomendaciones serán enviados al paciente.</p>
+        <div class="em-form-group">
+          <label class="em-label" style="display:flex;align-items:center;gap:6px">🔒 Diagnóstico <span style="font-size:.72rem;background:rgba(237,137,54,.15);color:#ed8936;padding:1px 7px;border-radius:20px">Solo tú lo ves</span></label>
+          <textarea class="em-textarea" id="end-diagnostico" placeholder="Diagnóstico y observaciones clínicas (privado)..." rows="3"></textarea>
+        </div>
+        <div class="em-form-group">
+          <label class="em-label" style="display:flex;align-items:center;gap:6px">📋 Ejercicios / Tareas <span style="font-size:.72rem;background:rgba(56,178,172,.15);color:#38b2ac;padding:1px 7px;border-radius:20px">→ Se envía al paciente</span></label>
+          <textarea class="em-textarea" id="end-ejercicios" placeholder="Tareas o ejercicios para el paciente..." rows="3"></textarea>
+        </div>
+        <div class="em-form-group">
+          <label class="em-label" style="display:flex;align-items:center;gap:6px">💡 Recomendaciones <span style="font-size:.72rem;background:rgba(56,178,172,.15);color:#38b2ac;padding:1px 7px;border-radius:20px">→ Se envía al paciente</span></label>
+          <textarea class="em-textarea" id="end-recomendaciones" placeholder="Recomendaciones generales para el paciente..." rows="3"></textarea>
+        </div>
       </div>
-      <div class="em-modal-footer"><button class="em-btn em-btn-ghost" onclick="document.getElementById('end-session-modal').classList.remove('active')">Cancelar</button><button class="em-btn em-btn-danger" onclick="confirmEndSession()">Finalizar sesión</button></div>
+      <div class="em-modal-footer"><button class="em-btn em-btn-ghost" onclick="document.getElementById('end-session-modal').classList.remove('active')">Cancelar</button><button class="em-btn em-btn-danger" onclick="confirmEndSession()">📤 Finalizar y enviar</button></div>
     </div>
   </div>
   <!-- Patient summary modal -->
   <div class="em-modal-overlay" id="patient-summary-modal">
     <div class="em-modal">
-      <div class="em-modal-header"><h3 class="em-modal-title">📋 Resumen de sesión</h3></div>
+      <div class="em-modal-header"><h3 class="em-modal-title">💌 Recomendaciones de tu psicólogo</h3></div>
       <div class="em-modal-body">
-        <div class="em-summary-header"><div class="em-summary-icon">✅</div><h3>Sesión finalizada</h3><p style="color:var(--em-text-light)">Por favor revisa el resumen y firma para confirmar.</p></div>
+        <div class="em-summary-header"><div class="em-summary-icon">✅</div><h3>Sesión finalizada</h3><p style="color:var(--em-text-light)">Tu psicólogo te ha enviado las siguientes recomendaciones. Confírmalas para dejar constancia.</p></div>
         <div class="em-summary-section"><div class="em-summary-section-title">📋 Ejercicios y tareas</div><div class="em-summary-content" id="summary-ejercicios">—</div></div>
         <div class="em-summary-section"><div class="em-summary-section-title">💡 Recomendaciones</div><div class="em-summary-content" id="summary-recomendaciones">—</div></div>
-        <div class="em-signature-box"><h4>✍️ Firma de confirmación</h4><p>Al firmar confirmas que la sesión se realizó correctamente</p><button class="em-btn em-btn-primary" id="btn-sign" onclick="signSessionRecord()">✅ Firmar y confirmar</button></div>
+        <div class="em-signature-box"><h4>✅ Confirmar recepción</h4><p>Al confirmar dejas constancia de que recibiste las recomendaciones de tu psicólogo</p><button class="em-btn em-btn-primary" id="btn-sign" onclick="signSessionRecord()">✅ Confirmar recepción</button></div>
       </div>
     </div>
   </div>
@@ -2683,9 +2704,25 @@ async function doUpload(){
   const uid=EmotionApp.currentUser?.uid;if(!uid)return;
   const btn=document.getElementById('btn-do-upload');btn.disabled=true;btn.classList.add('em-loading');
   document.getElementById('upload-progress-wrap').classList.remove('em-hidden');
+  const ext=_uploadFile.name.split('.').pop().toLowerCase();
+  const tipo=RESOURCE_TYPES[ext]||(_uploadType==='video'?'video':'doc');
+  const publico=document.querySelector('input[name="upload-vis"]:checked')?.value==='publico';
+  const descripcion=document.getElementById('upload-descripcion').value;
   try{
-    const ext=_uploadFile.name.split('.').pop().toLowerCase();
-    const tipo=RESOURCE_TYPES[ext]||(_uploadType==='video'?'video':'doc');
+    if(AuthModule._isFirebaseDemo()){
+      // Simulate upload progress
+      for(let p=0;p<=100;p+=20){
+        document.getElementById('upload-prog-bar').style.width=p+'%';
+        document.getElementById('upload-prog-pct').textContent=p+'%';
+        await new Promise(r=>setTimeout(r,60));
+      }
+      const demoResources=JSON.parse(localStorage.getItem('emotion_demo_resources')||'[]');
+      const newRes={id:'res_'+Date.now(),psicologoId:uid,nombre,descripcion,tipo,ext,url:'#demo',tamaño:_uploadFile.size,publico,assignedTo:[],fechaSubida:new Date().toISOString(),vistas:0};
+      demoResources.push(newRes);
+      localStorage.setItem('emotion_demo_resources',JSON.stringify(demoResources));
+      EmotionApp.showAlert(`${_uploadType==='video'?'Video':'Recurso'} guardado en modo demo.`,'success');
+      closeUploadModal();await loadPsyResources();return;
+    }
     const path=`psychologists/${uid}/${_uploadType==='video'?'videos':'resources'}/${Date.now()}_${_uploadFile.name}`;
     const ref=EmotionApp.storage.ref(path);
     const task=ref.put(_uploadFile);
@@ -2693,16 +2730,12 @@ async function doUpload(){
       const pct=Math.round(snap.bytesTransferred/snap.totalBytes*100);
       document.getElementById('upload-prog-bar').style.width=pct+'%';
       document.getElementById('upload-prog-pct').textContent=pct+'%';
-      document.getElementById('upload-prog-label').textContent='Subiendo...';
     });
     await task;
     const url=await ref.getDownloadURL();
-    const publico=document.querySelector('input[name="upload-vis"]:checked')?.value==='publico';
-    const docData={psicologoId:uid,nombre,descripcion:document.getElementById('upload-descripcion').value,tipo,ext,url,path,tamaño:_uploadFile.size,publico,assignedTo:[],fechaSubida:firebase.firestore.FieldValue.serverTimestamp(),vistas:0};
-    await EmotionApp.db.collection('resources').add(docData);
+    await EmotionApp.db.collection('resources').add({psicologoId:uid,nombre,descripcion,tipo,ext,url,path,tamaño:_uploadFile.size,publico,assignedTo:[],fechaSubida:firebase.firestore.FieldValue.serverTimestamp(),vistas:0});
     EmotionApp.showAlert(`${_uploadType==='video'?'Video':'Recurso'} subido exitosamente.`,'success');
-    closeUploadModal();
-    await loadPsyResources();
+    closeUploadModal();await loadPsyResources();
   }catch(err){
     EmotionApp.showAlert('Error al subir: '+err.message,'error');
     btn.disabled=false;btn.classList.remove('em-loading');
@@ -2713,14 +2746,20 @@ async function doUpload(){
 async function loadPsyResources(){
   const uid=EmotionApp.currentUser?.uid;if(!uid)return;
   try{
-    const snap=await EmotionApp.db.collection('resources').where('psicologoId','==',uid).orderBy('fechaSubida','desc').get();
-    const all=snap.docs.map(d=>({id:d.id,...d.data()}));
+    let all=[];
+    if(AuthModule._isFirebaseDemo()){
+      const raw=JSON.parse(localStorage.getItem('emotion_demo_resources')||'[]');
+      all=raw.filter(r=>r.psicologoId===uid);
+    }else{
+      const snap=await EmotionApp.db.collection('resources').where('psicologoId','==',uid).orderBy('fechaSubida','desc').get();
+      all=snap.docs.map(d=>({id:d.id,...d.data()}));
+    }
     _psyResources=all.filter(r=>r.tipo!=='video');
     _psyVideos=all.filter(r=>r.tipo==='video');
     renderPsyResources(_psyResources);
     renderPsyVideos(_psyVideos);
-    document.getElementById('res-count-badge').textContent=_psyResources.length;
-    document.getElementById('vid-count-badge').textContent=_psyVideos.length;
+    setText('res-count-badge',_psyResources.length);
+    setText('vid-count-badge',_psyVideos.length);
     renderLandingResourcesList();
     renderLandingVideosList();
   }catch(e){console.error('loadPsyResources:',e);}
@@ -2772,6 +2811,7 @@ function switchResTab(tab,el){
 /* ─── Delete resource ─── */
 async function deleteResource(id,path){
   if(!confirm('¿Eliminar este recurso permanentemente?'))return;
+  if(AuthModule._isFirebaseDemo()){const raw=JSON.parse(localStorage.getItem('emotion_demo_resources')||'[]');localStorage.setItem('emotion_demo_resources',JSON.stringify(raw.filter(r=>r.id!==id)));EmotionApp.showAlert('Recurso eliminado.','success');await loadPsyResources();return;}
   try{
     await EmotionApp.db.collection('resources').doc(id).delete();
     if(path){try{await EmotionApp.storage.ref(path).delete();}catch{}}
@@ -2783,7 +2823,8 @@ async function deleteResource(id,path){
 /* ─── Toggle public/private ─── */
 async function toggleResPublic(id,val){
   try{
-    await EmotionApp.db.collection('resources').doc(id).update({publico:val});
+    if(AuthModule._isFirebaseDemo()){const raw=JSON.parse(localStorage.getItem('emotion_demo_resources')||'[]');const idx=raw.findIndex(r=>r.id===id);if(idx!==-1){raw[idx].publico=val;localStorage.setItem('emotion_demo_resources',JSON.stringify(raw));}
+    }else{await EmotionApp.db.collection('resources').doc(id).update({publico:val});}
     await loadPsyResources();
     EmotionApp.showAlert(val?'Recurso marcado como público.':'Recurso marcado como privado.','success');
   }catch{EmotionApp.showAlert('Error.','error');}
@@ -2808,7 +2849,11 @@ function filterAssignPatients(q){renderAssignPatients((_psyPatients||[]).filter(
 async function assignResourceToPatient(patientId,patientName){
   if(!_assignResourceId)return;
   try{
-    await EmotionApp.db.collection('resources').doc(_assignResourceId).update({assignedTo:firebase.firestore.FieldValue.arrayUnion(patientId)});
+    if(AuthModule._isFirebaseDemo()){
+      const raw=JSON.parse(localStorage.getItem('emotion_demo_resources')||'[]');
+      const idx=raw.findIndex(r=>r.id===_assignResourceId);
+      if(idx!==-1){if(!raw[idx].assignedTo)raw[idx].assignedTo=[];if(!raw[idx].assignedTo.includes(patientId))raw[idx].assignedTo.push(patientId);localStorage.setItem('emotion_demo_resources',JSON.stringify(raw));}
+    }else{await EmotionApp.db.collection('resources').doc(_assignResourceId).update({assignedTo:firebase.firestore.FieldValue.arrayUnion(patientId)});}
     document.getElementById('assign-modal').classList.remove('active');
     EmotionApp.showAlert(`Recurso asignado a ${patientName}.`,'success');
   }catch{EmotionApp.showAlert('Error al asignar.','error');}
@@ -2948,6 +2993,7 @@ async function loadPatientData(){
       renderNextSessionCard(next,psyd);
     }else{setText('ps-psy','—');document.getElementById('pat-next-session').innerHTML=`<div class="em-banner"><div class="em-banner-icon">🌱</div><div class="em-banner-content"><div class="em-banner-title">¡Comienza tu terapia!</div><div class="em-banner-text">Busca un psicólogo y agenda tu primera sesión.</div></div><div class="em-banner-action"><button class="em-btn em-btn-primary em-btn-sm" onclick="showPatientPanel('buscar')">Buscar</button></div></div>`;}
     loadMyPsychologists(uid);
+    checkPendingRecommendations();
   }catch(e){console.error(e);}
 }
 function renderNextSessionCard(s,psyd){
@@ -3010,14 +3056,70 @@ async function loadPatientResources(){
 async function loadPatientHistory(){
   const body=document.getElementById('pat-historial-body'); if(!body)return;
   const completed=_patSessions.filter(s=>s.estado==='completed');
-  if(!completed.length){body.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--em-text-light)">Sin historial</td></tr>`;return;}
-  body.innerHTML=await Promise.all(completed.map(async s=>{const psyd=await EmotionApp.getUserData(s.psicologoId);return `<tr><td>${s.fecha||'—'}</td><td>${psyd?.nombre||'—'}</td><td>50 min</td><td><span class="em-badge em-badge-completed">Completada</span></td><td>${EmotionApp.formatPrice(s.precio||0,s.moneda||'USD')}</td></tr>`;})).then(a=>a.join(''));
+  if(!completed.length){body.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--em-text-light)">Sin historial</td></tr>`;return;}
+  const notes=AuthModule._isFirebaseDemo()?JSON.parse(localStorage.getItem('emotion_demo_session_notes')||'{}'):{};
+  const records=AuthModule._isFirebaseDemo()?JSON.parse(localStorage.getItem('emotion_demo_session_records')||'{}'):{};
+  body.innerHTML=await Promise.all(completed.map(async s=>{
+    const psyd=await EmotionApp.getUserData(s.psicologoId);
+    const hasNote=!!notes[s.id];
+    const confirmed=!!records[s.id];
+    const notasCell=hasNote
+      ?`<div style="display:flex;gap:6px;flex-wrap:wrap"><button class="em-btn em-btn-sm" style="font-size:.75rem;padding:4px 8px" onclick="showSessionNote('${s.id}')">👁 Ver</button>${!confirmed?`<button class="em-btn em-btn-primary em-btn-sm" style="font-size:.75rem;padding:4px 8px" onclick="confirmPendingReco('${s.id}')">✅ Confirmar</button>`:'<span class="em-badge em-badge-approved" style="font-size:.75rem">Recibido</span>'}</div>`
+      :'<span style="color:var(--em-text-light);font-size:.8rem">—</span>';
+    return `<tr><td>${s.fecha||'—'}</td><td>${psyd?.nombre||'—'}</td><td>50 min</td><td><span class="em-badge em-badge-completed">Completada</span></td><td>${EmotionApp.formatPrice(s.precio||0,s.moneda||'USD')}</td><td>${notasCell}</td></tr>`;
+  })).then(a=>a.join(''));
+}
+async function checkPendingRecommendations(){
+  const c=document.getElementById('pat-pending-recos'); if(!c)return;
+  if(!AuthModule._isFirebaseDemo()){c.innerHTML='';return;}
+  const notes=JSON.parse(localStorage.getItem('emotion_demo_session_notes')||'{}');
+  const records=JSON.parse(localStorage.getItem('emotion_demo_session_records')||'{}');
+  const uid=EmotionApp.currentUser?.uid||'';
+  const pending=Object.entries(notes).filter(([sessId,n])=>n.pacienteId===uid&&!records[sessId]);
+  if(!pending.length){c.innerHTML='';return;}
+  c.innerHTML=pending.map(([sessId,n])=>`
+    <div style="background:linear-gradient(135deg,rgba(56,178,172,.1),rgba(128,90,213,.1));border:2px solid rgba(56,178,172,.4);border-radius:12px;padding:18px 20px;margin-bottom:12px;display:flex;align-items:flex-start;gap:16px">
+      <div style="font-size:2rem;flex-shrink:0">💌</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:1rem;margin-bottom:4px">Recomendaciones de tu psicólogo</div>
+        <div style="font-size:.85rem;color:var(--em-text-light);margin-bottom:10px">Sesión del ${n.fecha||'—'} · Pendiente de confirmación</div>
+        ${n.ejercicios?`<div style="background:var(--em-surface);border-radius:8px;padding:10px 14px;margin-bottom:8px"><div style="font-size:.75rem;font-weight:600;color:var(--em-primary);margin-bottom:4px">📋 EJERCICIOS / TAREAS</div><div style="font-size:.88rem;white-space:pre-wrap">${n.ejercicios}</div></div>`:''}
+        ${n.recomendaciones?`<div style="background:var(--em-surface);border-radius:8px;padding:10px 14px;margin-bottom:12px"><div style="font-size:.75rem;font-weight:600;color:var(--em-mint);margin-bottom:4px">💡 RECOMENDACIONES</div><div style="font-size:.88rem;white-space:pre-wrap">${n.recomendaciones}</div></div>`:''}
+        <button class="em-btn em-btn-primary" onclick="confirmPendingReco('${sessId}')">✅ Confirmar recepción</button>
+      </div>
+    </div>`).join('');
+}
+async function confirmPendingReco(sessId){
+  const uid=EmotionApp.currentUser?.uid; if(!uid)return;
+  if(AuthModule._isFirebaseDemo()){
+    const records=JSON.parse(localStorage.getItem('emotion_demo_session_records')||'{}');
+    records[sessId]={sessionId:sessId,pacienteId:uid,firmado:true,recibido:true,fechaFirma:new Date().toISOString()};
+    localStorage.setItem('emotion_demo_session_records',JSON.stringify(records));
+  }else{
+    await EmotionApp.db.collection('session_records').doc(sessId).set({sessionId:sessId,pacienteId:uid,firmado:true,recibido:true,fechaFirma:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+  }
+  EmotionApp.showAlert('Recepción confirmada. Quedó registrado.','success');
+  await checkPendingRecommendations();
+  await loadPatientHistory();
+}
+function showSessionNote(sessId){
+  const notes=JSON.parse(localStorage.getItem('emotion_demo_session_notes')||'{}');
+  const n=notes[sessId]; if(!n)return;
+  const records=JSON.parse(localStorage.getItem('emotion_demo_session_records')||'{}');
+  const confirmed=!!records[sessId];
+  EmotionApp.showAlert(`📋 Ejercicios:\n${n.ejercicios||'—'}\n\n💡 Recomendaciones:\n${n.recomendaciones||'—'}\n\n${confirmed?'✅ Recibido y confirmado':'⏳ Pendiente de confirmación'}`,'info');
 }
 async function savePatientProfile(e){
   e.preventDefault();
-  const uid=EmotionApp.currentUser?.uid; if(!uid)return;
+  const uid=EmotionApp.currentUser?.uid;if(!uid)return;
+  const data={nombre:document.getElementById('pat-prof-nombre')?.value||'',telefono:document.getElementById('pat-prof-tel')?.value||'',fechaNacimiento:document.getElementById('pat-prof-dob')?.value||'',pais:document.getElementById('pat-prof-pais')?.value||''};
   try{
-    await EmotionApp.db.collection(EmotionApp.COLLECTIONS.USERS).doc(uid).update({nombre:document.getElementById('pat-prof-nombre').value,telefono:document.getElementById('pat-prof-tel').value,fechaNacimiento:document.getElementById('pat-prof-dob').value,pais:document.getElementById('pat-prof-pais').value});
+    if(AuthModule._isFirebaseDemo()){
+      const users=JSON.parse(localStorage.getItem('emotion_demo_users')||'{}');
+      if(users[uid]){Object.assign(users[uid],data);localStorage.setItem('emotion_demo_users',JSON.stringify(users));}
+      EmotionApp.currentUserData={...EmotionApp.currentUserData,...data};
+    }else{await EmotionApp.db.collection(EmotionApp.COLLECTIONS.USERS).doc(uid).update(data);}
+    setText('pat-sidebar-name',data.nombre||EmotionApp.currentUserData?.nombre||'');
     EmotionApp.showAlert('Perfil actualizado correctamente.','success');
   }catch{EmotionApp.showAlert('Error al guardar.','error');}
 }
@@ -3264,7 +3366,16 @@ function renderPsyPatients(list){
 function filterPsyPatients(q){renderPsyPatients(_psyPatients.filter(p=>(p.nombre||'').toLowerCase().includes(q.toLowerCase())));}
 async function savePsyProfile(e){
   e.preventDefault();const uid=EmotionApp.currentUser?.uid;if(!uid)return;
-  try{await EmotionApp.db.collection(EmotionApp.COLLECTIONS.USERS).doc(uid).update({nombre:document.getElementById('psy-prof-nombre').value,anosExperiencia:parseInt(document.getElementById('psy-prof-anos').value)||0,precio:parseFloat(document.getElementById('psy-prof-precio').value)||0,descripcion:document.getElementById('psy-prof-descripcion').value});EmotionApp.showAlert('Perfil actualizado.','success');}catch{EmotionApp.showAlert('Error.','error');}
+  const data={nombre:document.getElementById('psy-prof-nombre')?.value||'',anosExperiencia:parseInt(document.getElementById('psy-prof-anos')?.value)||0,precio:parseFloat(document.getElementById('psy-prof-precio')?.value)||0,descripcion:document.getElementById('psy-prof-descripcion')?.value||''};
+  try{
+    if(AuthModule._isFirebaseDemo()){
+      const users=JSON.parse(localStorage.getItem('emotion_demo_users')||'{}');
+      if(users[uid]){Object.assign(users[uid],data);localStorage.setItem('emotion_demo_users',JSON.stringify(users));}
+      EmotionApp.currentUserData={...EmotionApp.currentUserData,...data};
+    }else{await EmotionApp.db.collection(EmotionApp.COLLECTIONS.USERS).doc(uid).update(data);}
+    setText('psy-sidebar-name',data.nombre||EmotionApp.currentUserData?.nombre||'');
+    EmotionApp.showAlert('Perfil actualizado.','success');
+  }catch{EmotionApp.showAlert('Error.','error');}
 }
 function buildAvailabilityManager(){
   const container=document.getElementById('availability-manager'); if(!container)return;
@@ -3362,9 +3473,12 @@ function renderAdminPatients(list){
 }
 async function renderAdminSessions(list){
   const body=document.getElementById('admin-sessions-body');if(!body)return;
+  const sessionRecords=AuthModule._isFirebaseDemo()?JSON.parse(localStorage.getItem('emotion_demo_session_records')||'{}'):{};
   body.innerHTML=await Promise.all(list.map(async s=>{
     const [pat,psy]=await Promise.all([EmotionApp.getUserData(s.pacienteId),EmotionApp.getUserData(s.psicologoId)]);
-    return `<tr><td>${s.fecha||'—'}</td><td>${pat?.nombre||'—'}</td><td>${psy?.nombre||'—'}</td><td>${s.hora||'—'}</td><td><span class="em-badge em-badge-${s.estado||'pending'}">${s.estado||'—'}</span></td><td>${EmotionApp.formatPrice(s.precio||0,s.moneda||'USD')}</td></tr>`;
+    const rec=sessionRecords[s.id];
+    const recibidoBadge=rec?.recibido?`<span class="em-badge em-badge-approved">✅ Recibido</span><br><small style="color:var(--em-text-light);font-size:.75rem">${(rec.fechaFirma||'').slice(0,10)}</small>`:'<span style="color:var(--em-text-light);font-size:.8rem">—</span>';
+    return `<tr><td>${s.fecha||'—'}</td><td>${pat?.nombre||'—'}</td><td>${psy?.nombre||'—'}</td><td>${s.hora||'—'}</td><td><span class="em-badge em-badge-${s.estado||'pending'}">${s.estado||'—'}</span></td><td>${EmotionApp.formatPrice(s.precio||0,s.moneda||'USD')}</td><td>${recibidoBadge}</td></tr>`;
   })).then(a=>a.join(''));
 }
 function filterAdminPsychs(q){renderAdminPsychs(_adminPsychs.filter(p=>(p.nombre||'').toLowerCase().includes(q.toLowerCase())||(p.email||'').toLowerCase().includes(q.toLowerCase())));}
@@ -3412,7 +3526,7 @@ async function saveCommission(){
 /* ═══════════════════════════════════════════════════════
    PAGE: SESSION — INIT & LOGIC
    ═══════════════════════════════════════════════════════ */
-let _sessData=null,_sessTimer=null,_sessSeconds=0,_sessIsPsy=false,_sessRtdbRef=null;
+let _sessData=null,_sessTimer=null,_sessSeconds=0,_sessIsPsy=false,_sessRtdbRef=null,_sessStorageListener=null,_sessEndPollInterval=null,_demoChatSessionId=null,_demoChatUserId=null,_demoChatUserName=null,_demoChatStorageHandler=null;
 
 window.initPage_session = async function(params={}){
   const {user,userData}=await EmotionApp.checkAuthAndRedirect();
@@ -3438,7 +3552,10 @@ window.initPage_session = async function(params={}){
     setText('sess-info-psychologist',_sessIsPsy?userData.nombre||'—':otherUser?.nombre||'—');
     setText('sess-info-date',_sessData.fecha||'—');
     setText('sess-info-time',_sessData.hora||'—');
-    if(_sessIsPsy){document.getElementById('notes-psy-view')?.classList.remove('em-hidden');}
+    if(_sessIsPsy){
+      document.getElementById('notes-psy-view')?.classList.remove('em-hidden');
+      setTimeout(()=>switchSessionPanel('notas',document.querySelectorAll('.em-sidebar-tab-btn')[1]),300);
+    }
     else{document.getElementById('notes-patient-view')?.classList.remove('em-hidden');initSessionEndListener(sessionId);}
     switchSessionPanel('chat',document.querySelector('.em-sidebar-tab-btn'));
     initRealtimeChat(sessionId,user.uid,userData.nombre);
@@ -3448,13 +3565,11 @@ function startVideoCall(){
   if(!_sessData?.id)return;
   document.getElementById('video-placeholder').style.display='none';
   const container=document.getElementById('jitsi-container');
-  if(container) container.style.display='block';
-  SessionModule.launchJitsi(_sessData.id,'jitsi-container');
-  if(window._jitsiApi){
-    window._jitsiApi.addEventListeners({
-      readyToClose:()=>requestEndSession(),
-      videoConferenceLeft:()=>requestEndSession(),
-    });
+  if(container)container.style.display='block';
+  const api=SessionModule.launchJitsi(_sessData.id,'jitsi-container');
+  const japi=api||window._jitsiApi;
+  if(japi){
+    try{japi.addEventListeners({readyToClose:()=>requestEndSession(),videoConferenceLeft:()=>requestEndSession()});}catch(e){}
   }
   startSessionTimer();
 }
@@ -3474,12 +3589,14 @@ function switchSessionPanel(panel,btn){
 }
 function requestEndSession(){
   if(_sessIsPsy){
+    const diag=document.getElementById('notes-diagnostico')?.value||'';
     const notes=document.getElementById('notes-ejercicios')?.value||'';
     const rec=document.getElementById('notes-recomendaciones')?.value||'';
+    const ed=document.getElementById('end-diagnostico');if(ed)ed.value=diag;
     const ee=document.getElementById('end-ejercicios');if(ee)ee.value=notes;
     const er=document.getElementById('end-recomendaciones');if(er)er.value=rec;
     document.getElementById('end-session-modal').classList.add('active');
-  }else{EmotionApp.showAlert('Solo el psicólogo puede finalizar la sesión.','info');}
+  }else{EmotionApp.showAlert('El psicólogo debe finalizar la sesión.','info');}
 }
 async function confirmEndSession(){
   if(!_sessData?.id)return;
@@ -3487,29 +3604,56 @@ async function confirmEndSession(){
   if(window._jitsiApi){try{window._jitsiApi.dispose();}catch(e){} window._jitsiApi=null;}
   const ej=document.getElementById('end-ejercicios')?.value||'';
   const rec=document.getElementById('end-recomendaciones')?.value||'';
-  const diag=document.getElementById('notes-diagnostico')?.value||'';
+  const diag=document.getElementById('end-diagnostico')?.value||document.getElementById('notes-diagnostico')?.value||'';
   try{
     if(AuthModule._isFirebaseDemo()){
       const sessions=JSON.parse(localStorage.getItem('emotion_demo_sessions')||'[]');
       const idx=sessions.findIndex(s=>s.id===_sessData.id);
       if(idx!==-1){sessions[idx].estado='completed';sessions[idx].duracionReal=_sessSeconds;localStorage.setItem('emotion_demo_sessions',JSON.stringify(sessions));}
-    }else{
-      await EmotionApp.db.collection(EmotionApp.COLLECTIONS.SESSION_NOTES).doc(_sessData.id).set({sessionId:_sessData.id,diagnostico:diag,ejercicios:ej,recomendaciones:rec,fechaCreacion:firebase.firestore.FieldValue.serverTimestamp()});
-      await EmotionApp.db.collection(EmotionApp.COLLECTIONS.SESSIONS).doc(_sessData.id).update({estado:'completed',duracionReal:_sessSeconds});
-      EmotionApp.rtdb.ref(`sessions/${_sessData.id}/ended`).set({ej,rec,timestamp:Date.now()});
+      const notes=JSON.parse(localStorage.getItem('emotion_demo_session_notes')||'{}');
+      notes[_sessData.id]={sessionId:_sessData.id,diagnostico:diag,ejercicios:ej,recomendaciones:rec,psicologoId:_sessData.psicologoId,pacienteId:_sessData.pacienteId,fecha:_sessData.fecha,fechaCreacion:new Date().toISOString()};
+      localStorage.setItem('emotion_demo_session_notes',JSON.stringify(notes));
+      localStorage.setItem('emotion_session_ended_'+_sessData.id,JSON.stringify({ej,rec,diag,timestamp:Date.now()}));
+      document.getElementById('end-session-modal').classList.remove('active');
+      EmotionApp.showAlert('Sesión finalizada. Las recomendaciones fueron enviadas al paciente.','success');
+      setTimeout(()=>EmotionRouter.navigate('psychologist'),1800);
+      return;
     }
+    await EmotionApp.db.collection(EmotionApp.COLLECTIONS.SESSION_NOTES).doc(_sessData.id).set({sessionId:_sessData.id,diagnostico:diag,ejercicios:ej,recomendaciones:rec,psicologoId:_sessData.psicologoId,pacienteId:_sessData.pacienteId,fecha:_sessData.fecha,fechaCreacion:firebase.firestore.FieldValue.serverTimestamp()});
+    await EmotionApp.db.collection(EmotionApp.COLLECTIONS.SESSIONS).doc(_sessData.id).update({estado:'completed',duracionReal:_sessSeconds});
+    EmotionApp.rtdb.ref(`sessions/${_sessData.id}/ended`).set({ej,rec,diag,timestamp:Date.now()});
     document.getElementById('end-session-modal').classList.remove('active');
     EmotionApp.showAlert('Sesión finalizada correctamente.','success');
     setTimeout(()=>EmotionRouter.navigate('psychologist'),1500);
-  }catch(e){EmotionApp.showAlert('Error al finalizar.','error');}
+  }catch(e){EmotionApp.showAlert('Error al finalizar.','error');console.error(e);}
 }
 function initSessionEndListener(sessionId){
+  if(AuthModule._isFirebaseDemo()){
+    const key='emotion_session_ended_'+sessionId;
+    function checkAndShow(){
+      const raw=localStorage.getItem(key);if(!raw)return false;
+      try{
+        const data=JSON.parse(raw);
+        setText('summary-ejercicios',data.ej||'Sin ejercicios');
+        setText('summary-recomendaciones',data.rec||'Sin recomendaciones');
+        document.getElementById('patient-summary-modal').classList.add('active');
+        return true;
+      }catch{return false;}
+    }
+    if(!checkAndShow()){
+      const handler=e=>{if(e.key===key)checkAndShow();};
+      window.addEventListener('storage',handler);
+      _sessStorageListener=handler;
+      _sessEndPollInterval=setInterval(()=>{if(checkAndShow()){clearInterval(_sessEndPollInterval);_sessEndPollInterval=null;}},3000);
+    }
+    return;
+  }
   _sessRtdbRef=EmotionApp.rtdb.ref(`sessions/${sessionId}/ended`);
   _sessRtdbRef.on('value',snap=>{
     if(!snap.val())return;
     const data=snap.val();
-    setText('summary-ejercicios',data.ej||'—');
-    setText('summary-recomendaciones',data.rec||'—');
+    setText('summary-ejercicios',data.ej||'Sin ejercicios');
+    setText('summary-recomendaciones',data.rec||'Sin recomendaciones');
     document.getElementById('patient-summary-modal').classList.add('active');
   });
 }
@@ -3517,21 +3661,46 @@ async function signSessionRecord(){
   if(!_sessData?.id)return;
   const uid=EmotionApp.currentUser?.uid;
   try{
-    await EmotionApp.db.collection(EmotionApp.COLLECTIONS.SESSION_RECORDS).doc(_sessData.id).set({sessionId:_sessData.id,pacienteId:uid,firmado:true,fechaFirma:firebase.firestore.FieldValue.serverTimestamp()});
-    document.getElementById('btn-sign').textContent='✅ Firmado';
-    document.getElementById('btn-sign').disabled=true;
-    EmotionApp.showAlert('Sesión firmada correctamente.','success');
-    setTimeout(()=>EmotionRouter.navigate('patient'),1500);
-  }catch{EmotionApp.showAlert('Error al firmar.','error');}
+    if(AuthModule._isFirebaseDemo()){
+      const records=JSON.parse(localStorage.getItem('emotion_demo_session_records')||'{}');
+      records[_sessData.id]={sessionId:_sessData.id,pacienteId:uid,firmado:true,recibido:true,fechaFirma:new Date().toISOString()};
+      localStorage.setItem('emotion_demo_session_records',JSON.stringify(records));
+      localStorage.removeItem('emotion_session_ended_'+_sessData.id);
+    }else{
+      await EmotionApp.db.collection(EmotionApp.COLLECTIONS.SESSION_RECORDS).doc(_sessData.id).set({sessionId:_sessData.id,pacienteId:uid,firmado:true,recibido:true,fechaFirma:firebase.firestore.FieldValue.serverTimestamp()});
+    }
+    const btn=document.getElementById('btn-sign');if(btn){btn.textContent='✅ Recibido';btn.disabled=true;}
+    EmotionApp.showAlert('Recomendaciones confirmadas.','success');
+    if(_sessEndPollInterval){clearInterval(_sessEndPollInterval);_sessEndPollInterval=null;}
+    if(_sessStorageListener){window.removeEventListener('storage',_sessStorageListener);_sessStorageListener=null;}
+    setTimeout(()=>EmotionRouter.navigate('patient'),1800);
+  }catch(e){EmotionApp.showAlert('Error al confirmar.','error');console.error(e);}
 }
 function initRealtimeChat(sessionId,userId,userName){
+  if(AuthModule._isFirebaseDemo()){
+    _demoChatSessionId=sessionId;_demoChatUserId=userId;_demoChatUserName=userName;
+    const key='emotion_demo_chat_'+sessionId;
+    function loadDemoChat(){const msgs=JSON.parse(localStorage.getItem(key)||'[]');const c=document.getElementById('chat-messages');if(!c)return;c.innerHTML='';msgs.forEach(m=>appendChatMessage(m,m.userId===userId));}
+    loadDemoChat();
+    const h=e=>{if(e.key===key)loadDemoChat();};
+    window.addEventListener('storage',h);_demoChatStorageHandler=h;
+    return;
+  }
   const ref=EmotionApp.rtdb.ref(`chat/${sessionId}`);
   ref.on('child_added',snap=>{const msg=snap.val();if(msg)appendChatMessage(msg,msg.userId===userId);});
 }
 function sendChatMessage(){
   const input=document.getElementById('chat-input');const text=input?.value?.trim();if(!text||!_sessData?.id)return;
   const uid=EmotionApp.currentUser?.uid;const name=EmotionApp.currentUserData?.nombre||'Usuario';
-  EmotionApp.rtdb.ref(`chat/${_sessData.id}`).push({userId:uid,userName:name,text,timestamp:Date.now()});
+  const msg={userId:uid,userName:name,text,timestamp:Date.now()};
+  if(AuthModule._isFirebaseDemo()){
+    const key='emotion_demo_chat_'+_sessData.id;
+    const msgs=JSON.parse(localStorage.getItem(key)||'[]');
+    msgs.push(msg);localStorage.setItem(key,JSON.stringify(msgs));
+    appendChatMessage(msg,true);
+  }else{
+    EmotionApp.rtdb.ref(`chat/${_sessData.id}`).push(msg);
+  }
   if(input)input.value='';
 }
 function appendChatMessage(msg,isOwn){
@@ -3752,8 +3921,13 @@ async function renderCDSessions(){
   if(!psychIds.length){c.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--em-text-light)">Sin psicólogos en la clínica</td></tr>`;return;}
   const allSess=AuthModule._isFirebaseDemo()?JSON.parse(localStorage.getItem('emotion_demo_sessions')||'[]'):[];
   const sess=allSess.filter(s=>psychIds.includes(s.psicologoId));
-  if(!sess.length){c.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--em-text-light)">Sin sesiones aún</td></tr>`;return;}
-  c.innerHTML=sess.slice(0,30).map(s=>`<tr><td>${s.fecha||'—'}</td><td>${(s.psicologoId||'').slice(-6)}</td><td>${s.hora||'—'}</td><td><span class="em-badge em-badge-${s.estado||'pending'}">${s.estado||'—'}</span></td><td>50 min</td></tr>`).join('');
+  if(!sess.length){c.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--em-text-light)">Sin sesiones aún</td></tr>`;return;}
+  const cdRecords=AuthModule._isFirebaseDemo()?JSON.parse(localStorage.getItem('emotion_demo_session_records')||'{}'):{};
+  c.innerHTML=sess.slice(0,30).map(s=>{
+    const rec=cdRecords[s.id];
+    const rb=rec?.recibido?`<span class="em-badge em-badge-approved">✅</span>`:'<span style="color:var(--em-text-light)">—</span>';
+    return `<tr><td>${s.fecha||'—'}</td><td>${(s.psicologoId||'').slice(-6)}</td><td>${s.hora||'—'}</td><td><span class="em-badge em-badge-${s.estado||'pending'}">${s.estado||'—'}</span></td><td>50 min</td><td>${rb}</td></tr>`;
+  }).join('');
 }
 async function renderCDSupervisores(){
   const c=document.getElementById('cd-supervisores-list');if(!c)return;
