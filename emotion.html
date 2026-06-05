@@ -1454,9 +1454,10 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15}h2{font-siz
         <div id="jitsi-container" style="width:100%;height:100%;display:none;border-radius:12px;overflow:hidden"></div>
         <div class="em-video-placeholder" id="video-placeholder">
           <div class="icon">📹</div>
-          <h3>Sesión de videollamada</h3>
-          <p style="font-size:.9rem;color:rgba(255,255,255,.5);max-width:300px;text-align:center">Presiona "Iniciar sesión" para comenzar la videollamada con tu psicólogo</p>
-          <button class="em-btn em-btn-primary" onclick="startVideoCall()" id="btn-start-call">📹 Iniciar videollamada</button>
+          <h3>Preparando videollamada...</h3>
+          <p style="font-size:.9rem;color:rgba(255,255,255,.5);max-width:300px;text-align:center">Activando cámara y micrófono. Por favor espera.</p>
+          <div style="width:40px;height:40px;border:3px solid rgba(255,255,255,.2);border-top-color:var(--em-mint);border-radius:50%;animation:em-spin 1s linear infinite;margin:0 auto 16px"></div>
+          <button class="em-btn em-btn-outline" onclick="startVideoCall()" id="btn-start-call" style="opacity:.6;font-size:.82rem;padding:8px 16px">Si no inicia — clic aquí</button>
         </div>
         <div class="em-session-controls">
           <button class="em-ctrl-btn" id="btn-mic" onclick="toggleMic()" title="Micrófono">🎤</button>
@@ -3043,7 +3044,8 @@ async function loadPatientData(){
 }
 function renderNextSessionCard(s,psyd){
   const el=document.getElementById('pat-next-session'); if(!el)return;
-  el.innerHTML=`<div class="em-next-session-card" style="margin-bottom:24px"><div><div class="em-next-session-label">Próxima sesión</div><div class="em-next-session-title">Sesión con ${psyd?.nombre||'tu psicólogo'}</div><div class="em-next-session-info"><div class="em-next-session-info-item">📅 ${s.fecha}</div><div class="em-next-session-info-item">🕐 ${s.hora}</div></div><div id="pat-countdown-${s.id}"></div></div><div><button class="em-join-btn" onclick="joinSession('${s.id}')">📹 Unirse</button></div></div>`;
+  const jUrl=s.jitsiUrl||('https://meet.jit.si/emotion-session-'+s.id);
+  el.innerHTML=`<div class="em-next-session-card" style="margin-bottom:24px"><div style="flex:1"><div class="em-next-session-label">Próxima sesión programada</div><div class="em-next-session-title">Sesión con ${psyd?.nombre||'tu psicólogo'}</div><div class="em-next-session-info"><div class="em-next-session-info-item">📅 ${s.fecha}</div><div class="em-next-session-info-item">🕐 ${s.hora}</div><div class="em-next-session-info-item">⏱ 50 min</div></div><div id="pat-countdown-${s.id}" style="margin-top:8px"></div><div style="margin-top:10px;font-size:.78rem;color:rgba(255,255,255,.45)">🔗 Sala: <code style="color:rgba(255,255,255,.65)">${jUrl}</code></div></div><div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end"><button class="em-join-btn" onclick="joinSession('${s.id}')">📹 Unirse a la sesión</button><a href="${jUrl}" target="_blank" style="font-size:.75rem;color:rgba(255,255,255,.4);text-align:center">Abrir en nueva pestaña</a></div></div>`;
   CalendarModule.renderCountdown(`pat-countdown-${s.id}`,s.fecha,s.hora);
 }
 async function loadMyPsychologists(uid){
@@ -3256,7 +3258,8 @@ async function loadPsyData(){
     const confirmed=_psySessions.filter(s=>s.estado==='confirmed').sort((a,b)=>a.fecha>b.fecha?1:-1);
     if(confirmed.length){
       const next=confirmed[0];const patd=await EmotionApp.getUserData(next.pacienteId);
-      document.getElementById('psy-next-session-card').innerHTML=`<div class="em-next-session-card"><div><div class="em-next-session-label">Próxima sesión</div><div class="em-next-session-title">Sesión con ${patd?.nombre||'Paciente'}</div><div class="em-next-session-info"><div class="em-next-session-info-item">📅 ${next.fecha}</div><div class="em-next-session-info-item">🕐 ${next.hora}</div></div></div><div><button class="em-join-btn" onclick="joinSession('${next.id}')">📹 Iniciar</button></div></div>`;
+      const nJUrl=next.jitsiUrl||('https://meet.jit.si/emotion-session-'+next.id);
+      document.getElementById('psy-next-session-card').innerHTML=`<div class="em-next-session-card"><div style="flex:1"><div class="em-next-session-label">Próxima sesión programada</div><div class="em-next-session-title">Sesión con ${patd?.nombre||'Paciente'}</div><div class="em-next-session-info"><div class="em-next-session-info-item">📅 ${next.fecha}</div><div class="em-next-session-info-item">🕐 ${next.hora}</div><div class="em-next-session-info-item">⏱ 50 min</div></div><div style="margin-top:10px;font-size:.78rem;color:rgba(255,255,255,.45)">🔗 Sala: <code style="color:rgba(255,255,255,.65)">${nJUrl}</code></div></div><div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end"><button class="em-join-btn" onclick="joinSession('${next.id}')">📹 Iniciar sesión</button><a href="${nJUrl}" target="_blank" style="font-size:.75rem;color:rgba(255,255,255,.4);text-align:center">Abrir en nueva pestaña</a></div></div>`;
     }
     // Pending sessions
     const pc=document.getElementById('psy-pending-sessions');
@@ -3319,8 +3322,11 @@ async function loadPatientCitas(status='programadas'){
     const jitsiUrl=s.jitsiUrl||('https://meet.jit.si/emotion-session-'+s.id);
     const isProg=['confirmed','pending'].includes(s.estado), isCan=s.estado==='cancelled';
     const pnombre=(psyd?.nombre||'').replace(/'/g,"\\'");
-    const actions=isProg?`<button class="em-btn em-btn-primary em-btn-sm" onclick="joinSession('${s.id}')">📹 Unirse</button><button class="em-btn em-btn-outline em-btn-sm" onclick="openRescheduleModal('${s.id}','patient','${s.psicologoId}','${pnombre}')">↩ Reprogramar</button><button class="em-btn em-btn-ghost em-btn-sm em-btn-danger-ghost" onclick="cancelSession('${s.id}','patient')">✕ Cancelar</button>`:isCan?`<button class="em-btn em-btn-outline em-btn-sm" onclick="openRescheduleModal('${s.id}','patient','${s.psicologoId}','${pnombre}')">↩ Reprogramar</button>`:'';
-    return `<div class="em-cita-card ${cls}"><div class="em-cita-date-box"><div class="em-cita-day">${day}</div><div class="em-cita-month">${month}</div></div><div class="em-cita-info"><div class="em-cita-header"><div class="em-cita-title">Sesión con ${psyd?.nombre||'Psicólogo'}</div><span class="em-badge em-badge-${cls}" style="white-space:nowrap">${label}</span></div><div class="em-cita-meta"><span class="em-session-meta-item">🕐 ${s.hora||'—'}</span><span class="em-session-meta-item">💳 ${EmotionApp.formatPrice(s.precio||0,s.moneda||'USD')}</span>${isProg?`<span class="em-session-meta-item">🔗 <a href="${jitsiUrl}" target="_blank" style="color:var(--em-mint);text-decoration:underline">Link Jitsi</a></span>`:''}</div></div><div class="em-cita-actions">${actions}</div></div>`;
+    const actions=isProg
+      ?`<button class="em-btn em-btn-primary em-btn-sm" onclick="joinSession('${s.id}')">📹 Unirse a la sesión</button><button class="em-btn em-btn-outline em-btn-sm" onclick="openRescheduleModal('${s.id}','patient','${s.psicologoId}','${pnombre}')">↩ Reprogramar</button><button class="em-btn em-btn-ghost em-btn-sm em-btn-danger-ghost" onclick="cancelSession('${s.id}','patient')">✕ Cancelar</button>`
+      :isCan?`<button class="em-btn em-btn-outline em-btn-sm" onclick="openRescheduleModal('${s.id}','patient','${s.psicologoId}','${pnombre}')">↩ Reprogramar</button>`:'';
+    const videoLink=isProg?`<div style="margin-top:8px;padding:8px 10px;background:rgba(56,178,172,.1);border:1px solid rgba(56,178,172,.25);border-radius:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:.78rem;color:var(--em-mint);font-weight:600">📹 Sala de video:</span><code style="font-size:.72rem;color:var(--em-text-light);word-break:break-all">${jitsiUrl}</code><a href="${jitsiUrl}" target="_blank" style="font-size:.72rem;color:var(--em-mint);white-space:nowrap">↗ abrir</a></div>`:'';
+    return `<div class="em-cita-card ${cls}"><div class="em-cita-date-box"><div class="em-cita-day">${day}</div><div class="em-cita-month">${month}</div></div><div class="em-cita-info"><div class="em-cita-header"><div class="em-cita-title">Sesión con ${psyd?.nombre||'Psicólogo'}</div><span class="em-badge em-badge-${cls}" style="white-space:nowrap">${label}</span></div><div class="em-cita-meta"><span class="em-session-meta-item">🕐 ${s.hora||'—'}</span><span class="em-session-meta-item">💳 ${EmotionApp.formatPrice(s.precio||0,s.moneda||'USD')}</span></div>${videoLink}</div><div class="em-cita-actions">${actions}</div></div>`;
   })).then(a=>a.join(''));
 }
 function switchCitasPat(status,el){
@@ -3342,8 +3348,11 @@ async function loadPsyCitas(status='programadas'){
     const jitsiUrl=s.jitsiUrl||('https://meet.jit.si/emotion-session-'+s.id);
     const isProg=['confirmed','pending'].includes(s.estado), isCan=s.estado==='cancelled';
     const pnombre=(pat?.nombre||'Paciente').replace(/'/g,"\\'");
-    const actions=isProg?`<button class="em-btn em-btn-primary em-btn-sm" onclick="joinSession('${s.id}')">📹 Iniciar</button><button class="em-btn em-btn-outline em-btn-sm" onclick="openRescheduleModal('${s.id}','psy','${s.psicologoId}','${pnombre}',true)">↩ Reprogramar</button><button class="em-btn em-btn-ghost em-btn-sm em-btn-danger-ghost" onclick="cancelSession('${s.id}','psy')">✕ Cancelar</button>`:isCan?`<button class="em-btn em-btn-outline em-btn-sm" onclick="openRescheduleModal('${s.id}','psy','${s.psicologoId}','${pnombre}',true)">↩ Reprogramar</button>`:'';
-    return `<div class="em-cita-card ${cls}"><div class="em-cita-date-box"><div class="em-cita-day">${day}</div><div class="em-cita-month">${month}</div></div><div class="em-cita-info"><div class="em-cita-header"><div class="em-cita-title">${pat?.nombre||'Paciente'}</div><span class="em-badge em-badge-${cls}" style="white-space:nowrap">${label}</span></div><div class="em-cita-meta"><span class="em-session-meta-item">📅 ${s.fecha||'—'}</span><span class="em-session-meta-item">🕐 ${s.hora||'—'}</span>${isProg?`<span class="em-session-meta-item">🔗 <a href="${jitsiUrl}" target="_blank" style="color:var(--em-mint);text-decoration:underline">Jitsi</a></span>`:''}</div></div><div class="em-cita-actions">${actions}</div></div>`;
+    const actions=isProg
+      ?`<button class="em-btn em-btn-primary em-btn-sm" onclick="joinSession('${s.id}')">📹 Iniciar sesión</button><button class="em-btn em-btn-outline em-btn-sm" onclick="openRescheduleModal('${s.id}','psy','${s.psicologoId}','${pnombre}',true)">↩ Reprogramar</button><button class="em-btn em-btn-ghost em-btn-sm em-btn-danger-ghost" onclick="cancelSession('${s.id}','psy')">✕ Cancelar</button>`
+      :isCan?`<button class="em-btn em-btn-outline em-btn-sm" onclick="openRescheduleModal('${s.id}','psy','${s.psicologoId}','${pnombre}',true)">↩ Reprogramar</button>`:'';
+    const videoLink=isProg?`<div style="margin-top:8px;padding:8px 10px;background:rgba(56,178,172,.1);border:1px solid rgba(56,178,172,.25);border-radius:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:.78rem;color:var(--em-mint);font-weight:600">📹 Sala de video:</span><code style="font-size:.72rem;color:var(--em-text-light);word-break:break-all">${jitsiUrl}</code><a href="${jitsiUrl}" target="_blank" style="font-size:.72rem;color:var(--em-mint);white-space:nowrap">↗ abrir</a></div>`:'';
+    return `<div class="em-cita-card ${cls}"><div class="em-cita-date-box"><div class="em-cita-day">${day}</div><div class="em-cita-month">${month}</div></div><div class="em-cita-info"><div class="em-cita-header"><div class="em-cita-title">${pat?.nombre||'Paciente'}</div><span class="em-badge em-badge-${cls}" style="white-space:nowrap">${label}</span></div><div class="em-cita-meta"><span class="em-session-meta-item">📅 ${s.fecha||'—'}</span><span class="em-session-meta-item">🕐 ${s.hora||'—'}</span></div>${videoLink}</div><div class="em-cita-actions">${actions}</div></div>`;
   })).then(a=>a.join(''));
 }
 function switchCitasPsy(status,el){
@@ -3614,6 +3623,10 @@ window.initPage_session = async function(params={}){
     else{document.getElementById('notes-patient-view')?.classList.remove('em-hidden');initSessionEndListener(sessionId);}
     switchSessionPanel('chat',document.querySelector('.em-sidebar-tab-btn'));
     initRealtimeChat(sessionId,user.uid,userData.nombre);
+    // Auto-launch video call immediately on page load
+    const vph=document.getElementById('video-placeholder');
+    if(vph) vph.innerHTML=`<div class="icon">📹</div><h3>Conectando videollamada...</h3><p style="font-size:.9rem;color:rgba(255,255,255,.5)">Activando cámara y micrófono</p><div style="width:40px;height:40px;border:3px solid rgba(255,255,255,.2);border-top-color:var(--em-mint);border-radius:50%;animation:em-spin 1s linear infinite;margin:0 auto"></div>`;
+    setTimeout(startVideoCall, 1200);
   }catch(e){console.error(e);}
 };
 function startVideoCall(){
