@@ -15,6 +15,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <!-- Stripe.js -->
   <script src="https://js.stripe.com/v3/"></script>
+  <!-- Jitsi Meet External API -->
+  <script src="https://meet.jit.si/external_api.js"></script>
 <style>
 /* ═══════════════════ EMOTION — main.css ═══════════════════ */
 :root{--em-mint:#4CAF9A;--em-mint-light:#E8F5F2;--em-mint-dark:#3A9B84;--em-mint-hover:#45A08F;--em-blue:#5B8DEF;--em-blue-light:#EBF2FF;--em-blue-dark:#3A6FD4;--em-white:#FFFFFF;--em-bg:#F8FFFC;--em-surface:#FFFFFF;--em-gray-50:#F9FAFB;--em-gray-100:#F0F4F8;--em-gray-200:#E2E8F0;--em-gray-300:#CBD5E0;--em-gray-400:#A0AEC0;--em-gray-500:#718096;--em-text:#2D3748;--em-text-light:#718096;--em-text-muted:#A0AEC0;--em-error:#E53E3E;--em-error-light:#FFF5F5;--em-success:#38A169;--em-success-light:#F0FFF4;--em-warning:#D69E2E;--em-warning-light:#FFFFF0;--em-radius-sm:8px;--em-radius:12px;--em-radius-lg:20px;--em-radius-xl:28px;--em-shadow-sm:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);--em-shadow:0 4px 16px rgba(0,0,0,.08),0 2px 6px rgba(0,0,0,.04);--em-shadow-lg:0 12px 40px rgba(0,0,0,.1),0 4px 16px rgba(0,0,0,.06);--em-shadow-xl:0 24px 64px rgba(0,0,0,.12),0 8px 24px rgba(0,0,0,.08);--em-transition:all .25s cubic-bezier(.4,0,.2,1);--em-font:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
@@ -773,7 +775,7 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15}h2{font-siz
         <div class="em-sidebar-section-title">Principal</div>
         <div class="em-sidebar-link active" onclick="showPatientPanel('inicio')" data-panel="inicio"><span class="em-sidebar-link-icon">🏠</span>Inicio</div>
         <div class="em-sidebar-link" onclick="showPatientPanel('buscar')" data-panel="buscar"><span class="em-sidebar-link-icon">🔍</span>Buscar psicólogo</div>
-        <div class="em-sidebar-link" onclick="showPatientPanel('sesiones')" data-panel="sesiones"><span class="em-sidebar-link-icon">📅</span>Mis sesiones<span class="em-sidebar-badge" id="pat-badge-sessions">0</span></div>
+        <div class="em-sidebar-link" onclick="showPatientPanel('citas')" data-panel="citas"><span class="em-sidebar-link-icon">📅</span>Citas<span class="em-sidebar-badge" id="pat-badge-sessions">0</span></div>
         <div class="em-sidebar-section-title">Contenido</div>
         <div class="em-sidebar-link" onclick="showPatientPanel('recursos')" data-panel="recursos"><span class="em-sidebar-link-icon">📚</span>Recursos</div>
         <div class="em-sidebar-link" onclick="showPatientPanel('historial')" data-panel="historial"><span class="em-sidebar-link-icon">📋</span>Historial</div>
@@ -825,6 +827,16 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15}h2{font-siz
           </div>
           <div class="em-session-cards" id="pat-sessions-list"><div class="em-empty"><div class="em-empty-icon">📅</div><div class="em-empty-title">No hay sesiones</div></div></div>
         </div>
+        <!-- PANEL: CITAS -->
+        <div id="pat-panel-citas" class="em-dashboard-panel em-hidden">
+          <div class="em-page-header"><h2 class="em-page-title">📅 Mis citas</h2><button class="em-btn em-btn-primary em-btn-sm" onclick="showPatientPanel('buscar')">+ Nueva cita</button></div>
+          <div class="em-dashboard-tabs">
+            <div class="em-dashboard-tab active" id="tab-pat-programadas" onclick="switchCitasPat('programadas',this)">📅 Programadas</div>
+            <div class="em-dashboard-tab" id="tab-pat-finalizadas" onclick="switchCitasPat('finalizadas',this)">✅ Finalizadas</div>
+            <div class="em-dashboard-tab" id="tab-pat-canceladas" onclick="switchCitasPat('canceladas',this)">❌ Canceladas</div>
+          </div>
+          <div id="pat-citas-list" class="em-session-cards" style="display:flex;flex-direction:column;gap:12px;margin-top:16px"></div>
+        </div>
         <!-- PANEL: RECURSOS -->
         <div id="pat-panel-recursos" class="em-dashboard-panel em-hidden">
           <div class="em-page-header"><h2 class="em-page-title">📚 Recursos terapéuticos</h2></div>
@@ -862,6 +874,20 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15}h2{font-siz
       <div class="em-modal-footer"><button class="em-btn em-btn-ghost" onclick="closePatBookingModal()">Cancelar</button><button class="em-btn em-btn-primary" id="btn-confirm-booking" onclick="confirmPatientBooking()" disabled>Confirmar y pagar</button></div>
     </div>
   </div>
+  <!-- Reschedule modal (shared) -->
+  <div class="em-modal-overlay" id="reschedule-modal">
+    <div class="em-modal em-modal-lg">
+      <div class="em-modal-header"><h3 class="em-modal-title" id="reschedule-title">↩ Reprogramar cita</h3><button class="em-modal-close" onclick="closeRescheduleModal()">✕</button></div>
+      <div class="em-modal-body">
+        <p style="color:var(--em-text-light);margin-bottom:20px;font-size:.9rem">Selecciona una nueva fecha y horario disponible.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+          <div id="reschedule-calendar-container"></div>
+          <div id="reschedule-slots-container"><div class="em-empty" style="padding:20px"><div class="em-empty-icon">📅</div><div class="em-empty-text">Selecciona una fecha</div></div></div>
+        </div>
+      </div>
+      <div class="em-modal-footer"><button class="em-btn em-btn-ghost" onclick="closeRescheduleModal()">Cancelar</button><button class="em-btn em-btn-primary" id="btn-confirm-reschedule" onclick="confirmReschedule()" disabled>Confirmar nueva fecha</button></div>
+    </div>
+  </div>
 </div>
 
 <!-- ══════════════════ PAGE: PSYCHOLOGIST DASHBOARD ══════════════════ -->
@@ -875,7 +901,7 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15}h2{font-siz
       <nav class="em-sidebar-nav">
         <div class="em-sidebar-section-title">Principal</div>
         <div class="em-sidebar-link active" id="psy-nav-inicio" onclick="showPsyPanel('inicio')"><span class="em-sidebar-link-icon">🏠</span>Inicio</div>
-        <div class="em-sidebar-link" id="psy-nav-agenda" onclick="showPsyPanel('agenda')"><span class="em-sidebar-link-icon">📅</span>Agenda<span class="em-sidebar-badge em-badge-red" id="psy-badge-pending">0</span></div>
+        <div class="em-sidebar-link" id="psy-nav-citas" onclick="showPsyPanel('citas')"><span class="em-sidebar-link-icon">📅</span>Citas<span class="em-sidebar-badge em-badge-red" id="psy-badge-pending">0</span></div>
         <div class="em-sidebar-link" id="psy-nav-pacientes" onclick="showPsyPanel('pacientes')"><span class="em-sidebar-link-icon">👥</span>Mis pacientes</div>
         <div class="em-sidebar-link" id="psy-nav-recursos" onclick="showPsyPanel('recursos')"><span class="em-sidebar-link-icon">📚</span>Recursos y videos</div>
         <div class="em-sidebar-section-title">Mi espacio</div>
@@ -913,6 +939,16 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15}h2{font-siz
             <div class="em-dashboard-tab" onclick="switchPsySessions('canceladas',this)">❌ Canceladas</div>
           </div>
           <div class="em-session-cards" id="psy-sessions-list"></div>
+        </div>
+        <!-- PANEL: CITAS -->
+        <div id="psy-panel-citas" class="em-dashboard-panel em-hidden">
+          <div class="em-page-header"><h2 class="em-page-title">📅 Citas</h2></div>
+          <div class="em-dashboard-tabs">
+            <div class="em-dashboard-tab active" id="tab-psy-programadas" onclick="switchCitasPsy('programadas',this)">📅 Programadas</div>
+            <div class="em-dashboard-tab" id="tab-psy-finalizadas" onclick="switchCitasPsy('finalizadas',this)">✅ Finalizadas</div>
+            <div class="em-dashboard-tab" id="tab-psy-canceladas" onclick="switchCitasPsy('canceladas',this)">❌ Canceladas</div>
+          </div>
+          <div id="psy-citas-list" class="em-session-cards" style="display:flex;flex-direction:column;gap:12px;margin-top:16px"></div>
         </div>
         <!-- PANEL: PACIENTES -->
         <div id="psy-panel-pacientes" class="em-dashboard-panel em-hidden">
@@ -1116,9 +1152,7 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15}h2{font-siz
     </div>
     <div class="em-session-layout">
       <div class="em-video-area">
-        <div id="daily-frame-container" style="width:100%;height:100%;display:none">
-          <iframe id="daily-iframe" allow="camera;microphone;autoplay;display-capture" style="width:100%;height:100%;border:none"></iframe>
-        </div>
+        <div id="jitsi-container" style="width:100%;height:100%;display:none;border-radius:12px;overflow:hidden"></div>
         <div class="em-video-placeholder" id="video-placeholder">
           <div class="icon">📹</div>
           <h3>Sesión de videollamada</h3>
@@ -1390,6 +1424,30 @@ window.EmotionApp = {
   .em-spinner{width:48px;height:48px;border:4px solid #E8F5F2;border-top-color:#4CAF9A;border-radius:50%;animation:em-spin .8s linear infinite}
 `;document.head.appendChild(s);})();
 
+/* Citas card styles */
+(()=>{const s=document.createElement('style');s.textContent=`
+  .em-cita-card{display:flex;align-items:center;gap:16px;background:white;border-radius:14px;padding:16px 20px;box-shadow:0 2px 12px rgba(0,0,0,.06);border-left:4px solid var(--em-gray-300);transition:var(--em-transition)}
+  .em-cita-card.upcoming{border-left-color:var(--em-mint)}
+  .em-cita-card.pending{border-left-color:var(--em-warning)}
+  .em-cita-card.completed{border-left-color:var(--em-success)}
+  .em-cita-card.cancelled{border-left-color:var(--em-error);opacity:.8}
+  .em-cita-date-box{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:52px;background:var(--em-gray-100);border-radius:10px;padding:10px 8px;line-height:1}
+  .em-cita-day{font-size:1.4rem;font-weight:800;color:var(--em-text)}
+  .em-cita-month{font-size:.7rem;font-weight:600;color:var(--em-text-light);text-transform:uppercase;margin-top:2px}
+  .em-cita-info{flex:1;min-width:0}
+  .em-cita-header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .em-cita-title{font-weight:600;font-size:.95rem;color:var(--em-text)}
+  .em-cita-meta{display:flex;flex-wrap:wrap;gap:10px;font-size:.82rem;color:var(--em-text-light)}
+  .em-cita-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end}
+  .em-btn-danger-ghost{color:var(--em-error)!important}
+  .em-btn-danger-ghost:hover{background:var(--em-error-light)!important}
+  .em-badge-upcoming{background:#e8f5f2;color:#2d7a65;font-size:.72rem;padding:3px 9px;border-radius:20px;font-weight:700}
+  .em-badge-pending{background:var(--em-warning-light);color:#7a5a00;font-size:.72rem;padding:3px 9px;border-radius:20px;font-weight:700}
+  .em-badge-completed{background:var(--em-success-light);color:#1a6b3a;font-size:.72rem;padding:3px 9px;border-radius:20px;font-weight:700}
+  .em-badge-cancelled{background:var(--em-error-light);color:#7a1a1a;font-size:.72rem;padding:3px 9px;border-radius:20px;font-weight:700}
+  @media(max-width:600px){.em-cita-card{flex-wrap:wrap}.em-cita-actions{width:100%;justify-content:flex-start}}
+`;document.head.appendChild(s);})();
+
 /* ═══════════════════════════════════════════════════════
    ROUTER
    ═══════════════════════════════════════════════════════ */
@@ -1614,10 +1672,24 @@ const CalendarModule = (() => {
   async function bookSession(patientId,psychologistId,fecha,hora,precio,moneda){
     EmotionApp.setLoading(true,'Procesando...');
     try{
+      if(AuthModule._isFirebaseDemo()){
+        const sessionId='demo_sess_'+Date.now();
+        const jitsiRoom='emotion-session-'+sessionId;
+        const jitsiUrl='https://meet.jit.si/'+jitsiRoom;
+        const sessions=JSON.parse(localStorage.getItem('emotion_demo_sessions')||'[]');
+        sessions.push({id:sessionId,pacienteId:patientId,psicologoId:psychologistId,fecha,hora,duracion:50,estado:'confirmed',precio,moneda,jitsiUrl,jitsiRoomName:jitsiRoom,fechaCreacion:new Date().toISOString()});
+        localStorage.setItem('emotion_demo_sessions',JSON.stringify(sessions));
+        EmotionApp.setLoading(false);
+        return sessionId;
+      }
       const slots=await getAvailableSlots(psychologistId,fecha);
       if(!slots.includes(hora)) throw new Error('Este horario ya no está disponible.');
       const ref=await db.collection(COLLECTIONS.SESSIONS).add({pacienteId:patientId,psicologoId:psychologistId,fecha,hora,duracion:50,estado:'pending',precio,moneda,fechaCreacion:firebase.firestore.FieldValue.serverTimestamp()});
-      EmotionApp.setLoading(false); return ref.id;
+      const sessionId=ref.id;
+      const jitsiRoom='emotion-session-'+sessionId;
+      await ref.update({jitsiUrl:'https://meet.jit.si/'+jitsiRoom,jitsiRoomName:jitsiRoom});
+      EmotionApp.setLoading(false);
+      return sessionId;
     }catch(err){EmotionApp.setLoading(false);EmotionApp.showAlert(err.message||'Error al agendar.','error');throw err;}
   }
   function calculateCountdown(fecha,hora){
@@ -1712,37 +1784,50 @@ const PaymentsModule = (() => {
 window.PaymentsModule=PaymentsModule;
 
 /* ═══════════════════════════════════════════════════════
-   SESSION MODULE (Daily.co)
+   SESSION MODULE (Jitsi Meet)
    ═══════════════════════════════════════════════════════ */
 const SessionModule = (() => {
-  const DAILY_API_KEY='TU_DAILY_API_KEY';
   const {db,COLLECTIONS}=EmotionApp;
+  function buildJitsiRoom(sessionId){return 'emotion-session-'+sessionId;}
+  function getJitsiUrl(sessionId){return 'https://meet.jit.si/'+buildJitsiRoom(sessionId);}
   async function getOrCreateRoom(sessionId){
-    const sd=await db.collection(COLLECTIONS.SESSIONS).doc(sessionId).get();
-    const s=sd.data();
-    if(s?.dailyRoomUrl)return{url:s.dailyRoomUrl,name:s.dailyRoomName};
-    const roomName=`emotion-${sessionId}`;
-    try{const r=await createDailyRoom(roomName,s);await db.collection(COLLECTIONS.SESSIONS).doc(sessionId).update({dailyRoomUrl:r.url,dailyRoomName:r.name});return r;}
-    catch{return{url:`https://emotion-demo.daily.co/${roomName}`,name:roomName};}
+    const roomName=buildJitsiRoom(sessionId);
+    const url='https://meet.jit.si/'+roomName;
+    try{
+      const sd=await db.collection(COLLECTIONS.SESSIONS).doc(sessionId).get();
+      if(sd.exists&&!sd.data()?.jitsiUrl){await db.collection(COLLECTIONS.SESSIONS).doc(sessionId).update({jitsiUrl:url,jitsiRoomName:roomName});}
+    }catch{}
+    return{url,name:roomName};
   }
-  async function createDailyRoom(roomName,s){
-    let exp=Math.floor(Date.now()/1000)+(2*3600);
-    if(s?.fecha&&s?.hora){exp=Math.floor(new Date(`${s.fecha}T${s.hora}:00`).getTime()/1000)+(2*3600);}
-    const r=await fetch('https://api.daily.co/v1/rooms',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${DAILY_API_KEY}`},body:JSON.stringify({name:roomName,privacy:'private',properties:{exp,max_participants:2,enable_chat:true,lang:'es'}})});
-    if(!r.ok)throw new Error('Error Daily.co');
-    return r.json();
-  }
-  async function createMeetingToken(roomName,userId,isOwner){
-    const exp=Math.floor(Date.now()/1000)+(3*3600);
-    const r=await fetch('https://api.daily.co/v1/meeting-tokens',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${DAILY_API_KEY}`},body:JSON.stringify({properties:{room_name:roomName,user_id:userId,is_owner:isOwner,exp}})});
-    if(!r.ok)throw new Error('Error token');
-    return (await r.json()).token;
+  function launchJitsi(sessionId,containerId){
+    const roomName=buildJitsiRoom(sessionId);
+    const container=document.getElementById(containerId); if(!container)return null;
+    if(window._jitsiApi){try{window._jitsiApi.dispose();}catch(e){} window._jitsiApi=null;}
+    if(typeof JitsiMeetExternalAPI==='undefined'){
+      container.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:white;gap:20px;background:#1a1a2e;border-radius:12px"><div style="font-size:3rem">📹</div><p style="font-size:1rem">Haz clic para unirte a la videollamada</p><a href="https://meet.jit.si/${roomName}" target="_blank" class="em-btn em-btn-primary" style="padding:14px 28px;font-size:1rem">Abrir Jitsi Meet</a></div>`;
+      return null;
+    }
+    const ud=EmotionApp.currentUserData;
+    try{
+      window._jitsiApi=new JitsiMeetExternalAPI('meet.jit.si',{
+        roomName,width:'100%',height:'100%',parentNode:container,
+        configOverwrite:{startWithAudioMuted:false,startWithVideoMuted:false,enableWelcomePage:false,prejoinPageEnabled:false,disableDeepLinking:true,defaultLanguage:'es',subject:'Emotion — Sesión privada'},
+        interfaceConfigOverwrite:{TOOLBAR_BUTTONS:['microphone','camera','hangup','chat','tileview','fullscreen','settings'],SHOW_JITSI_WATERMARK:false,SHOW_BRAND_WATERMARK:false,SHOW_POWERED_BY:false,DEFAULT_BACKGROUND:'#1a1a2e'},
+        userInfo:{displayName:ud?.nombre||'Usuario',email:EmotionApp.currentUser?.email||''}
+      });
+    }catch(e){
+      container.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:white;gap:20px;background:#1a1a2e;border-radius:12px"><div style="font-size:3rem">📹</div><a href="https://meet.jit.si/${roomName}" target="_blank" class="em-btn em-btn-primary">Abrir Jitsi Meet</a></div>`;
+    }
+    return window._jitsiApi;
   }
   async function canJoinSession(userId,sessionId){
-    try{const sd=await db.collection(COLLECTIONS.SESSIONS).doc(sessionId).get();if(!sd.exists)return false;const s=sd.data();return s.pacienteId===userId||s.psicologoId===userId;}catch{return false;}
+    try{
+      if(AuthModule._isFirebaseDemo()){const all=JSON.parse(localStorage.getItem('emotion_demo_sessions')||'[]');const s=all.find(x=>x.id===sessionId);return s?(s.pacienteId===userId||s.psicologoId===userId):false;}
+      const sd=await db.collection(COLLECTIONS.SESSIONS).doc(sessionId).get();
+      if(!sd.exists)return false;const s=sd.data();return s.pacienteId===userId||s.psicologoId===userId;
+    }catch{return false;}
   }
-  function buildMeetingUrl(roomUrl,token){if(!token)return roomUrl;const u=new URL(roomUrl);u.searchParams.set('t',token);return u.toString();}
-  return{getOrCreateRoom,createDailyRoom,createMeetingToken,canJoinSession,buildMeetingUrl};
+  return{getOrCreateRoom,launchJitsi,canJoinSession,buildJitsiRoom,getJitsiUrl};
 })();
 window.SessionModule=SessionModule;
 
@@ -2358,12 +2443,13 @@ function fillPatientUI(ud){
   const pd=document.getElementById('pat-prof-dob');if(pd)pd.value=ud.fechaNacimiento||'';
 }
 function showPatientPanel(panel){
-  document.querySelectorAll('.em-dashboard-panel').forEach(p=>p.classList.add('em-hidden'));
+  document.querySelectorAll('#page-patient .em-dashboard-panel').forEach(p=>p.classList.add('em-hidden'));
   document.getElementById(`pat-panel-${panel}`)?.classList.remove('em-hidden');
   document.querySelectorAll('#patient-sidebar .em-sidebar-link').forEach(l=>l.classList.toggle('active',l.dataset.panel===panel));
-  const titles={inicio:'Inicio',buscar:'Buscar psicólogo',sesiones:'Mis sesiones',recursos:'Recursos',historial:'Historial',perfil:'Mi perfil'};
+  const titles={inicio:'Inicio',buscar:'Buscar psicólogo',sesiones:'Mis sesiones',citas:'Citas',recursos:'Recursos',historial:'Historial',perfil:'Mi perfil'};
   const tt=document.getElementById('pat-topbar-title');if(tt)tt.textContent=titles[panel]||panel;
   if(panel==='sesiones')loadPatientSessions('confirmed');
+  if(panel==='citas')loadPatientCitas('programadas');
   if(panel==='recursos')loadPatientResources();
   if(panel==='historial')loadPatientHistory();
   if(panel==='buscar')dashSearchPsychologists();
@@ -2373,8 +2459,13 @@ function showPatientPanel(panel){
 async function loadPatientData(){
   const uid=_patData?.uid||EmotionApp.currentUser?.uid; if(!uid)return;
   try{
-    const snap=await EmotionApp.db.collection(EmotionApp.COLLECTIONS.SESSIONS).where('pacienteId','==',uid).get();
-    _patSessions=snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(AuthModule._isFirebaseDemo()){
+      const all=JSON.parse(localStorage.getItem('emotion_demo_sessions')||'[]');
+      _patSessions=all.filter(s=>s.pacienteId===uid);
+    }else{
+      const snap=await EmotionApp.db.collection(EmotionApp.COLLECTIONS.SESSIONS).where('pacienteId','==',uid).get();
+      _patSessions=snap.docs.map(d=>({id:d.id,...d.data()}));
+    }
     const total=_patSessions.length;
     const completed=_patSessions.filter(s=>s.estado==='completed').length;
     const confirmed=_patSessions.filter(s=>s.estado==='confirmed').sort((a,b)=>a.fecha>b.fecha?1:-1);
@@ -2507,9 +2598,10 @@ function showPsyPanel(panel){
   document.getElementById(`psy-panel-${panel}`)?.classList.remove('em-hidden');
   document.querySelectorAll('#psy-sidebar .em-sidebar-link').forEach(l=>l.classList.remove('active'));
   document.getElementById(`psy-nav-${panel}`)?.classList.add('active');
-  const titles={inicio:'Inicio',agenda:'Agenda',pacientes:'Mis pacientes',recursos:'Recursos y videos',landing:'Mi landing',perfil:'Mi perfil',disponibilidad:'Disponibilidad'};
+  const titles={inicio:'Inicio',agenda:'Agenda',citas:'Citas',pacientes:'Mis pacientes',recursos:'Recursos y videos',landing:'Mi landing',perfil:'Mi perfil',disponibilidad:'Disponibilidad'};
   const tt=document.getElementById('psy-topbar-title');if(tt)tt.textContent=titles[panel]||panel;
   if(panel==='agenda')loadPsySessions('pending');
+  if(panel==='citas')loadPsyCitas('programadas');
   if(panel==='pacientes')loadPsyPatients();
   if(panel==='disponibilidad')buildAvailabilityManager();
   if(panel==='recursos')loadPsyResources();
@@ -2526,8 +2618,13 @@ function fillPsyProfileForm(ud){
 async function loadPsyData(){
   const uid=_psyData?.uid||EmotionApp.currentUser?.uid; if(!uid)return;
   try{
-    const snap=await EmotionApp.db.collection(EmotionApp.COLLECTIONS.SESSIONS).where('psicologoId','==',uid).get();
-    _psySessions=snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(AuthModule._isFirebaseDemo()){
+      const all=JSON.parse(localStorage.getItem('emotion_demo_sessions')||'[]');
+      _psySessions=all.filter(s=>s.psicologoId===uid);
+    }else{
+      const snap=await EmotionApp.db.collection(EmotionApp.COLLECTIONS.SESSIONS).where('psicologoId','==',uid).get();
+      _psySessions=snap.docs.map(d=>({id:d.id,...d.data()}));
+    }
     const now=new Date(), month=now.getMonth(), year=now.getFullYear();
     const thisMonth=_psySessions.filter(s=>{const d=new Date(s.fecha+'T12:00:00');return d.getMonth()===month&&d.getFullYear()===year&&s.estado==='completed';});
     const pending=_psySessions.filter(s=>s.estado==='pending');
@@ -2568,6 +2665,119 @@ function switchPsySessions(status,el){
   const m={pendientes:'pending',confirmadas:'confirmed',completadas:'completed',canceladas:'cancelled'};
   loadPsySessions(m[status]||status);
 }
+
+/* ═══════════════════════════════════════════════════════
+   CITAS PANEL (Jitsi + Cancel / Reschedule)
+   ═══════════════════════════════════════════════════════ */
+function _citaStatusInfo(estado){
+  if(estado==='confirmed') return{label:'Programada',cls:'upcoming'};
+  if(estado==='pending')   return{label:'Pendiente',cls:'pending'};
+  if(estado==='completed') return{label:'Finalizada',cls:'completed'};
+  return{label:'Cancelada',cls:'cancelled'};
+}
+function _citaMonthName(dateStr){const m=parseInt((dateStr||'').split('-')[1])||0;return['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][m]||'';}
+
+async function loadPatientCitas(status='programadas'){
+  const list=document.getElementById('pat-citas-list'); if(!list)return;
+  const uid=EmotionApp.currentUser?.uid; if(!uid)return;
+  const statusMap={programadas:['confirmed','pending'],finalizadas:['completed'],canceladas:['cancelled']};
+  const statuses=statusMap[status]||['confirmed'];
+  const filtered=_patSessions.filter(s=>statuses.includes(s.estado)).sort((a,b)=>(a.fecha+a.hora)>(b.fecha+b.hora)?1:-1);
+  const emptyMsg={programadas:'No tienes citas programadas',finalizadas:'Sin citas finalizadas',canceladas:'Sin citas canceladas'};
+  if(!filtered.length){list.innerHTML=`<div class="em-empty"><div class="em-empty-icon">📅</div><div class="em-empty-title">${emptyMsg[status]}</div>${status!=='programadas'?'':'<div class="em-empty-text">Busca un psicólogo y agenda tu primera sesión</div><button class="em-btn em-btn-primary" onclick="showPatientPanel(\'buscar\')">Buscar psicólogo</button>'}</div>`;return;}
+  list.innerHTML=await Promise.all(filtered.map(async s=>{
+    const psyd=await EmotionApp.getUserData(s.psicologoId);
+    const day=(s.fecha||'').split('-')[2]||'—', month=_citaMonthName(s.fecha);
+    const{label,cls}=_citaStatusInfo(s.estado);
+    const jitsiUrl=s.jitsiUrl||('https://meet.jit.si/emotion-session-'+s.id);
+    const isProg=['confirmed','pending'].includes(s.estado), isCan=s.estado==='cancelled';
+    const pnombre=(psyd?.nombre||'').replace(/'/g,"\\'");
+    const actions=isProg?`<button class="em-btn em-btn-primary em-btn-sm" onclick="joinSession('${s.id}')">📹 Unirse</button><button class="em-btn em-btn-outline em-btn-sm" onclick="openRescheduleModal('${s.id}','patient','${s.psicologoId}','${pnombre}')">↩ Reprogramar</button><button class="em-btn em-btn-ghost em-btn-sm em-btn-danger-ghost" onclick="cancelSession('${s.id}','patient')">✕ Cancelar</button>`:isCan?`<button class="em-btn em-btn-outline em-btn-sm" onclick="openRescheduleModal('${s.id}','patient','${s.psicologoId}','${pnombre}')">↩ Reprogramar</button>`:'';
+    return `<div class="em-cita-card ${cls}"><div class="em-cita-date-box"><div class="em-cita-day">${day}</div><div class="em-cita-month">${month}</div></div><div class="em-cita-info"><div class="em-cita-header"><div class="em-cita-title">Sesión con ${psyd?.nombre||'Psicólogo'}</div><span class="em-badge em-badge-${cls}" style="white-space:nowrap">${label}</span></div><div class="em-cita-meta"><span class="em-session-meta-item">🕐 ${s.hora||'—'}</span><span class="em-session-meta-item">💳 ${EmotionApp.formatPrice(s.precio||0,s.moneda||'USD')}</span>${isProg?`<span class="em-session-meta-item">🔗 <a href="${jitsiUrl}" target="_blank" style="color:var(--em-mint);text-decoration:underline">Link Jitsi</a></span>`:''}</div></div><div class="em-cita-actions">${actions}</div></div>`;
+  })).then(a=>a.join(''));
+}
+function switchCitasPat(status,el){
+  document.querySelectorAll('#pat-panel-citas .em-dashboard-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  loadPatientCitas(status);
+}
+
+async function loadPsyCitas(status='programadas'){
+  const list=document.getElementById('psy-citas-list'); if(!list)return;
+  const statusMap={programadas:['confirmed','pending'],finalizadas:['completed'],canceladas:['cancelled']};
+  const statuses=statusMap[status]||['confirmed'];
+  const filtered=_psySessions.filter(s=>statuses.includes(s.estado)).sort((a,b)=>(a.fecha+a.hora)>(b.fecha+b.hora)?1:-1);
+  if(!filtered.length){list.innerHTML=`<div class="em-empty"><div class="em-empty-icon">📅</div><div class="em-empty-text">Sin citas ${status}</div></div>`;return;}
+  list.innerHTML=await Promise.all(filtered.map(async s=>{
+    const pat=await EmotionApp.getUserData(s.pacienteId);
+    const day=(s.fecha||'').split('-')[2]||'—', month=_citaMonthName(s.fecha);
+    const{label,cls}=_citaStatusInfo(s.estado);
+    const jitsiUrl=s.jitsiUrl||('https://meet.jit.si/emotion-session-'+s.id);
+    const isProg=['confirmed','pending'].includes(s.estado), isCan=s.estado==='cancelled';
+    const pnombre=(pat?.nombre||'Paciente').replace(/'/g,"\\'");
+    const actions=isProg?`<button class="em-btn em-btn-primary em-btn-sm" onclick="joinSession('${s.id}')">📹 Iniciar</button><button class="em-btn em-btn-outline em-btn-sm" onclick="openRescheduleModal('${s.id}','psy','${s.psicologoId}','${pnombre}',true)">↩ Reprogramar</button><button class="em-btn em-btn-ghost em-btn-sm em-btn-danger-ghost" onclick="cancelSession('${s.id}','psy')">✕ Cancelar</button>`:isCan?`<button class="em-btn em-btn-outline em-btn-sm" onclick="openRescheduleModal('${s.id}','psy','${s.psicologoId}','${pnombre}',true)">↩ Reprogramar</button>`:'';
+    return `<div class="em-cita-card ${cls}"><div class="em-cita-date-box"><div class="em-cita-day">${day}</div><div class="em-cita-month">${month}</div></div><div class="em-cita-info"><div class="em-cita-header"><div class="em-cita-title">${pat?.nombre||'Paciente'}</div><span class="em-badge em-badge-${cls}" style="white-space:nowrap">${label}</span></div><div class="em-cita-meta"><span class="em-session-meta-item">📅 ${s.fecha||'—'}</span><span class="em-session-meta-item">🕐 ${s.hora||'—'}</span>${isProg?`<span class="em-session-meta-item">🔗 <a href="${jitsiUrl}" target="_blank" style="color:var(--em-mint);text-decoration:underline">Jitsi</a></span>`:''}</div></div><div class="em-cita-actions">${actions}</div></div>`;
+  })).then(a=>a.join(''));
+}
+function switchCitasPsy(status,el){
+  document.querySelectorAll('#psy-panel-citas .em-dashboard-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  loadPsyCitas(status);
+}
+
+async function cancelSession(sessionId,role){
+  if(!confirm('¿Seguro que deseas cancelar esta cita?'))return;
+  try{
+    if(AuthModule._isFirebaseDemo()){
+      const sessions=JSON.parse(localStorage.getItem('emotion_demo_sessions')||'[]');
+      const idx=sessions.findIndex(s=>s.id===sessionId);
+      if(idx!==-1){sessions[idx].estado='cancelled';sessions[idx].canceladaPor=role;sessions[idx].fechaCancelacion=new Date().toISOString();localStorage.setItem('emotion_demo_sessions',JSON.stringify(sessions));}
+    }else{
+      await EmotionApp.db.collection(EmotionApp.COLLECTIONS.SESSIONS).doc(sessionId).update({estado:'cancelled',canceladaPor:role,fechaCancelacion:firebase.firestore.FieldValue.serverTimestamp()});
+    }
+    EmotionApp.showAlert('Cita cancelada.','info');
+    if(role==='patient'){await loadPatientData();loadPatientCitas('canceladas');}
+    else{await loadPsyData();loadPsyCitas('canceladas');}
+  }catch{EmotionApp.showAlert('Error al cancelar.','error');}
+}
+
+let _rescheduleSessionId=null,_rescheduleRole=null,_rescheduleDate=null,_rescheduleTime=null,_reschedulePsychId=null;
+function openRescheduleModal(sessionId,role,psychId,name,isPsy=false){
+  _rescheduleSessionId=sessionId;_rescheduleRole=role;_rescheduleDate=null;_rescheduleTime=null;
+  _reschedulePsychId=psychId;
+  const modal=document.getElementById('reschedule-modal'); if(!modal)return;
+  document.getElementById('reschedule-title').textContent='↩ Reprogramar cita'+(name?` — ${name}`:'');
+  document.getElementById('btn-confirm-reschedule').disabled=true;
+  document.getElementById('reschedule-slots-container').innerHTML=`<div class="em-empty" style="padding:20px"><div class="em-empty-icon">📅</div><div class="em-empty-text">Selecciona una fecha</div></div>`;
+  new CalendarModule.CalendarWidget('reschedule-calendar-container',{
+    onDateSelect:async(date)=>{
+      _rescheduleDate=date;_rescheduleTime=null;
+      document.getElementById('btn-confirm-reschedule').disabled=true;
+      const slots=await CalendarModule.getAvailableSlots(_reschedulePsychId,date);
+      CalendarModule.renderTimeSlots('reschedule-slots-container',slots,(time)=>{_rescheduleTime=time;document.getElementById('btn-confirm-reschedule').disabled=false;});
+    }
+  });
+  modal.classList.add('active');
+}
+function closeRescheduleModal(){document.getElementById('reschedule-modal')?.classList.remove('active');}
+async function confirmReschedule(){
+  if(!_rescheduleSessionId||!_rescheduleDate||!_rescheduleTime){EmotionApp.showAlert('Selecciona fecha y hora.','warning');return;}
+  const btn=document.getElementById('btn-confirm-reschedule');if(btn)btn.disabled=true;
+  try{
+    if(AuthModule._isFirebaseDemo()){
+      const sessions=JSON.parse(localStorage.getItem('emotion_demo_sessions')||'[]');
+      const idx=sessions.findIndex(s=>s.id===_rescheduleSessionId);
+      if(idx!==-1){sessions[idx].fecha=_rescheduleDate;sessions[idx].hora=_rescheduleTime;sessions[idx].estado='confirmed';sessions[idx].reprogramada=true;localStorage.setItem('emotion_demo_sessions',JSON.stringify(sessions));}
+    }else{
+      await EmotionApp.db.collection(EmotionApp.COLLECTIONS.SESSIONS).doc(_rescheduleSessionId).update({fecha:_rescheduleDate,hora:_rescheduleTime,estado:'confirmed',reprogramada:true,fechaReprogramacion:firebase.firestore.FieldValue.serverTimestamp()});
+    }
+    closeRescheduleModal();
+    EmotionApp.showAlert('Cita reprogramada correctamente.','success');
+    if(_rescheduleRole==='patient'){await loadPatientData();loadPatientCitas('programadas');}
+    else{await loadPsyData();loadPsyCitas('programadas');}
+  }catch{EmotionApp.showAlert('Error al reprogramar.','error');if(btn)btn.disabled=false;}
+}
+
 async function loadPsyPatients(){
   const list=document.getElementById('psy-patients-list'); if(!list)return;
   const uid=EmotionApp.currentUser?.uid;
@@ -2737,9 +2947,16 @@ window.initPage_session = async function(params={}){
   const sessionId=params.sessionId;
   if(!sessionId){EmotionApp.showAlert('ID de sesión no válido.','error');return;}
   try{
-    const sd=await EmotionApp.db.collection(EmotionApp.COLLECTIONS.SESSIONS).doc(sessionId).get();
-    if(!sd.exists){EmotionApp.showAlert('Sesión no encontrada.','error');return;}
-    _sessData={id:sessionId,...sd.data()};
+    let sessObj=null;
+    if(AuthModule._isFirebaseDemo()){
+      const all=JSON.parse(localStorage.getItem('emotion_demo_sessions')||'[]');
+      sessObj=all.find(s=>s.id===sessionId)||null;
+    }else{
+      const sd=await EmotionApp.db.collection(EmotionApp.COLLECTIONS.SESSIONS).doc(sessionId).get();
+      if(sd.exists) sessObj={id:sessionId,...sd.data()};
+    }
+    if(!sessObj){EmotionApp.showAlert('Sesión no encontrada.','error');return;}
+    _sessData=sessObj;
     _sessIsPsy=userData.rol===EmotionApp.ROLES.PSYCHOLOGIST;
     const otherId=_sessIsPsy?_sessData.pacienteId:_sessData.psicologoId;
     const otherUser=await EmotionApp.getUserData(otherId);
@@ -2757,12 +2974,16 @@ window.initPage_session = async function(params={}){
 function startVideoCall(){
   if(!_sessData?.id)return;
   document.getElementById('video-placeholder').style.display='none';
-  document.getElementById('daily-frame-container').style.display='block';
-  const iframe=document.getElementById('daily-iframe');
-  SessionModule.getOrCreateRoom(_sessData.id).then(room=>{
-    iframe.src=room.url;
-    startSessionTimer();
-  }).catch(()=>{iframe.src=`https://emotion-demo.daily.co/emotion-${_sessData.id}`;startSessionTimer();});
+  const container=document.getElementById('jitsi-container');
+  if(container) container.style.display='block';
+  SessionModule.launchJitsi(_sessData.id,'jitsi-container');
+  if(window._jitsiApi){
+    window._jitsiApi.addEventListeners({
+      readyToClose:()=>requestEndSession(),
+      videoConferenceLeft:()=>requestEndSession(),
+    });
+  }
+  startSessionTimer();
 }
 function startSessionTimer(){
   _sessSeconds=0;
@@ -2790,14 +3011,20 @@ function requestEndSession(){
 async function confirmEndSession(){
   if(!_sessData?.id)return;
   clearInterval(_sessTimer);
+  if(window._jitsiApi){try{window._jitsiApi.dispose();}catch(e){} window._jitsiApi=null;}
   const ej=document.getElementById('end-ejercicios')?.value||'';
   const rec=document.getElementById('end-recomendaciones')?.value||'';
   const diag=document.getElementById('notes-diagnostico')?.value||'';
   try{
-    await EmotionApp.db.collection(EmotionApp.COLLECTIONS.SESSION_NOTES).doc(_sessData.id).set({sessionId:_sessData.id,diagnostico:diag,ejercicios:ej,recomendaciones:rec,fechaCreacion:firebase.firestore.FieldValue.serverTimestamp()});
-    await EmotionApp.db.collection(EmotionApp.COLLECTIONS.SESSIONS).doc(_sessData.id).update({estado:'completed',duracionReal:_sessSeconds});
-    // Notify patient via RTDB
-    EmotionApp.rtdb.ref(`sessions/${_sessData.id}/ended`).set({ej,rec,timestamp:Date.now()});
+    if(AuthModule._isFirebaseDemo()){
+      const sessions=JSON.parse(localStorage.getItem('emotion_demo_sessions')||'[]');
+      const idx=sessions.findIndex(s=>s.id===_sessData.id);
+      if(idx!==-1){sessions[idx].estado='completed';sessions[idx].duracionReal=_sessSeconds;localStorage.setItem('emotion_demo_sessions',JSON.stringify(sessions));}
+    }else{
+      await EmotionApp.db.collection(EmotionApp.COLLECTIONS.SESSION_NOTES).doc(_sessData.id).set({sessionId:_sessData.id,diagnostico:diag,ejercicios:ej,recomendaciones:rec,fechaCreacion:firebase.firestore.FieldValue.serverTimestamp()});
+      await EmotionApp.db.collection(EmotionApp.COLLECTIONS.SESSIONS).doc(_sessData.id).update({estado:'completed',duracionReal:_sessSeconds});
+      EmotionApp.rtdb.ref(`sessions/${_sessData.id}/ended`).set({ej,rec,timestamp:Date.now()});
+    }
     document.getElementById('end-session-modal').classList.remove('active');
     EmotionApp.showAlert('Sesión finalizada correctamente.','success');
     setTimeout(()=>EmotionRouter.navigate('psychologist'),1500);
