@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sesión de videollamada — Emotion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <style>
+    body { margin: 0; background: #0D1117; color: white; font-family: 'Poppins', sans-serif; overflow: hidden; }
+    .session-layout { display: grid; grid-template-columns: 1fr 340px; height: 100vh; }
+    .session-main { display: flex; flex-direction: column; }
+    .session-header {
+      background: #161B22; padding: 12px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0;
+    }
+    .session-header-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem; }
+    .session-header-info { font-size: 0.85rem; color: rgba(255,255,255,0.6); }
+    .session-timer {
+      background: rgba(76,175,154,0.15); border: 1px solid rgba(76,175,154,0.3);
+      padding: 6px 16px; border-radius: 20px; font-size: 0.9rem; font-weight: 700; color: #4CAF9A;
+    }
+    .video-container { flex: 1; background: #0D1117; position: relative; overflow: hidden; }
+    #daily-frame { width: 100%; height: 100%; border: none; }
+    .video-placeholder {
+      position: absolute; inset: 0; display: flex; align-items: center;
+      justify-content: center; flex-direction: column; gap: 16px;
+    }
+    .video-placeholder-icon { font-size: 4rem; }
+    .session-controls {
+      background: #161B22; padding: 16px 24px;
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      border-top: 1px solid rgba(255,255,255,0.08); flex-shrink: 0;
+    }
+    .ctrl-btn {
+      width: 52px; height: 52px; border-radius: 50%; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; transition: all 0.2s; position: relative;
+    }
+    .ctrl-btn.mic { background: rgba(255,255,255,0.1); }
+    .ctrl-btn.mic:hover { background: rgba(255,255,255,0.2); }
+    .ctrl-btn.cam { background: rgba(255,255,255,0.1); }
+    .ctrl-btn.cam:hover { background: rgba(255,255,255,0.2); }
+    .ctrl-btn.end { background: #E53E3E; color: white; width: 60px; height: 60px; font-size: 1.4rem; }
+    .ctrl-btn.end:hover { background: #C53030; transform: scale(1.05); }
+    .ctrl-btn.muted { background: rgba(229,62,62,0.2); border: 2px solid #E53E3E; }
+    .ctrl-btn-label { font-size: 0.65rem; position: absolute; bottom: -18px; white-space: nowrap; color: rgba(255,255,255,0.5); }
+    .session-sidebar {
+      background: #161B22; border-left: 1px solid rgba(255,255,255,0.08);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .sidebar-tabs {
+      display: flex; border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar-tab {
+      flex: 1; padding: 14px 8px; text-align: center; font-size: 0.8rem;
+      font-weight: 600; color: rgba(255,255,255,0.4); cursor: pointer;
+      transition: all 0.2s; border-bottom: 3px solid transparent;
+    }
+    .sidebar-tab.active { color: #4CAF9A; border-bottom-color: #4CAF9A; background: rgba(76,175,154,0.05); }
+    .sidebar-tab:hover { color: rgba(255,255,255,0.7); }
+    .sidebar-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+    .sidebar-panel { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+    .sidebar-panel.active { display: flex; }
+    @media (max-width: 768px) {
+      .session-layout { grid-template-columns: 1fr; }
+      .session-sidebar { display: none; }
+      .session-controls { gap: 8px; }
+      .ctrl-btn { width: 44px; height: 44px; }
+      .ctrl-btn.end { width: 52px; height: 52px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="session-layout">
+
+  <!-- ═══════════════ ÁREA PRINCIPAL DE VIDEO ═══════════════ -->
+  <div class="session-main">
+
+    <!-- Header de la sesión -->
+    <div class="session-header">
+      <div class="session-header-brand">
+        <span>💚</span> Emotion · Sesión privada
+      </div>
+      <div class="session-header-info">
+        <span id="session-participant-name">Cargando...</span>
+      </div>
+      <div class="session-timer" id="session-timer">00:00</div>
+    </div>
+
+    <!-- Área de video -->
+    <div class="video-container" id="video-container">
+      <div class="video-placeholder" id="video-placeholder">
+        <div class="video-placeholder-icon">📹</div>
+        <div style="font-size:1.1rem;font-weight:700">Iniciando videollamada...</div>
+        <div style="font-size:0.85rem;color:rgba(255,255,255,0.5);text-align:center;max-width:300px">
+          Por favor permite el acceso a tu cámara y micrófono cuando el navegador te lo solicite.
+        </div>
+        <button class="em-btn em-btn-primary" id="btn-start-call" onclick="startCall()" style="margin-top:8px">
+          📹 Iniciar videollamada
+        </button>
+      </div>
+      <!-- Daily.co frame -->
+      <iframe id="daily-frame" style="display:none" allow="camera; microphone; fullscreen; display-capture; autoplay" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+
+    <!-- Controles -->
+    <div class="session-controls">
+      <div style="position:relative">
+        <button class="ctrl-btn mic" id="btn-mic" onclick="toggleMic()" title="Silenciar micrófono">🎙️</button>
+        <span class="ctrl-btn-label">Micrófono</span>
+      </div>
+      <div style="position:relative">
+        <button class="ctrl-btn cam" id="btn-cam" onclick="toggleCam()" title="Apagar cámara">📹</button>
+        <span class="ctrl-btn-label">Cámara</span>
+      </div>
+      <div style="position:relative">
+        <button class="ctrl-btn" style="background:rgba(91,141,239,0.15);color:#5B8DEF;font-size:1rem" onclick="showSidebarPanel('chat')" title="Chat">💬</button>
+        <span class="ctrl-btn-label">Chat</span>
+      </div>
+      <div style="position:relative" id="end-session-wrap">
+        <button class="ctrl-btn end" onclick="requestEndSession()" title="Finalizar sesión">📵</button>
+        <span class="ctrl-btn-label" style="color:rgba(229,62,62,0.8)">Finalizar</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ PANEL LATERAL ═══════════════ -->
+  <div class="session-sidebar">
+
+    <!-- Tabs -->
+    <div class="sidebar-tabs">
+      <div class="sidebar-tab active" id="tab-chat" onclick="showSidebarPanel('chat')">💬 Chat</div>
+      <div class="sidebar-tab" id="tab-notes" onclick="showSidebarPanel('notes')">📝 Notas</div>
+      <div class="sidebar-tab" id="tab-info" onclick="showSidebarPanel('info')">ℹ️ Info</div>
+    </div>
+
+    <div class="sidebar-content">
+
+      <!-- Panel: Chat en tiempo real -->
+      <div class="sidebar-panel active" id="panel-chat">
+        <div class="em-session-chat">
+          <div class="em-chat-messages" id="chat-messages">
+            <div style="text-align:center;padding:20px;color:rgba(255,255,255,0.4);font-size:0.82rem">
+              El chat es privado entre tú y tu psicólogo/paciente
+            </div>
+          </div>
+          <div class="em-chat-input-area" style="background:#1A1F2A;border-top-color:rgba(255,255,255,0.08)">
+            <textarea class="em-chat-input" id="chat-input"
+              style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.1);color:white;resize:none"
+              placeholder="Escribe un mensaje..." rows="1"
+              onkeydown="handleChatKey(event)"></textarea>
+            <button class="em-chat-send" onclick="sendChatMessage()">➤</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel: Notas del psicólogo (SOLO visible para psicólogos) -->
+      <div class="sidebar-panel" id="panel-notes">
+        <div class="em-notes-panel" style="flex:1">
+          <div class="em-notes-panel-header">
+            📝 Notas de sesión
+            <span class="em-notes-panel-badge">🔒 PRIVADO</span>
+          </div>
+          <div id="notes-psych-only" class="em-notes-panel-body">
+            <!-- Visible solo para psicólogos -->
+            <div class="em-notes-field">
+              <label>📋 Diagnóstico / Observaciones clínicas</label>
+              <textarea class="em-notes-textarea" id="note-diagnostico" rows="4"
+                placeholder="Observaciones clínicas, impresión diagnóstica..."></textarea>
+            </div>
+            <div class="em-notes-field">
+              <label>🏋️ Ejercicios para el paciente</label>
+              <textarea class="em-notes-textarea" id="note-ejercicios" rows="3"
+                placeholder="Tareas y ejercicios para hacer en casa..."></textarea>
+            </div>
+            <div class="em-notes-field">
+              <label>💡 Recomendaciones</label>
+              <textarea class="em-notes-textarea" id="note-recomendaciones" rows="3"
+                placeholder="Recomendaciones generales, lecturas, recursos..."></textarea>
+            </div>
+          </div>
+          <!-- Para pacientes: mensaje de privacidad -->
+          <div id="notes-patient-msg" class="em-notes-panel-body" style="display:none">
+            <div style="text-align:center;padding:20px;color:rgba(255,255,255,0.5)">
+              <div style="font-size:2rem;margin-bottom:12px">🔒</div>
+              <div style="font-size:0.9rem;line-height:1.6">
+                Tu psicólogo está tomando notas clínicas durante la sesión.<br>
+                Al finalizar recibirás un resumen con los ejercicios y recomendaciones.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel: Información de la sesión -->
+      <div class="sidebar-panel" id="panel-info">
+        <div style="padding:20px;flex:1">
+          <div style="margin-bottom:20px">
+            <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.4);margin-bottom:12px">
+              Detalles de la sesión
+            </div>
+            <div id="session-info-content">
+              <div style="display:flex;flex-direction:column;gap:10px;font-size:0.88rem">
+                <div style="display:flex;justify-content:space-between">
+                  <span style="color:rgba(255,255,255,0.5)">Fecha</span>
+                  <span id="info-fecha">—</span>
+                </div>
+                <div style="display:flex;justify-content:space-between">
+                  <span style="color:rgba(255,255,255,0.5)">Hora inicio</span>
+                  <span id="info-hora">—</span>
+                </div>
+                <div style="display:flex;justify-content:space-between">
+                  <span style="color:rgba(255,255,255,0.5)">Duración</span>
+                  <span id="info-duracion" style="color:#4CAF9A;font-weight:600">00:00</span>
+                </div>
+                <div style="display:flex;justify-content:space-between">
+                  <span style="color:rgba(255,255,255,0.5)">Participante</span>
+                  <span id="info-participant">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:16px">
+            <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.4);margin-bottom:12px">
+              Recordatorios
+            </div>
+            <div style="font-size:0.82rem;color:rgba(255,255,255,0.5);line-height:1.7">
+              🔒 Esta sesión es privada y confidencial<br>
+              ⏱️ Duración recomendada: 50 minutos<br>
+              📋 Toma notas para recordar lo importante<br>
+              🎙️ Habla en un lugar privado y sin distracciones
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL: FINALIZAR SESIÓN (psicólogo) ═══════ -->
+<div class="em-modal-overlay" id="modal-end-session" style="z-index:9999">
+  <div class="em-modal">
+    <div class="em-modal-header">
+      <h3 class="em-modal-title">📋 Finalizar sesión</h3>
+    </div>
+    <div class="em-modal-body">
+      <div class="em-alert em-alert-info" style="margin-bottom:16px">
+        <span>ℹ️</span>
+        <span>Revisa el contenido antes de enviarlo al paciente. El diagnóstico es privado.</span>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="em-summary-section">
+          <div class="em-summary-section-title">🔒 Diagnóstico (privado)</div>
+          <div class="em-summary-content" id="review-diagnostico" style="font-size:0.88rem;white-space:pre-wrap">—</div>
+        </div>
+        <div class="em-summary-section">
+          <div class="em-summary-section-title">🏋️ Ejercicios para el paciente</div>
+          <textarea class="em-textarea" id="review-ejercicios" rows="3" placeholder="Ejercicios para trabajar en casa..."></textarea>
+        </div>
+        <div class="em-summary-section">
+          <div class="em-summary-section-title">💡 Recomendaciones</div>
+          <textarea class="em-textarea" id="review-recomendaciones" rows="3" placeholder="Recomendaciones generales..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="em-modal-footer">
+      <button class="em-btn em-btn-ghost" onclick="closeModal('modal-end-session')">Volver a la sesión</button>
+      <button class="em-btn em-btn-primary" onclick="confirmEndSession()">✅ Finalizar y enviar al paciente</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL: RESUMEN PARA PACIENTE (firma) ═══════ -->
+<div class="em-modal-overlay" id="modal-patient-summary" style="z-index:9999;background:rgba(0,0,0,0.85)">
+  <div class="em-modal">
+    <div class="em-modal-header" style="background:linear-gradient(135deg,var(--em-mint),var(--em-blue));color:white;border-radius:var(--em-radius-xl) var(--em-radius-xl) 0 0">
+      <h3 class="em-modal-title" style="color:white">✅ Resumen de tu sesión</h3>
+    </div>
+    <div class="em-modal-body">
+      <div class="em-alert em-alert-success" style="margin-bottom:16px">
+        <span>🎉</span>
+        <span>Tu sesión ha finalizado. Aquí está tu resumen personalizado.</span>
+      </div>
+
+      <div id="patient-summary-content" style="display:flex;flex-direction:column;gap:12px">
+        <!-- Dinámico -->
+      </div>
+
+      <div class="em-signature-box" style="margin-top:20px">
+        <h4>✍️ Confirmar recepción</h4>
+        <p>Al presionar "Firmar", confirmas haber recibido y leído el resumen de tu sesión. Esta acción queda registrada de forma segura.</p>
+        <button class="em-btn em-btn-primary em-btn-block" id="btn-sign" onclick="signSessionRecord()">
+          ✍️ Recibido — Firmar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/session.js"></script>
+
+<script>
+  const { db, auth, rtdb, COLLECTIONS } = EmotionApp;
+  const params = new URLSearchParams(window.location.search);
+  const sessionId = params.get('session');
+
+  let currentUser = null;
+  let currentUserData = null;
+  let sessionData = null;
+  let otherParticipant = null;
+  let isPsychologist = false;
+  let micMuted = false;
+  let camOff = false;
+  let sessionTimer = null;
+  let sessionSeconds = 0;
+  let callFrame = null;
+
+  // ── Inicializar ───────────────────────────────────────────────
+  auth.onAuthStateChanged(async (user) => {
+    if (!user) { window.location.href = 'login.html'; return; }
+    currentUser = user;
+    currentUserData = await EmotionApp.getUserData(user.uid);
+
+    if (!sessionId) { window.location.href = 'patient-dashboard.html'; return; }
+
+    // Cargar datos de la sesión
+    const sessionDoc = await db.collection(COLLECTIONS.SESSIONS).doc(sessionId).get();
+    if (!sessionDoc.exists) {
+      EmotionApp.showAlert('Sesión no encontrada.', 'error');
+      window.location.href = 'patient-dashboard.html';
+      return;
+    }
+
+    sessionData = { id: sessionId, ...sessionDoc.data() };
+    isPsychologist = currentUserData.rol === 'psychologist';
+
+    // Cargar datos del otro participante
+    const otherUserId = isPsychologist ? sessionData.pacienteId : sessionData.psicologoId;
+    otherParticipant = await EmotionApp.getUserData(otherUserId);
+
+    // Actualizar UI
+    document.getElementById('session-participant-name').textContent =
+      isPsychologist ? `Sesión con: ${otherParticipant?.nombre || 'Paciente'}` :
+        `Sesión con: ${otherParticipant?.nombre || 'Tu psicólogo'}`;
+    document.getElementById('info-fecha').textContent = sessionData.fecha || '—';
+    document.getElementById('info-hora').textContent = sessionData.hora || '—';
+    document.getElementById('info-participant').textContent = otherParticipant?.nombre || '—';
+
+    // Mostrar/ocultar notas según rol
+    if (isPsychologist) {
+      document.getElementById('notes-psych-only').style.display = 'flex';
+      document.getElementById('notes-patient-msg').style.display = 'none';
+    } else {
+      document.getElementById('notes-psych-only').style.display = 'none';
+      document.getElementById('notes-patient-msg').style.display = 'flex';
+      // El paciente no puede finalizar la sesión (solo el psicólogo)
+      document.getElementById('end-session-wrap').style.display = isPsychologist ? 'block' : 'none';
+    }
+
+    // Inicializar chat en tiempo real
+    initRealtimeChat();
+  });
+
+  // ── Iniciar videollamada con Daily.co ─────────────────────────
+  async function startCall() {
+    const btn = document.getElementById('btn-start-call');
+    btn.disabled = true;
+    btn.textContent = '⏳ Conectando...';
+
+    try {
+      // Obtener o crear sala Daily.co
+      const roomData = await SessionModule.getOrCreateRoom(sessionId);
+      const roomUrl = roomData.url;
+
+      document.getElementById('video-placeholder').style.display = 'none';
+      const frame = document.getElementById('daily-frame');
+      frame.src = roomUrl;
+      frame.style.display = 'block';
+
+      // Iniciar temporizador
+      startTimer();
+
+      // Actualizar estado de la sesión en Firestore si aplica
+      if (sessionData.estado !== 'completed') {
+        await db.collection(COLLECTIONS.SESSIONS).doc(sessionId).update({
+          estadoLlamada: 'active',
+          horaInicio: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+
+      EmotionApp.showAlert('Videollamada iniciada.', 'success');
+    } catch (err) {
+      console.error('Error iniciando la llamada:', err);
+      btn.disabled = false;
+      btn.textContent = '📹 Iniciar videollamada';
+      EmotionApp.showAlert('Error al conectar. Verifica tu conexión e inténtalo nuevamente.', 'error');
+    }
+  }
+
+  // ── Temporizador ──────────────────────────────────────────────
+  function startTimer() {
+    sessionTimer = setInterval(() => {
+      sessionSeconds++;
+      const h = Math.floor(sessionSeconds / 3600);
+      const m = Math.floor((sessionSeconds % 3600) / 60);
+      const s = sessionSeconds % 60;
+      const display = h > 0
+        ? `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+        : `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      document.getElementById('session-timer').textContent = display;
+      document.getElementById('info-duracion').textContent = display;
+    }, 1000);
+  }
+
+  // ── Controles de media ────────────────────────────────────────
+  function toggleMic() {
+    micMuted = !micMuted;
+    const btn = document.getElementById('btn-mic');
+    btn.textContent = micMuted ? '🔇' : '🎙️';
+    btn.classList.toggle('muted', micMuted);
+    // Comunicar al frame de Daily.co (si está activo)
+    const frame = document.getElementById('daily-frame');
+    if (frame.contentWindow) {
+      frame.contentWindow.postMessage({ action: micMuted ? 'mute-audio' : 'unmute-audio' }, '*');
+    }
+  }
+
+  function toggleCam() {
+    camOff = !camOff;
+    const btn = document.getElementById('btn-cam');
+    btn.textContent = camOff ? '📵' : '📹';
+    btn.classList.toggle('muted', camOff);
+    const frame = document.getElementById('daily-frame');
+    if (frame.contentWindow) {
+      frame.contentWindow.postMessage({ action: camOff ? 'hide-local-video' : 'show-local-video' }, '*');
+    }
+  }
+
+  // ── Finalizar sesión (psicólogo) ──────────────────────────────
+  function requestEndSession() {
+    if (!isPsychologist) {
+      if (confirm('¿Deseas abandonar la sesión?')) {
+        window.location.href = 'patient-dashboard.html';
+      }
+      return;
+    }
+
+    // Llenar el modal con las notas actuales
+    document.getElementById('review-diagnostico').textContent =
+      document.getElementById('note-diagnostico').value || '(Sin diagnóstico registrado)';
+    document.getElementById('review-ejercicios').value =
+      document.getElementById('note-ejercicios').value;
+    document.getElementById('review-recomendaciones').value =
+      document.getElementById('note-recomendaciones').value;
+
+    document.getElementById('modal-end-session').classList.add('active');
+  }
+
+  async function confirmEndSession() {
+    const diagnostico = document.getElementById('note-diagnostico').value;
+    const ejercicios = document.getElementById('review-ejercicios').value;
+    const recomendaciones = document.getElementById('review-recomendaciones').value;
+
+    EmotionApp.setLoading(true, 'Guardando la sesión...');
+
+    try {
+      const duracion = Math.floor(sessionSeconds / 60);
+
+      // Guardar notas privadas del psicólogo
+      await db.collection(COLLECTIONS.SESSION_NOTES).add({
+        sesionId: sessionId,
+        psicologoId: currentUser.uid,
+        diagnostico,
+        ejercicios,
+        recomendaciones,
+        duracion,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      // Marcar sesión como completada
+      await db.collection(COLLECTIONS.SESSIONS).doc(sessionId).update({
+        estado: 'completed',
+        duracion,
+        ejercicios,
+        recomendaciones,
+        horaFin: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      // Notificar al paciente por Realtime DB
+      await rtdb.ref(`sessions/${sessionId}/status`).set({
+        ended: true,
+        ejercicios,
+        recomendaciones,
+        timestamp: Date.now()
+      });
+
+      EmotionApp.setLoading(false);
+      closeModal('modal-end-session');
+
+      // Detener timer y video
+      if (sessionTimer) clearInterval(sessionTimer);
+
+      EmotionApp.showAlert('Sesión finalizada. Esperando firma del paciente...', 'success');
+
+      // Mostrar pantalla de cierre para el psicólogo
+      showEndedScreen(false);
+
+    } catch (err) {
+      EmotionApp.setLoading(false);
+      EmotionApp.showAlert('Error al finalizar la sesión.', 'error');
+      console.error(err);
+    }
+  }
+
+  // ── Paciente: escuchar cuando el psicólogo termina ───────────
+  function listenForSessionEnd() {
+    rtdb.ref(`sessions/${sessionId}/status`).on('value', async (snap) => {
+      const data = snap.val();
+      if (data?.ended) {
+        if (sessionTimer) clearInterval(sessionTimer);
+        showPatientSummary(data.ejercicios, data.recomendaciones);
+      }
+    });
+  }
+
+  // ── Mostrar resumen al paciente ───────────────────────────────
+  function showPatientSummary(ejercicios, recomendaciones) {
+    const content = document.getElementById('patient-summary-content');
+    content.innerHTML = `
+      ${ejercicios ? `
+        <div class="em-summary-section">
+          <div class="em-summary-section-title">🏋️ Ejercicios para esta semana</div>
+          <div class="em-summary-content">${ejercicios || 'No hay ejercicios asignados.'}</div>
+        </div>
+      ` : ''}
+      ${recomendaciones ? `
+        <div class="em-summary-section">
+          <div class="em-summary-section-title">💡 Recomendaciones de tu psicólogo</div>
+          <div class="em-summary-content">${recomendaciones || 'No hay recomendaciones.'}</div>
+        </div>
+      ` : ''}
+      ${!ejercicios && !recomendaciones ? `
+        <div class="em-empty">
+          <div class="em-empty-icon">📋</div>
+          <div class="em-empty-text">Tu psicólogo no ha dejado notas adicionales.</div>
+        </div>
+      ` : ''}
+    `;
+    document.getElementById('modal-patient-summary').classList.add('active');
+
+    // Ocultar el video
+    document.getElementById('daily-frame').style.display = 'none';
+    document.getElementById('video-placeholder').style.display = 'flex';
+    document.getElementById('video-placeholder').innerHTML = `
+      <div style="font-size:3rem;margin-bottom:12px">⏳</div>
+      <div>Esperando que firmes el resumen de la sesión...</div>
+    `;
+  }
+
+  // ── Firmar el registro de sesión (paciente) ───────────────────
+  async function signSessionRecord() {
+    const btn = document.getElementById('btn-sign');
+    btn.disabled = true;
+    btn.textContent = '⏳ Guardando firma...';
+
+    try {
+      const sessionDoc = await db.collection(COLLECTIONS.SESSIONS).doc(sessionId).get();
+      const sess = sessionDoc.data();
+
+      // Crear el registro firmado
+      await db.collection(COLLECTIONS.SESSION_RECORDS).add({
+        sesionId: sessionId,
+        pacienteId: currentUser.uid,
+        psicologoId: sess.psicologoId,
+        ejercicios: sess.ejercicios || '',
+        recomendaciones: sess.recomendaciones || '',
+        firmaPaciente: currentUser.uid,
+        nombrePaciente: currentUserData.nombre,
+        firmaTiempo: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      // Actualizar sesión con la firma
+      await db.collection(COLLECTIONS.SESSIONS).doc(sessionId).update({
+        firmado: true,
+        firmaTiempo: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      document.getElementById('modal-patient-summary').innerHTML = `
+        <div class="em-modal-body" style="text-align:center;padding:40px">
+          <div style="font-size:4rem;margin-bottom:16px">✅</div>
+          <h3 style="color:var(--em-success);margin-bottom:8px">¡Sesión registrada!</h3>
+          <p style="color:var(--em-text-light);margin-bottom:24px">
+            Firmaste el resumen de tu sesión. Quedará disponible en tu historial.
+          </p>
+          <a href="patient-dashboard.html" class="em-btn em-btn-primary">Volver a mi panel</a>
+        </div>
+      `;
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = '✍️ Recibido — Firmar';
+      EmotionApp.showAlert('Error al registrar la firma.', 'error');
+    }
+  }
+
+  // ── Pantalla de sesión finalizada (psicólogo) ─────────────────
+  function showEndedScreen(forPatient) {
+    const frame = document.getElementById('daily-frame');
+    frame.style.display = 'none';
+    const ph = document.getElementById('video-placeholder');
+    ph.style.display = 'flex';
+    ph.innerHTML = `
+      <div style="font-size:3rem;margin-bottom:16px">✅</div>
+      <div style="font-size:1.1rem;font-weight:700;color:white">Sesión finalizada</div>
+      <div style="font-size:0.85rem;color:rgba(255,255,255,0.5);margin:8px 0 20px">
+        Duración: ${Math.floor(sessionSeconds/60)} minutos
+      </div>
+      <a href="psychologist-dashboard.html" class="em-btn em-btn-primary">Volver a mi panel</a>
+    `;
+  }
+
+  // ── Chat en tiempo real ───────────────────────────────────────
+  function initRealtimeChat() {
+    const chatRef = rtdb.ref(`chats/${sessionId}`);
+
+    chatRef.on('child_added', (snap) => {
+      const msg = snap.val();
+      appendChatMessage(msg);
+    });
+
+    // Si es paciente, escuchar también el fin de sesión
+    if (!isPsychologist) listenForSessionEnd();
+  }
+
+  async function sendChatMessage() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    input.style.height = 'auto';
+
+    try {
+      await rtdb.ref(`chats/${sessionId}`).push({
+        text,
+        senderId: currentUser.uid,
+        senderName: currentUserData.nombre || 'Usuario',
+        isOwn: true,
+        timestamp: Date.now()
+      });
+    } catch (err) {
+      console.error('Error enviando mensaje:', err);
+    }
+  }
+
+  function appendChatMessage(msg) {
+    const container = document.getElementById('chat-messages');
+    const isOwn = msg.senderId === currentUser.uid;
+    const time = new Date(msg.timestamp).toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' });
+
+    const div = document.createElement('div');
+    div.className = `em-chat-message ${isOwn ? 'own' : 'other'}`;
+    div.innerHTML = `
+      ${!isOwn ? `<div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-bottom:3px;padding-left:4px">${msg.senderName}</div>` : ''}
+      <div class="em-chat-bubble">${msg.text}</div>
+      <div class="em-chat-time">${time}</div>
+    `;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function handleChatKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendChatMessage();
+    }
+  }
+
+  // ── Navegación de paneles laterales ──────────────────────────
+  function showSidebarPanel(name) {
+    ['chat','notes','info'].forEach(p => {
+      document.getElementById(`panel-${p}`)?.classList.toggle('active', p === name);
+      document.getElementById(`tab-${p}`)?.classList.toggle('active', p === name);
+    });
+  }
+
+  function closeModal(id) { document.getElementById(id)?.classList.remove('active'); }
+
+  // Limpiar al cerrar la ventana
+  window.addEventListener('beforeunload', () => {
+    if (sessionTimer) clearInterval(sessionTimer);
+  });
+</script>
+</body>
+</html>

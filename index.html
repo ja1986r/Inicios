@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emotion — Psicología Online en Latinoamérica</title>
+  <meta name="description" content="Conecta con psicólogos profesionales certificados en toda Latinoamérica. Sesiones de terapia en línea, seguras y confidenciales.">
+  <meta name="theme-color" content="#4CAF9A">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💚</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+  <!-- Barra de progreso de scroll -->
+  <div id="em-progress-bar"></div>
+
+  <!-- ═══════════════════════════ HEADER ═══════════════════════════ -->
+  <header class="em-header" id="main-header">
+    <div class="em-container">
+      <div class="em-header-inner">
+        <a href="index.html" class="em-logo">
+          <div class="em-logo-icon">💚</div>
+          Emotion
+        </a>
+
+        <nav class="em-nav" id="main-nav">
+          <a href="#psicologos" class="active">Psicólogos</a>
+          <a href="#como-funciona">¿Cómo funciona?</a>
+          <a href="#precios">Especialidades</a>
+          <a href="#testimonios">Testimonios</a>
+        </nav>
+
+        <div class="em-nav-actions">
+          <a href="login.html?tab=login" class="em-btn em-btn-ghost em-btn-sm">Iniciar sesión</a>
+          <a href="login.html?tab=register" class="em-btn em-btn-primary em-btn-sm">Registrarse</a>
+        </div>
+
+        <button class="em-hamburger" id="hamburger" aria-label="Menú">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════ HERO ══════════════════════════════ -->
+  <section class="em-hero">
+    <div class="em-container">
+      <div class="em-hero-inner">
+        <div class="em-hero-content">
+          <div class="em-hero-tag">
+            🌱 Plataforma certificada en 15+ países LATAM
+          </div>
+          <h1 class="em-hero-title">
+            Tu bienestar mental<br>
+            <span class="em-accent">merece atención</span> real
+          </h1>
+          <p class="em-hero-subtitle">
+            Conecta con psicólogos profesionales certificados desde la comodidad de tu hogar. Sesiones seguras, confidenciales y en tu idioma.
+          </p>
+          <div class="em-hero-cta">
+            <a href="#psicologos" class="em-btn em-btn-primary em-btn-lg">
+              🔍 Encontrar psicólogo
+            </a>
+            <a href="login.html?tab=register&role=psychologist" class="em-btn em-btn-outline em-btn-lg">
+              Soy psicólogo
+            </a>
+          </div>
+          <div class="em-hero-stats">
+            <div class="em-stat-item">
+              <div class="em-stat-number" id="stat-psychologists">0</div>
+              <div class="em-stat-label">Psicólogos</div>
+            </div>
+            <div class="em-stat-item">
+              <div class="em-stat-number" id="stat-patients">0</div>
+              <div class="em-stat-label">Pacientes</div>
+            </div>
+            <div class="em-stat-item">
+              <div class="em-stat-number" id="stat-sessions">0</div>
+              <div class="em-stat-label">Sesiones</div>
+            </div>
+            <div class="em-stat-item">
+              <div class="em-stat-number">15+</div>
+              <div class="em-stat-label">Países</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="em-hero-image">
+          <div class="em-hero-visual">
+            <div style="text-align:center;padding:20px 0">
+              <div style="font-size:5rem;margin-bottom:16px">🧠</div>
+              <h3 style="color:var(--em-text);margin-bottom:8px">Cuida tu mente</h3>
+              <p style="color:var(--em-text-light);font-size:0.9rem">Sesiones profesionales desde cualquier lugar</p>
+            </div>
+            <!-- Card flotante 1 -->
+            <div class="em-hero-card-float" style="top:-20px;right:-20px">
+              <div style="font-size:1.4rem">✅</div>
+              <div>
+                <div style="font-size:0.75rem;font-weight:700;color:var(--em-text)">Psicólogos verificados</div>
+                <div style="font-size:0.7rem;color:var(--em-text-light)">Certificados y aprobados</div>
+              </div>
+            </div>
+            <!-- Card flotante 2 -->
+            <div class="em-hero-card-float" style="bottom:20px;left:-32px">
+              <div style="font-size:1.4rem">🔒</div>
+              <div>
+                <div style="font-size:0.75rem;font-weight:700;color:var(--em-text)">100% Confidencial</div>
+                <div style="font-size:0.7rem;color:var(--em-text-light)">Privacidad garantizada</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ FEATURES ══════════════════════════════ -->
+  <section class="em-features">
+    <div class="em-container">
+      <div class="em-section-header center">
+        <div class="em-section-tag">✨ Beneficios</div>
+        <h2 class="em-section-title">¿Por qué elegir Emotion?</h2>
+        <p class="em-section-subtitle">Una plataforma diseñada para conectar a pacientes y profesionales de forma segura, cálida y profesional.</p>
+      </div>
+      <div class="em-features-grid">
+        <div class="em-feature-card">
+          <div class="em-feature-icon">🎓</div>
+          <h4 class="em-feature-title">Profesionales certificados</h4>
+          <p class="em-feature-text">Cada psicólogo es verificado manualmente por nuestro equipo. Revisamos títulos, matrículas y experiencia antes de aprobar su perfil.</p>
+        </div>
+        <div class="em-feature-card">
+          <div class="em-feature-icon blue">📹</div>
+          <h4 class="em-feature-title">Videollamada de alta calidad</h4>
+          <p class="em-feature-text">Sesiones en video HD con tecnología Daily.co. Sin descargas, sin configuraciones. Solo abre el navegador y conecta.</p>
+        </div>
+        <div class="em-feature-card">
+          <div class="em-feature-icon">💰</div>
+          <h4 class="em-feature-title">Multi-moneda LATAM</h4>
+          <p class="em-feature-text">Paga en tu moneda local: USD, PYG, COP, ARS, BRL, CLP, MXN. Sin conversiones sorpresivas ni comisiones ocultas.</p>
+        </div>
+        <div class="em-feature-card">
+          <div class="em-feature-icon blue">📋</div>
+          <h4 class="em-feature-title">Historial documentado</h4>
+          <p class="em-feature-text">Cada sesión queda registrada con resumen, ejercicios y recomendaciones. Tu psicólogo y tú siempre con el contexto completo.</p>
+        </div>
+        <div class="em-feature-card">
+          <div class="em-feature-icon">📚</div>
+          <h4 class="em-feature-title">Recursos personalizados</h4>
+          <p class="em-feature-text">Tu psicólogo puede asignarte PDFs, videos y materiales de trabajo personalizados, disponibles en tu panel en todo momento.</p>
+        </div>
+        <div class="em-feature-card">
+          <div class="em-feature-icon blue">🔒</div>
+          <h4 class="em-feature-title">Privacidad garantizada</h4>
+          <p class="em-feature-text">Tus datos y sesiones están protegidos con encriptación de extremo a extremo. Nunca compartimos información con terceros.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ PSICÓLOGOS ════════════════════════════ -->
+  <section class="em-psychologists" id="psicologos">
+    <div class="em-container">
+      <div class="em-section-header">
+        <div class="em-section-tag">👨‍⚕️ Nuestro equipo</div>
+        <h2 class="em-section-title">Psicólogos disponibles</h2>
+        <p class="em-section-subtitle">Profesionales verificados, listos para acompañarte en tu proceso.</p>
+      </div>
+
+      <!-- Filtros de búsqueda -->
+      <div class="em-search-bar">
+        <div class="em-form-group">
+          <label class="em-label">Especialidad</label>
+          <select class="em-select" id="filter-specialty">
+            <option value="">Todas las especialidades</option>
+          </select>
+        </div>
+        <div class="em-form-group">
+          <label class="em-label">País</label>
+          <select class="em-select" id="filter-country">
+            <option value="">Todos los países</option>
+          </select>
+        </div>
+        <div class="em-form-group">
+          <label class="em-label">Moneda</label>
+          <select class="em-select" id="filter-currency">
+            <option value="">Todas las monedas</option>
+          </select>
+        </div>
+        <button class="em-btn em-btn-primary" id="btn-search">🔍 Buscar</button>
+        <button class="em-btn em-btn-ghost" id="btn-clear">Limpiar</button>
+      </div>
+
+      <!-- Grid de psicólogos -->
+      <div class="em-psychologists-grid" id="psychologists-grid">
+        <!-- Skeletons de carga -->
+        <div class="em-skeleton em-skeleton-card"></div>
+        <div class="em-skeleton em-skeleton-card"></div>
+        <div class="em-skeleton em-skeleton-card"></div>
+        <div class="em-skeleton em-skeleton-card"></div>
+        <div class="em-skeleton em-skeleton-card"></div>
+        <div class="em-skeleton em-skeleton-card"></div>
+      </div>
+
+      <div class="em-empty" id="no-psychologists" style="display:none">
+        <div class="em-empty-icon">🔍</div>
+        <div class="em-empty-title">No se encontraron psicólogos</div>
+        <div class="em-empty-text">Prueba con otros filtros de búsqueda</div>
+        <button class="em-btn em-btn-outline" id="btn-clear-2">Ver todos</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ CÓMO FUNCIONA ══════════════════════════ -->
+  <section class="em-how-it-works" id="como-funciona">
+    <div class="em-container">
+      <div class="em-section-header center" style="margin-bottom:48px">
+        <div class="em-section-tag">🗺️ Proceso</div>
+        <h2 class="em-section-title">¿Cómo funciona?</h2>
+        <p class="em-section-subtitle">Comenzar es fácil. En 4 simples pasos ya tendrás tu primera sesión agendada.</p>
+      </div>
+      <div class="em-steps">
+        <div class="em-step">
+          <div class="em-step-number">1</div>
+          <h4 class="em-step-title">Regístrate</h4>
+          <p class="em-step-text">Crea tu cuenta como paciente en menos de 2 minutos. Solo necesitas tu email.</p>
+        </div>
+        <div class="em-step">
+          <div class="em-step-number">2</div>
+          <h4 class="em-step-title">Elige tu psicólogo</h4>
+          <p class="em-step-text">Explora perfiles, lee especialidades y ve el video de presentación de cada profesional.</p>
+        </div>
+        <div class="em-step">
+          <div class="em-step-number">3</div>
+          <h4 class="em-step-title">Agenda y paga</h4>
+          <p class="em-step-text">Selecciona fecha y hora disponibles. Paga de forma segura con tarjeta en tu moneda local.</p>
+        </div>
+        <div class="em-step">
+          <div class="em-step-number">4</div>
+          <h4 class="em-step-title">Conéctate</h4>
+          <p class="em-step-text">A la hora agendada, entra a tu sala de videollamada privada con un solo clic.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ TESTIMONIOS ════════════════════════════ -->
+  <section class="em-testimonials" id="testimonios">
+    <div class="em-container">
+      <div class="em-section-header center">
+        <div class="em-section-tag">💬 Testimonios</div>
+        <h2 class="em-section-title">Lo que dicen nuestros usuarios</h2>
+      </div>
+      <div class="em-grid em-grid-3 em-gap-24">
+        <div class="em-testimonial-card">
+          <p class="em-testimonial-text">"Emotion cambió mi vida. Encontré una psicóloga especializada en ansiedad en mi país y las sesiones desde casa son increíblemente cómodas."</p>
+          <div class="em-testimonial-author">
+            <div class="em-testimonial-avatar">M</div>
+            <div>
+              <div class="em-testimonial-name">María González</div>
+              <div class="em-testimonial-role">Paciente — Colombia</div>
+            </div>
+          </div>
+        </div>
+        <div class="em-testimonial-card">
+          <p class="em-testimonial-text">"Como psicóloga, Emotion me permite llegar a pacientes de toda LATAM. La plataforma es intuitiva y el sistema de notas durante la sesión es brillante."</p>
+          <div class="em-testimonial-author">
+            <div class="em-testimonial-avatar">L</div>
+            <div>
+              <div class="em-testimonial-name">Lic. Laura Méndez</div>
+              <div class="em-testimonial-role">Psicóloga — Argentina</div>
+            </div>
+          </div>
+        </div>
+        <div class="em-testimonial-card">
+          <p class="em-testimonial-text">"El proceso de agendamiento y pago es súper simple. Los recursos que me asigna mi psicólogo me ayudan a trabajar entre sesiones."</p>
+          <div class="em-testimonial-author">
+            <div class="em-testimonial-avatar">C</div>
+            <div>
+              <div class="em-testimonial-name">Carlos Ruiz</div>
+              <div class="em-testimonial-role">Paciente — México</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ CTA FINAL ══════════════════════════════ -->
+  <section class="em-cta-section">
+    <div class="em-container">
+      <h2>Empieza hoy tu camino al bienestar</h2>
+      <p>Más de 1000 personas en LATAM ya encontraron apoyo profesional en Emotion. Es tu turno.</p>
+      <div class="em-cta-buttons">
+        <a href="login.html?tab=register&role=patient" class="em-btn em-btn-white em-btn-lg">
+          🌱 Soy paciente — Registrarme
+        </a>
+        <a href="login.html?tab=register&role=psychologist" class="em-btn em-btn-outline em-btn-lg" style="border-color:rgba(255,255,255,0.5);color:white">
+          👨‍⚕️ Soy psicólogo — Unirme
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ FOOTER ════════════════════════════════ -->
+  <footer class="em-footer">
+    <div class="em-container">
+      <div class="em-footer-grid">
+        <div class="em-footer-brand">
+          <div class="em-footer-logo">💚 Emotion</div>
+          <p class="em-footer-tagline">Plataforma de psicología online para Latinoamérica. Conectamos personas con profesionales certificados para un mejor bienestar mental.</p>
+          <div class="em-footer-socials">
+            <a class="em-social-link" href="#" aria-label="Instagram">📷</a>
+            <a class="em-social-link" href="#" aria-label="Facebook">👥</a>
+            <a class="em-social-link" href="#" aria-label="LinkedIn">💼</a>
+            <a class="em-social-link" href="#" aria-label="Twitter">🐦</a>
+          </div>
+        </div>
+        <div>
+          <div class="em-footer-col-title">Plataforma</div>
+          <div class="em-footer-links">
+            <a href="#psicologos">Psicólogos</a>
+            <a href="#como-funciona">¿Cómo funciona?</a>
+            <a href="login.html?tab=register">Registrarse</a>
+            <a href="login.html?tab=login">Iniciar sesión</a>
+          </div>
+        </div>
+        <div>
+          <div class="em-footer-col-title">Para profesionales</div>
+          <div class="em-footer-links">
+            <a href="login.html?tab=register&role=psychologist">Únete como psicólogo</a>
+            <a href="#">Proceso de verificación</a>
+            <a href="#">Tarifas y comisiones</a>
+            <a href="#">Soporte</a>
+          </div>
+        </div>
+        <div>
+          <div class="em-footer-col-title">Legal</div>
+          <div class="em-footer-links">
+            <a href="#">Términos y condiciones</a>
+            <a href="#">Política de privacidad</a>
+            <a href="#">Política de cookies</a>
+            <a href="#">Contacto</a>
+          </div>
+        </div>
+      </div>
+      <div class="em-footer-bottom">
+        <p>© 2025 Emotion. Todos los derechos reservados.</p>
+        <p>Hecho con 💚 para Latinoamérica</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ─── Firebase SDK ─────────────────────────────────────────────── -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+
+  <!-- ─── Lógica de la landing ─────────────────────────────────────── -->
+  <script>
+    const { db, auth, COLLECTIONS, CURRENCIES, COUNTRIES, SPECIALTIES } = EmotionApp;
+
+    // ── Menú hamburguesa ──────────────────────────────────────────
+    document.getElementById('hamburger').addEventListener('click', () => {
+      document.getElementById('main-nav').classList.toggle('open');
+    });
+
+    // ── Header scroll ─────────────────────────────────────────────
+    window.addEventListener('scroll', () => {
+      const header = document.getElementById('main-header');
+      header.classList.toggle('scrolled', window.scrollY > 20);
+      // Barra de progreso
+      const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+      document.getElementById('em-progress-bar').style.width = pct + '%';
+    });
+
+    // ── Poblar filtros ────────────────────────────────────────────
+    const specSelect = document.getElementById('filter-specialty');
+    SPECIALTIES.forEach(s => specSelect.innerHTML += `<option value="${s}">${s}</option>`);
+
+    const countrySelect = document.getElementById('filter-country');
+    COUNTRIES.forEach(c => countrySelect.innerHTML += `<option value="${c}">${c}</option>`);
+
+    const currencySelect = document.getElementById('filter-currency');
+    Object.entries(CURRENCIES).forEach(([k, v]) =>
+      currencySelect.innerHTML += `<option value="${k}">${k} — ${v.name}</option>`
+    );
+
+    // ── Cargar psicólogos aprobados ───────────────────────────────
+    let allPsychologists = [];
+
+    async function loadPsychologists() {
+      try {
+        const snap = await db.collection(COLLECTIONS.USERS)
+          .where('rol', '==', 'psychologist')
+          .where('estado', '==', 'approved')
+          .get();
+
+        allPsychologists = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+        // Actualizar estadísticas
+        document.getElementById('stat-psychologists').textContent = allPsychologists.length;
+
+        // Cargar stats de pacientes y sesiones
+        const pSnap = await db.collection(COLLECTIONS.USERS).where('rol', '==', 'patient').get();
+        document.getElementById('stat-patients').textContent = pSnap.size;
+
+        const sSnap = await db.collection(COLLECTIONS.SESSIONS).where('estado', '==', 'completed').get();
+        document.getElementById('stat-sessions').textContent = sSnap.size;
+
+        renderPsychologists(allPsychologists);
+      } catch (err) {
+        console.error('Error cargando psicólogos:', err);
+        renderPsychologists([]);
+      }
+    }
+
+    function renderPsychologists(list) {
+      const grid = document.getElementById('psychologists-grid');
+      const empty = document.getElementById('no-psychologists');
+
+      if (list.length === 0) {
+        grid.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      grid.innerHTML = list.map(p => {
+        const initials = (p.nombre || 'P').split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase();
+        const price = EmotionApp.formatPrice(p.precio || 0, p.moneda || 'USD');
+        const photoHTML = p.fotoPerfil
+          ? `<img src="${p.fotoPerfil}" alt="${p.nombre}" class="em-psych-avatar">`
+          : `<div class="em-psych-avatar-placeholder">${initials}</div>`;
+
+        return `
+          <article class="em-psychologist-card em-card-hover" onclick="viewProfile('${p.id}')">
+            <div class="em-psych-card-top">
+              ${photoHTML}
+              <div class="em-psych-name">${p.nombre || 'Profesional'}</div>
+              <div class="em-psych-specialty-badge">${p.especialidad || 'Psicología General'}</div>
+            </div>
+            <div class="em-psych-card-body">
+              <div class="em-psych-info-row">📍 ${p.pais || 'Latinoamérica'}</div>
+              <div class="em-psych-info-row">🎓 ${p.anosExperiencia || 0} años de experiencia</div>
+              <p class="em-psych-description">${p.descripcion || 'Profesional comprometido con tu bienestar.'}</p>
+              <div class="em-psych-meta">
+                <div>
+                  <div class="em-psych-price">${price}</div>
+                  <div class="em-psych-price-label">por sesión</div>
+                </div>
+                <div class="em-rating">⭐ ${(4.5 + Math.random()*0.5).toFixed(1)}</div>
+              </div>
+            </div>
+            <div class="em-psych-card-footer">
+              <button class="em-btn em-btn-outline em-btn-sm" onclick="event.stopPropagation();viewProfile('${p.id}')">
+                Ver perfil
+              </button>
+              <button class="em-btn em-btn-primary em-btn-sm" onclick="event.stopPropagation();bookSession('${p.id}')">
+                📅 Agendar
+              </button>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    // ── Filtrar psicólogos ────────────────────────────────────────
+    function applyFilters() {
+      const spec = document.getElementById('filter-specialty').value;
+      const country = document.getElementById('filter-country').value;
+      const currency = document.getElementById('filter-currency').value;
+
+      const filtered = allPsychologists.filter(p => {
+        if (spec && p.especialidad !== spec) return false;
+        if (country && p.pais !== country) return false;
+        if (currency && p.moneda !== currency) return false;
+        return true;
+      });
+
+      renderPsychologists(filtered);
+    }
+
+    document.getElementById('btn-search').addEventListener('click', applyFilters);
+    document.getElementById('btn-clear').addEventListener('click', () => {
+      document.getElementById('filter-specialty').value = '';
+      document.getElementById('filter-country').value = '';
+      document.getElementById('filter-currency').value = '';
+      renderPsychologists(allPsychologists);
+    });
+    document.getElementById('btn-clear-2').addEventListener('click', () => {
+      document.getElementById('btn-clear').click();
+    });
+
+    // ── Ver perfil de psicólogo ───────────────────────────────────
+    function viewProfile(uid) {
+      window.location.href = `profile.html?id=${uid}`;
+    }
+
+    // ── Agendar sesión ────────────────────────────────────────────
+    function bookSession(uid) {
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          window.location.href = `patient-dashboard.html?book=${uid}`;
+        } else {
+          window.location.href = `login.html?tab=register&redirect=book&psychologist=${uid}`;
+        }
+      });
+    }
+
+    // ── Animación de contadores ───────────────────────────────────
+    function animateCounter(el, target) {
+      let current = 0;
+      const step = Math.ceil(target / 50);
+      const timer = setInterval(() => {
+        current = Math.min(current + step, target);
+        el.textContent = current;
+        if (current >= target) clearInterval(timer);
+      }, 30);
+    }
+
+    // ── Animación de entrada al hacer scroll ──────────────────────
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('em-animate');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.em-feature-card, .em-step, .em-testimonial-card').forEach(el => {
+      observer.observe(el);
+    });
+
+    // ── Inicio ────────────────────────────────────────────────────
+    loadPsychologists();
+
+    // Si el usuario ya está logueado, redirigir al dashboard
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const data = await EmotionApp.getUserData(user.uid);
+        if (data) {
+          const navActions = document.querySelector('.em-nav-actions');
+          navActions.innerHTML = `
+            <span style="font-size:0.85rem;color:var(--em-text-light)">Hola, ${data.nombre?.split(' ')[0] || 'Usuario'}</span>
+            <a href="${data.rol === 'psychologist' ? 'psychologist-dashboard.html' : 'patient-dashboard.html'}"
+               class="em-btn em-btn-primary em-btn-sm">Mi panel</a>
+          `;
+        }
+      }
+    });
+  </script>
+</body>
+</html>

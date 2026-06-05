@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Administrador — Emotion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+<div class="em-dashboard">
+
+  <!-- ═══════════════ SIDEBAR ADMIN ═══════════════ -->
+  <aside class="em-sidebar" id="sidebar">
+    <div class="em-sidebar-brand">
+      <div class="em-logo-icon">🛡️</div>
+      <div>
+        <div class="em-sidebar-brand-name">Emotion</div>
+        <div class="em-sidebar-brand-role">Panel Administrador</div>
+      </div>
+    </div>
+    <div class="em-sidebar-user">
+      <div class="em-sidebar-avatar" style="background:linear-gradient(135deg,#E53E3E,#9B2335)">🛡️</div>
+      <div>
+        <div class="em-sidebar-user-name">Administrador</div>
+        <div class="em-sidebar-user-email" id="admin-email">—</div>
+      </div>
+    </div>
+    <nav class="em-sidebar-nav">
+      <div class="em-sidebar-section-title">Gestión</div>
+      <div class="em-sidebar-link active" data-panel="overview" onclick="showPanel('overview')">
+        <span class="em-sidebar-link-icon">📊</span> Resumen general
+      </div>
+      <div class="em-sidebar-link" data-panel="pending-psychs" onclick="showPanel('pending-psychs')">
+        <span class="em-sidebar-link-icon">⏳</span> Aprobaciones
+        <span class="em-sidebar-badge em-badge-red" id="badge-pending">0</span>
+      </div>
+      <div class="em-sidebar-link" data-panel="psychologists" onclick="showPanel('psychologists')">
+        <span class="em-sidebar-link-icon">👨‍⚕️</span> Psicólogos
+      </div>
+      <div class="em-sidebar-link" data-panel="patients" onclick="showPanel('patients')">
+        <span class="em-sidebar-link-icon">👥</span> Pacientes
+      </div>
+      <div class="em-sidebar-link" data-panel="sessions" onclick="showPanel('sessions')">
+        <span class="em-sidebar-link-icon">📅</span> Sesiones
+      </div>
+      <div class="em-sidebar-section-title">Finanzas</div>
+      <div class="em-sidebar-link" data-panel="finance" onclick="showPanel('finance')">
+        <span class="em-sidebar-link-icon">💰</span> Finanzas
+      </div>
+      <div class="em-sidebar-section-title">Contenido</div>
+      <div class="em-sidebar-link" data-panel="content" onclick="showPanel('content')">
+        <span class="em-sidebar-link-icon">⚙️</span> Configuración
+      </div>
+    </nav>
+    <div class="em-sidebar-footer">
+      <div class="em-sidebar-link" onclick="window.location.href='index.html'">
+        <span class="em-sidebar-link-icon">🌐</span> Ver sitio público
+      </div>
+      <div class="em-sidebar-link logout" onclick="AuthModule.logout()">
+        <span class="em-sidebar-link-icon">🚪</span> Cerrar sesión
+      </div>
+    </div>
+  </aside>
+
+  <div class="em-sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- ═══════════════ CONTENIDO ═══════════════ -->
+  <main class="em-main-content">
+    <div class="em-topbar">
+      <div class="em-topbar-left">
+        <button class="em-sidebar-toggle" onclick="toggleSidebar()">☰</button>
+        <div class="em-topbar-title" id="topbar-title">Resumen general</div>
+      </div>
+      <div class="em-topbar-right">
+        <span style="font-size:0.8rem;color:var(--em-text-light)">Panel Admin</span>
+        <div class="em-topbar-notif">🔔<div class="em-notif-dot" id="notif-dot" style="display:none"></div></div>
+      </div>
+    </div>
+
+    <div class="em-content-area">
+
+      <!-- ═══════════ RESUMEN GENERAL ═══════════ -->
+      <div id="panel-overview" class="em-tab-panel active">
+        <div class="em-page-header">
+          <div class="em-page-title">📊 Resumen general</div>
+          <span id="last-updated" style="font-size:0.82rem;color:var(--em-text-light)"></span>
+        </div>
+
+        <div class="em-admin-stat-row">
+          <div class="em-admin-stat">
+            <div style="font-size:1.5rem">👨‍⚕️</div>
+            <div class="em-admin-stat-val" id="ov-psychologists">0</div>
+            <div class="em-admin-stat-label">Psicólogos activos</div>
+          </div>
+          <div class="em-admin-stat">
+            <div style="font-size:1.5rem">👥</div>
+            <div class="em-admin-stat-val" id="ov-patients">0</div>
+            <div class="em-admin-stat-label">Pacientes registrados</div>
+          </div>
+          <div class="em-admin-stat">
+            <div style="font-size:1.5rem">📅</div>
+            <div class="em-admin-stat-val" id="ov-sessions">0</div>
+            <div class="em-admin-stat-label">Sesiones completadas</div>
+          </div>
+          <div class="em-admin-stat">
+            <div style="font-size:1.5rem">⏳</div>
+            <div class="em-admin-stat-val" id="ov-pending">0</div>
+            <div class="em-admin-stat-label">Psicólogos pendientes</div>
+          </div>
+        </div>
+
+        <!-- Aprobaciones urgentes -->
+        <div class="em-table-wrapper" style="margin-top:24px">
+          <div class="em-table-header">
+            <span class="em-table-title">⏳ Psicólogos pendientes de aprobación</span>
+            <button class="em-btn em-btn-primary em-btn-sm" onclick="showPanel('pending-psychs')">Ver todos</button>
+          </div>
+          <div id="urgent-approvals" style="padding:8px">
+            <div class="em-empty"><div class="em-empty-icon">✅</div><div class="em-empty-text">Cargando...</div></div>
+          </div>
+        </div>
+
+        <!-- Actividad reciente -->
+        <div class="em-table-wrapper" style="margin-top:20px">
+          <div class="em-table-header">
+            <span class="em-table-title">📋 Sesiones recientes</span>
+          </div>
+          <table class="em-table" id="recent-sessions-table">
+            <thead><tr>
+              <th>Paciente</th><th>Psicólogo</th><th>Fecha</th><th>Estado</th><th>Monto</th>
+            </tr></thead>
+            <tbody id="recent-sessions-body">
+              <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--em-text-light)">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══════════ APROBACIONES DE PSICÓLOGOS ═══════════ -->
+      <div id="panel-pending-psychs" class="em-tab-panel">
+        <div class="em-page-header">
+          <div><div class="em-page-title">⏳ Solicitudes de registro</div><div class="em-page-subtitle">Psicólogos esperando aprobación</div></div>
+        </div>
+        <div id="pending-psychologists-list">
+          <div class="em-empty"><div class="em-empty-icon">⏳</div><div class="em-empty-title">Cargando...</div></div>
+        </div>
+      </div>
+
+      <!-- ═══════════ TODOS LOS PSICÓLOGOS ═══════════ -->
+      <div id="panel-psychologists" class="em-tab-panel">
+        <div class="em-page-header">
+          <div><div class="em-page-title">👨‍⚕️ Gestión de psicólogos</div></div>
+          <div class="em-input-group" style="width:260px">
+            <span class="em-input-icon">🔍</span>
+            <input type="text" class="em-input" id="search-psych" placeholder="Buscar psicólogo..." oninput="filterPsychologists()">
+          </div>
+        </div>
+        <div class="em-table-wrapper">
+          <div class="em-table-header">
+            <span class="em-table-title">Lista completa</span>
+            <div class="em-table-actions">
+              <select class="em-select" id="filter-psych-status" onchange="filterPsychologists()" style="width:180px">
+                <option value="">Todos los estados</option>
+                <option value="pending">⏳ Pendientes</option>
+                <option value="approved">✅ Aprobados</option>
+                <option value="suspended">🚫 Suspendidos</option>
+              </select>
+            </div>
+          </div>
+          <table class="em-table">
+            <thead><tr>
+              <th>Profesional</th><th>Especialidad</th><th>País</th><th>Tarifa</th><th>Estado</th><th>Acciones</th>
+            </tr></thead>
+            <tbody id="psychologists-table-body">
+              <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--em-text-light)">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══════════ PACIENTES ═══════════ -->
+      <div id="panel-patients" class="em-tab-panel">
+        <div class="em-page-header">
+          <div><div class="em-page-title">👥 Gestión de pacientes</div></div>
+          <div class="em-input-group" style="width:260px">
+            <span class="em-input-icon">🔍</span>
+            <input type="text" class="em-input" id="search-patient-admin" placeholder="Buscar paciente..." oninput="filterPatients()">
+          </div>
+        </div>
+        <div class="em-table-wrapper">
+          <table class="em-table">
+            <thead><tr>
+              <th>Paciente</th><th>País</th><th>Sesiones</th><th>Registro</th><th>Acciones</th>
+            </tr></thead>
+            <tbody id="patients-table-body">
+              <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--em-text-light)">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══════════ SESIONES ═══════════ -->
+      <div id="panel-sessions" class="em-tab-panel">
+        <div class="em-page-header"><div class="em-page-title">📅 Todas las sesiones</div></div>
+        <div class="em-table-wrapper">
+          <div class="em-table-header">
+            <span class="em-table-title">Historial completo</span>
+            <select class="em-select" id="filter-session-status" onchange="filterSessions()" style="width:180px">
+              <option value="">Todos los estados</option>
+              <option value="pending">⏳ Pendientes</option>
+              <option value="confirmed">✅ Confirmadas</option>
+              <option value="completed">📋 Completadas</option>
+              <option value="cancelled">❌ Canceladas</option>
+            </select>
+          </div>
+          <table class="em-table">
+            <thead><tr>
+              <th>Paciente</th><th>Psicólogo</th><th>Fecha</th><th>Hora</th><th>Estado</th><th>Monto</th>
+            </tr></thead>
+            <tbody id="sessions-table-body">
+              <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--em-text-light)">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══════════ FINANZAS ═══════════ -->
+      <div id="panel-finance" class="em-tab-panel">
+        <div class="em-page-header">
+          <div><div class="em-page-title">💰 Panel financiero</div></div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="month" class="em-input" id="finance-month" style="width:160px">
+            <button class="em-btn em-btn-primary em-btn-sm" onclick="loadFinanceSummary()">📊 Aplicar</button>
+          </div>
+        </div>
+
+        <!-- Resumen financiero -->
+        <div class="em-finance-summary">
+          <div class="em-finance-card">
+            <div class="em-finance-label">💰 Ingresos totales (USD)</div>
+            <div class="em-finance-amount" id="fin-total">$0.00</div>
+            <div class="em-finance-sub">Todas las transacciones</div>
+          </div>
+          <div class="em-finance-card">
+            <div class="em-finance-label">🏦 Comisión plataforma</div>
+            <div class="em-finance-amount" id="fin-commission">$0.00</div>
+            <div class="em-finance-sub" id="fin-commission-pct">15% de cada transacción</div>
+          </div>
+          <div class="em-finance-card">
+            <div class="em-finance-label">👨‍⚕️ Pagado a psicólogos</div>
+            <div class="em-finance-amount" id="fin-psychs">$0.00</div>
+            <div class="em-finance-sub" id="fin-txns">0 transacciones</div>
+          </div>
+        </div>
+
+        <!-- Configurar comisión -->
+        <div class="em-card" style="margin-bottom:20px">
+          <div class="em-card-header"><span class="em-table-title">⚙️ Comisión de la plataforma</span></div>
+          <div class="em-card-body">
+            <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+              <div style="flex:1">
+                <input type="range" class="em-slider" id="commission-slider" min="5" max="40" step="1" value="15" oninput="updateCommissionLabel(this.value)">
+                <div class="em-progress-label">
+                  <span>5%</span>
+                  <span id="commission-label" style="color:var(--em-mint);font-weight:700;font-size:1.1rem">15%</span>
+                  <span>40%</span>
+                </div>
+              </div>
+              <button class="em-btn em-btn-primary" onclick="saveCommission()">Guardar comisión</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla de pagos -->
+        <div class="em-table-wrapper">
+          <div class="em-table-header"><span class="em-table-title">Historial de pagos</span></div>
+          <table class="em-table">
+            <thead><tr>
+              <th>Fecha</th><th>Paciente</th><th>Psicólogo</th><th>Monto</th><th>Moneda</th><th>Comisión</th><th>Estado</th>
+            </tr></thead>
+            <tbody id="payments-table-body">
+              <tr><td colspan="7" style="text-align:center;padding:24px;color:var(--em-text-light)">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══════════ CONFIGURACIÓN ═══════════ -->
+      <div id="panel-content" class="em-tab-panel">
+        <div class="em-page-header"><div class="em-page-title">⚙️ Configuración de la plataforma</div></div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px">
+          <!-- Crear admin -->
+          <div class="em-card">
+            <div class="em-card-header"><span class="em-table-title">🛡️ Crear administrador</span></div>
+            <div class="em-card-body">
+              <div class="em-alert em-alert-warning" style="margin-bottom:16px">
+                <span>⚠️</span>
+                <span>Solo personal autorizado debe tener acceso admin.</span>
+              </div>
+              <form id="form-create-admin" style="display:flex;flex-direction:column;gap:12px">
+                <div class="em-form-group">
+                  <label class="em-label">Email del nuevo admin</label>
+                  <input type="email" class="em-input" id="admin-email-input" placeholder="admin@emotion.app">
+                </div>
+                <div class="em-form-group">
+                  <label class="em-label">Contraseña temporal</label>
+                  <input type="password" class="em-input" id="admin-password-input" placeholder="Mín. 8 caracteres">
+                </div>
+                <button type="submit" class="em-btn em-btn-danger">Crear administrador</button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Categorías de especialidades -->
+          <div class="em-card">
+            <div class="em-card-header"><span class="em-table-title">🎓 Especialidades activas</span></div>
+            <div class="em-card-body">
+              <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px" id="specialties-list"></div>
+              <div style="font-size:0.82rem;color:var(--em-text-light)">
+                Las especialidades se configuran en js/firebase-config.js
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ═══════ MODAL: VER PSICÓLOGO ═══════ -->
+<div class="em-modal-overlay" id="modal-view-psych">
+  <div class="em-modal em-modal-lg">
+    <div class="em-modal-header">
+      <h3 class="em-modal-title" id="modal-psych-name">Perfil del psicólogo</h3>
+      <button class="em-modal-close" onclick="closeModal('modal-view-psych')">✕</button>
+    </div>
+    <div class="em-modal-body" id="modal-psych-body"></div>
+    <div class="em-modal-footer" id="modal-psych-actions"></div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL: TRANSFERIR PACIENTE ═══════ -->
+<div class="em-modal-overlay" id="modal-transfer">
+  <div class="em-modal">
+    <div class="em-modal-header">
+      <h3 class="em-modal-title">↗️ Transferir paciente</h3>
+      <button class="em-modal-close" onclick="closeModal('modal-transfer')">✕</button>
+    </div>
+    <div class="em-modal-body">
+      <div class="em-form-group" style="margin-bottom:12px">
+        <label class="em-label">Paciente</label>
+        <div id="transfer-patient-name" style="font-weight:600;padding:8px 0"></div>
+      </div>
+      <div class="em-form-group">
+        <label class="em-label">Nuevo psicólogo</label>
+        <select class="em-select" id="transfer-psych-select">
+          <option value="">Seleccionar psicólogo...</option>
+        </select>
+      </div>
+      <div class="em-alert em-alert-warning" style="margin-top:12px">
+        <span>⚠️</span>
+        <span>El historial completo del paciente se transferirá al nuevo profesional.</span>
+      </div>
+    </div>
+    <div class="em-modal-footer">
+      <button class="em-btn em-btn-ghost" onclick="closeModal('modal-transfer')">Cancelar</button>
+      <button class="em-btn em-btn-primary" onclick="confirmTransfer()">↗️ Transferir</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/payments.js"></script>
+<script src="js/admin.js"></script>
+
+<script>
+  const { db, auth, COLLECTIONS, SPECIALTIES, CURRENCIES } = EmotionApp;
+  let allPsychologists = [], allPatients = [], allSessions = [], allPayments = [];
+  let transferPatientId = null;
+
+  // ── Verificar autenticación de admin ──────────────────────────
+  auth.onAuthStateChanged(async (user) => {
+    if (!user) { window.location.href = 'login.html'; return; }
+    const userData = await EmotionApp.getUserData(user.uid);
+    if (!userData || userData.rol !== 'admin') {
+      EmotionApp.showAlert('Acceso restringido al panel de administración.', 'error');
+      setTimeout(() => window.location.href = 'index.html', 1500);
+      return;
+    }
+    document.getElementById('admin-email').textContent = user.email;
+    document.getElementById('last-updated').textContent = `Actualizado: ${new Date().toLocaleString('es-ES')}`;
+    loadAllData();
+
+    // Mostrar especialidades en config
+    const specList = document.getElementById('specialties-list');
+    SPECIALTIES.forEach(s => {
+      specList.innerHTML += `<span class="em-badge em-badge-mint">${s}</span>`;
+    });
+
+    // Mes actual en finanzas
+    const now = new Date();
+    document.getElementById('finance-month').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    loadCommission();
+  });
+
+  // ── Cargar todos los datos ────────────────────────────────────
+  async function loadAllData() {
+    await Promise.all([
+      loadPsychologists(),
+      loadPatients(),
+      loadSessions(),
+      loadFinanceSummary()
+    ]);
+    loadOverview();
+  }
+
+  // ── Cargar psicólogos ─────────────────────────────────────────
+  async function loadPsychologists() {
+    const snap = await db.collection(COLLECTIONS.USERS).where('rol','==','psychologist').orderBy('fechaRegistro','desc').get();
+    allPsychologists = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    const pending = allPsychologists.filter(p => p.estado === 'pending');
+    const badge = document.getElementById('badge-pending');
+    badge.textContent = pending.length;
+    badge.style.display = pending.length > 0 ? 'block' : 'none';
+    if (pending.length > 0) document.getElementById('notif-dot').style.display = 'block';
+
+    // Urgentes en inicio
+    renderUrgentApprovals(pending.slice(0, 3));
+    renderPendingPsychsList(pending);
+    renderPsychsTable(allPsychologists);
+
+    // Psicólogos para selector de transferencia
+    const approvedPsychs = allPsychologists.filter(p => p.estado === 'approved');
+    const sel = document.getElementById('transfer-psych-select');
+    sel.innerHTML = '<option value="">Seleccionar psicólogo...</option>';
+    approvedPsychs.forEach(p => sel.innerHTML += `<option value="${p.id}">${p.nombre} — ${p.especialidad}</option>`);
+  }
+
+  // ── Cargar pacientes ──────────────────────────────────────────
+  async function loadPatients() {
+    const snap = await db.collection(COLLECTIONS.USERS).where('rol','==','patient').orderBy('fechaRegistro','desc').get();
+    allPatients = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderPatientsTable(allPatients);
+  }
+
+  // ── Cargar sesiones ───────────────────────────────────────────
+  async function loadSessions() {
+    const snap = await db.collection(COLLECTIONS.SESSIONS).orderBy('fecha','desc').limit(100).get();
+    allSessions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Sesiones recientes en overview
+    const tbody = document.getElementById('recent-sessions-body');
+    tbody.innerHTML = allSessions.slice(0,10).map(s => {
+      const psych = allPsychologists.find(p => p.id === s.psicologoId);
+      const patient = allPatients.find(p => p.id === s.pacienteId);
+      return `<tr>
+        <td>${patient?.nombre || s.pacienteId.slice(0,8)+'...'}</td>
+        <td>${psych?.nombre || s.psicologoId.slice(0,8)+'...'}</td>
+        <td>${s.fecha || '—'}</td>
+        <td><span class="em-badge em-badge-${s.estado}">${s.estado}</span></td>
+        <td>${EmotionApp.formatPrice(s.precio||0, s.moneda||'USD')}</td>
+      </tr>`;
+    }).join('') || `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--em-text-light)">Sin sesiones</td></tr>`;
+
+    renderSessionsTable(allSessions);
+  }
+
+  // ── Overview ──────────────────────────────────────────────────
+  function loadOverview() {
+    document.getElementById('ov-psychologists').textContent = allPsychologists.filter(p => p.estado === 'approved').length;
+    document.getElementById('ov-patients').textContent = allPatients.length;
+    document.getElementById('ov-sessions').textContent = allSessions.filter(s => s.estado === 'completed').length;
+    document.getElementById('ov-pending').textContent = allPsychologists.filter(p => p.estado === 'pending').length;
+  }
+
+  // ── Renderizar aprobaciones urgentes (inicio) ─────────────────
+  function renderUrgentApprovals(pending) {
+    const container = document.getElementById('urgent-approvals');
+    if (pending.length === 0) {
+      container.innerHTML = `<div class="em-empty"><div class="em-empty-icon">✅</div><div class="em-empty-text">No hay solicitudes pendientes</div></div>`;
+      return;
+    }
+    container.innerHTML = pending.map(p => buildApprovalCard(p)).join('');
+  }
+
+  // ── Renderizar lista de pendientes ────────────────────────────
+  function renderPendingPsychsList(pending) {
+    const container = document.getElementById('pending-psychologists-list');
+    if (pending.length === 0) {
+      container.innerHTML = `<div class="em-empty"><div class="em-empty-icon">✅</div><div class="em-empty-title">¡Todo al día!</div><div class="em-empty-text">No hay psicólogos pendientes de aprobación.</div></div>`;
+      return;
+    }
+    container.innerHTML = pending.map(p => buildApprovalCard(p)).join('');
+  }
+
+  function buildApprovalCard(p) {
+    const initials = p.nombre?.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'P';
+    const price = EmotionApp.formatPrice(p.precio||0, p.moneda||'USD');
+    const registered = p.fechaRegistro?.toDate ? p.fechaRegistro.toDate().toLocaleDateString('es-ES') : '—';
+    return `
+      <div class="em-approval-card">
+        <div class="em-approval-card-header">
+          <div class="em-approval-avatar">
+            ${p.fotoPerfil ? `<img src="${p.fotoPerfil}" alt="${p.nombre}">` : initials}
+          </div>
+          <div class="em-approval-info">
+            <div class="em-approval-name">${p.nombre}</div>
+            <div class="em-approval-meta">
+              <span>🎓 ${p.especialidad}</span>
+              <span>📍 ${p.pais}</span>
+              <span>🗓️ Años exp: ${p.anosExperiencia}</span>
+              <span>💰 ${price}/sesión</span>
+              <span>📅 Registrado: ${registered}</span>
+            </div>
+            ${p.titulo ? `<div style="font-size:0.82rem;margin-top:4px;color:var(--em-text-light)">🎓 ${p.titulo} — Colegiatura: ${p.numeroColegiatura}</div>` : ''}
+            ${p.descripcion ? `<div style="font-size:0.82rem;margin-top:6px;color:var(--em-text);">${p.descripcion.slice(0,150)}...</div>` : ''}
+          </div>
+        </div>
+        <div class="em-approval-actions">
+          ${p.videoUrl ? `<a href="${p.videoUrl}" target="_blank" class="em-btn em-btn-ghost em-btn-sm">🎥 Ver video</a>` : ''}
+          <button class="em-btn em-btn-outline em-btn-sm" onclick="viewPsychProfile('${p.id}')">👁️ Ver perfil</button>
+          <button class="em-btn em-btn-primary em-btn-sm" onclick="approvePsychologist('${p.id}')">✅ Aprobar</button>
+          <button class="em-btn em-btn-danger em-btn-sm" onclick="rejectPsychologist('${p.id}')">❌ Rechazar</button>
+        </div>
+      </div>
+    `;
+  }
+
+  // ── Acciones sobre psicólogos ─────────────────────────────────
+  async function approvePsychologist(id) {
+    if (!confirm('¿Aprobar a este psicólogo? Aparecerá en la plataforma pública.')) return;
+    try {
+      await db.collection(COLLECTIONS.USERS).doc(id).update({ estado: 'approved' });
+      EmotionApp.showAlert('Psicólogo aprobado. Ya puede recibir pacientes.', 'success');
+      loadAllData();
+    } catch { EmotionApp.showAlert('Error al aprobar al psicólogo.', 'error'); }
+  }
+
+  async function rejectPsychologist(id) {
+    const reason = prompt('Motivo del rechazo (opcional):');
+    try {
+      await db.collection(COLLECTIONS.USERS).doc(id).update({ estado: 'rejected', motivoRechazo: reason || '' });
+      EmotionApp.showAlert('Solicitud rechazada.', 'info');
+      loadAllData();
+    } catch { EmotionApp.showAlert('Error al rechazar la solicitud.', 'error'); }
+  }
+
+  async function suspendPsychologist(id) {
+    if (!confirm('¿Suspender a este psicólogo? Dejará de aparecer en la plataforma.')) return;
+    try {
+      await db.collection(COLLECTIONS.USERS).doc(id).update({ estado: 'suspended' });
+      EmotionApp.showAlert('Psicólogo suspendido.', 'info');
+      closeModal('modal-view-psych');
+      loadAllData();
+    } catch { EmotionApp.showAlert('Error al suspender al psicólogo.', 'error'); }
+  }
+
+  async function reactivatePsychologist(id) {
+    if (!confirm('¿Reactivar a este psicólogo?')) return;
+    try {
+      await db.collection(COLLECTIONS.USERS).doc(id).update({ estado: 'approved' });
+      EmotionApp.showAlert('Psicólogo reactivado.', 'success');
+      closeModal('modal-view-psych');
+      loadAllData();
+    } catch { EmotionApp.showAlert('Error al reactivar al psicólogo.', 'error'); }
+  }
+
+  // ── Ver perfil completo del psicólogo ────────────────────────
+  function viewPsychProfile(id) {
+    const p = allPsychologists.find(x => x.id === id);
+    if (!p) return;
+    const initials = p.nombre?.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'P';
+    const price = EmotionApp.formatPrice(p.precio||0, p.moneda||'USD');
+    document.getElementById('modal-psych-name').textContent = p.nombre;
+    document.getElementById('modal-psych-body').innerHTML = `
+      <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">
+        ${p.fotoPerfil ? `<img src="${p.fotoPerfil}" style="width:100px;height:100px;border-radius:16px;object-fit:cover">` :
+          `<div style="width:100px;height:100px;border-radius:16px;background:linear-gradient(135deg,var(--em-mint),var(--em-blue));display:flex;align-items:center;justify-content:center;color:white;font-size:2.5rem;font-weight:700">${initials}</div>`}
+        <div style="flex:1">
+          <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px">${p.nombre}</div>
+          <div style="color:var(--em-mint);font-weight:600;margin-bottom:8px">${p.especialidad}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;font-size:0.85rem;color:var(--em-text-light);margin-bottom:12px">
+            <span>📍 ${p.pais}</span>
+            <span>🎓 ${p.anosExperiencia} años exp.</span>
+            <span>💰 ${price}/sesión</span>
+            <span class="em-badge em-badge-${p.estado}">${p.estado}</span>
+          </div>
+          <div style="font-size:0.82rem;margin-bottom:4px"><strong>Título:</strong> ${p.titulo||'—'}</div>
+          <div style="font-size:0.82rem;margin-bottom:12px"><strong>Colegiatura:</strong> ${p.numeroColegiatura||'—'}</div>
+          <div style="font-size:0.9rem;color:var(--em-text);line-height:1.6">${p.descripcion||'Sin descripción.'}</div>
+          ${p.videoUrl ? `<a href="${p.videoUrl}" target="_blank" class="em-btn em-btn-outline em-btn-sm" style="margin-top:12px">🎥 Ver video de presentación</a>` : ''}
+        </div>
+      </div>
+    `;
+    document.getElementById('modal-psych-actions').innerHTML = `
+      <button class="em-btn em-btn-ghost" onclick="closeModal('modal-view-psych')">Cerrar</button>
+      ${p.estado === 'pending' ? `<button class="em-btn em-btn-primary" onclick="approvePsychologist('${p.id}')">✅ Aprobar</button><button class="em-btn em-btn-danger" onclick="rejectPsychologist('${p.id}')">❌ Rechazar</button>` : ''}
+      ${p.estado === 'approved' ? `<button class="em-btn em-btn-danger" onclick="suspendPsychologist('${p.id}')">🚫 Suspender</button>` : ''}
+      ${p.estado === 'suspended' ? `<button class="em-btn em-btn-primary" onclick="reactivatePsychologist('${p.id}')">✅ Reactivar</button>` : ''}
+    `;
+    openModal('modal-view-psych');
+  }
+
+  // ── Tabla de psicólogos ───────────────────────────────────────
+  function renderPsychsTable(list) {
+    const tbody = document.getElementById('psychologists-table-body');
+    if (list.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--em-text-light)">Sin resultados</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = list.map(p => {
+      const price = EmotionApp.formatPrice(p.precio||0, p.moneda||'USD');
+      const initials = p.nombre?.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'P';
+      return `<tr>
+        <td>
+          <div class="em-table-user">
+            ${p.fotoPerfil ? `<img src="${p.fotoPerfil}" class="em-table-avatar" style="object-fit:cover">` :
+              `<div class="em-table-avatar">${initials}</div>`}
+            <div>
+              <div class="em-table-user-name">${p.nombre}</div>
+              <div class="em-table-user-sub">${p.email}</div>
+            </div>
+          </div>
+        </td>
+        <td>${p.especialidad||'—'}</td>
+        <td>${p.pais||'—'}</td>
+        <td>${price}</td>
+        <td><span class="em-badge em-badge-${p.estado}">${p.estado}</span></td>
+        <td>
+          <div class="em-table-actions-cell">
+            <button class="em-icon-btn view" onclick="viewPsychProfile('${p.id}')" title="Ver">👁️</button>
+            ${p.estado === 'pending' ? `<button class="em-icon-btn approve" onclick="approvePsychologist('${p.id}')" title="Aprobar">✅</button>` : ''}
+            ${p.estado === 'approved' ? `<button class="em-icon-btn reject" onclick="suspendPsychologist('${p.id}')" title="Suspender">🚫</button>` : ''}
+            ${p.estado === 'suspended' ? `<button class="em-icon-btn approve" onclick="reactivatePsychologist('${p.id}')" title="Reactivar">✅</button>` : ''}
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function filterPsychologists() {
+    const q = document.getElementById('search-psych').value.toLowerCase();
+    const status = document.getElementById('filter-psych-status').value;
+    let filtered = allPsychologists;
+    if (q) filtered = filtered.filter(p => (p.nombre||'').toLowerCase().includes(q) || (p.email||'').toLowerCase().includes(q));
+    if (status) filtered = filtered.filter(p => p.estado === status);
+    renderPsychsTable(filtered);
+  }
+
+  // ── Tabla de pacientes ────────────────────────────────────────
+  function renderPatientsTable(list) {
+    const tbody = document.getElementById('patients-table-body');
+    tbody.innerHTML = list.map(p => {
+      const sessionCount = allSessions.filter(s => s.pacienteId === p.id).length;
+      const registered = p.fechaRegistro?.toDate ? p.fechaRegistro.toDate().toLocaleDateString('es-ES') : '—';
+      const initials = p.nombre?.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'P';
+      return `<tr>
+        <td>
+          <div class="em-table-user">
+            <div class="em-table-avatar">${initials}</div>
+            <div>
+              <div class="em-table-user-name">${p.nombre}</div>
+              <div class="em-table-user-sub">${p.email}</div>
+            </div>
+          </div>
+        </td>
+        <td>${p.pais||'—'}</td>
+        <td>${sessionCount}</td>
+        <td>${registered}</td>
+        <td>
+          <div class="em-table-actions-cell">
+            <button class="em-icon-btn view" onclick="openTransferModal('${p.id}')" title="Transferir">↗️</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('') || `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--em-text-light)">Sin pacientes</td></tr>`;
+  }
+
+  function filterPatients() {
+    const q = document.getElementById('search-patient-admin').value.toLowerCase();
+    renderPatientsTable(allPatients.filter(p => (p.nombre||'').toLowerCase().includes(q) || (p.email||'').toLowerCase().includes(q)));
+  }
+
+  // ── Transferir paciente ───────────────────────────────────────
+  function openTransferModal(patientId) {
+    transferPatientId = patientId;
+    const patient = allPatients.find(p => p.id === patientId);
+    document.getElementById('transfer-patient-name').textContent = patient?.nombre || patientId;
+    openModal('modal-transfer');
+  }
+
+  async function confirmTransfer() {
+    const newPsychId = document.getElementById('transfer-psych-select').value;
+    if (!newPsychId || !transferPatientId) {
+      EmotionApp.showAlert('Selecciona un psicólogo destino.', 'error'); return;
+    }
+    if (!confirm('¿Confirmar transferencia? El historial completo se moverá al nuevo profesional.')) return;
+    try {
+      // Actualizar todas las sesiones pendientes/confirmadas del paciente al nuevo psicólogo
+      const sessSnap = await db.collection(COLLECTIONS.SESSIONS)
+        .where('pacienteId','==',transferPatientId)
+        .where('estado','in',['pending','confirmed']).get();
+
+      const batch = db.batch();
+      sessSnap.docs.forEach(d => batch.update(d.ref, { psicologoId: newPsychId }));
+      await batch.commit();
+
+      EmotionApp.showAlert('Paciente transferido correctamente.', 'success');
+      closeModal('modal-transfer');
+      loadSessions();
+    } catch { EmotionApp.showAlert('Error al transferir al paciente.', 'error'); }
+  }
+
+  // ── Tabla de sesiones ─────────────────────────────────────────
+  function renderSessionsTable(sessions) {
+    const tbody = document.getElementById('sessions-table-body');
+    tbody.innerHTML = sessions.slice(0,50).map(s => {
+      const psych = allPsychologists.find(p => p.id === s.psicologoId);
+      const patient = allPatients.find(p => p.id === s.pacienteId);
+      return `<tr>
+        <td>${patient?.nombre || s.pacienteId.slice(0,12)+'...'}</td>
+        <td>${psych?.nombre || s.psicologoId.slice(0,12)+'...'}</td>
+        <td>${s.fecha||'—'}</td>
+        <td>${s.hora||'—'}</td>
+        <td><span class="em-badge em-badge-${s.estado}">${s.estado}</span></td>
+        <td>${EmotionApp.formatPrice(s.precio||0, s.moneda||'USD')}</td>
+      </tr>`;
+    }).join('') || `<tr><td colspan="6" style="text-align:center;padding:24px">Sin sesiones</td></tr>`;
+  }
+
+  function filterSessions() {
+    const status = document.getElementById('filter-session-status').value;
+    const filtered = status ? allSessions.filter(s => s.estado === status) : allSessions;
+    renderSessionsTable(filtered);
+  }
+
+  // ── Finanzas ──────────────────────────────────────────────────
+  async function loadFinanceSummary() {
+    const monthVal = document.getElementById('finance-month').value;
+    const [year, month] = monthVal.split('-').map(Number);
+    const startDate = firebase.firestore.Timestamp.fromDate(new Date(year, month-1, 1));
+    const endDate = firebase.firestore.Timestamp.fromDate(new Date(year, month, 0, 23, 59, 59));
+
+    try {
+      const snap = await db.collection(COLLECTIONS.PAYMENTS)
+        .where('fecha','>=',startDate)
+        .where('fecha','<=',endDate).get();
+      allPayments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      const total = allPayments.reduce((sum, p) => sum + (p.monto||0), 0);
+      const comm = allPayments.reduce((sum, p) => sum + (p.montoComision||0), 0);
+      const psychs = allPayments.reduce((sum, p) => sum + (p.montoPsicologo||0), 0);
+
+      document.getElementById('fin-total').textContent = `$${total.toFixed(2)}`;
+      document.getElementById('fin-commission').textContent = `$${comm.toFixed(2)}`;
+      document.getElementById('fin-psychs').textContent = `$${psychs.toFixed(2)}`;
+      document.getElementById('fin-txns').textContent = `${allPayments.length} transacciones`;
+
+      // Tabla de pagos
+      const tbody = document.getElementById('payments-table-body');
+      tbody.innerHTML = allPayments.map(p => {
+        const psych = allPsychologists.find(x => x.id === p.psicologoId);
+        const patient = allPatients.find(x => x.id === p.pacienteId);
+        const fecha = p.fecha?.toDate ? p.fecha.toDate().toLocaleDateString('es-ES') : '—';
+        return `<tr>
+          <td>${fecha}</td>
+          <td>${patient?.nombre||'—'}</td>
+          <td>${psych?.nombre||'—'}</td>
+          <td>${EmotionApp.formatPrice(p.monto||0, p.moneda||'USD')}</td>
+          <td>${p.moneda||'—'}</td>
+          <td>${EmotionApp.formatPrice(p.montoComision||0, p.moneda||'USD')}</td>
+          <td><span class="em-badge em-badge-${p.estado==='completed'?'approved':'pending'}">${p.estado}</span></td>
+        </tr>`;
+      }).join('') || `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--em-text-light)">Sin transacciones en este período</td></tr>`;
+    } catch (err) { console.error('Error cargando finanzas:', err); }
+  }
+
+  // ── Comisión ──────────────────────────────────────────────────
+  async function loadCommission() {
+    const comm = await EmotionApp.getPlatformCommission();
+    const pct = Math.round(comm * 100);
+    document.getElementById('commission-slider').value = pct;
+    document.getElementById('commission-label').textContent = `${pct}%`;
+    document.getElementById('fin-commission-pct').textContent = `${pct}% de cada transacción`;
+  }
+
+  function updateCommissionLabel(val) {
+    document.getElementById('commission-label').textContent = `${val}%`;
+  }
+
+  async function saveCommission() {
+    const val = parseFloat(document.getElementById('commission-slider').value) / 100;
+    try {
+      await db.collection(COLLECTIONS.SETTINGS).doc('platform').set({ commission: val }, { merge: true });
+      EmotionApp.showAlert(`Comisión actualizada al ${Math.round(val*100)}%.`, 'success');
+    } catch { EmotionApp.showAlert('Error al guardar la comisión.', 'error'); }
+  }
+
+  // ── Formulario crear admin ────────────────────────────────────
+  document.getElementById('form-create-admin').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('admin-email-input').value;
+    const password = document.getElementById('admin-password-input').value;
+    if (!email || password.length < 8) {
+      EmotionApp.showAlert('Email y contraseña de al menos 8 caracteres son requeridos.', 'error');
+      return;
+    }
+    try {
+      EmotionApp.setLoading(true, 'Creando administrador...');
+      const { user } = await auth.createUserWithEmailAndPassword(email, password);
+      await db.collection(COLLECTIONS.USERS).doc(user.uid).set({
+        uid: user.uid, email, nombre: 'Administrador', rol: 'admin',
+        fechaRegistro: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      EmotionApp.setLoading(false);
+      EmotionApp.showAlert(`Administrador creado: ${email}`, 'success');
+      e.target.reset();
+    } catch (err) {
+      EmotionApp.setLoading(false);
+      EmotionApp.showAlert(err.message || 'Error al crear el administrador.', 'error');
+    }
+  });
+
+  // ── Navegación ────────────────────────────────────────────────
+  function showPanel(name) {
+    document.querySelectorAll('.em-tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.em-sidebar-link[data-panel]').forEach(l => l.classList.remove('active'));
+    document.getElementById(`panel-${name}`)?.classList.add('active');
+    document.querySelector(`[data-panel="${name}"]`)?.classList.add('active');
+    const titles = { overview:'Resumen general', 'pending-psychs':'Aprobaciones pendientes',
+      psychologists:'Psicólogos', patients:'Pacientes', sessions:'Sesiones',
+      finance:'Panel financiero', content:'Configuración' };
+    document.getElementById('topbar-title').textContent = titles[name] || name;
+    closeSidebar();
+  }
+
+  function openModal(id) { document.getElementById(id)?.classList.add('active'); }
+  function closeModal(id) { document.getElementById(id)?.classList.remove('active'); }
+
+  document.querySelectorAll('.em-modal-overlay').forEach(o => {
+    o.addEventListener('click', e => { if (e.target === o) o.classList.remove('active'); });
+  });
+
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebar-overlay').classList.toggle('open');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('open');
+  }
+</script>
+</body>
+</html>

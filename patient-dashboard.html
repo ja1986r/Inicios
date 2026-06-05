@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Panel — Emotion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+<div class="em-dashboard">
+
+  <!-- ═══════════════ SIDEBAR ═══════════════ -->
+  <aside class="em-sidebar" id="sidebar">
+    <div class="em-sidebar-brand">
+      <div class="em-logo-icon">💚</div>
+      <div>
+        <div class="em-sidebar-brand-name">Emotion</div>
+        <div class="em-sidebar-brand-role">Panel Paciente</div>
+      </div>
+    </div>
+
+    <div class="em-sidebar-user">
+      <div class="em-sidebar-avatar" id="sidebar-avatar">?</div>
+      <div>
+        <div class="em-sidebar-user-name" id="sidebar-name">Cargando...</div>
+        <div class="em-sidebar-user-email" id="sidebar-email"></div>
+      </div>
+    </div>
+
+    <nav class="em-sidebar-nav">
+      <div class="em-sidebar-link active" data-panel="inicio" onclick="showPanel('inicio')">
+        <span class="em-sidebar-link-icon">🏠</span> Inicio
+      </div>
+      <div class="em-sidebar-link" data-panel="buscar" onclick="showPanel('buscar')">
+        <span class="em-sidebar-link-icon">🔍</span> Buscar psicólogo
+      </div>
+      <div class="em-sidebar-link" data-panel="sesiones" onclick="showPanel('sesiones')">
+        <span class="em-sidebar-link-icon">📅</span> Mis sesiones
+        <span class="em-sidebar-badge" id="badge-sessions" style="display:none">0</span>
+      </div>
+      <div class="em-sidebar-link" data-panel="recursos" onclick="showPanel('recursos')">
+        <span class="em-sidebar-link-icon">📚</span> Mis recursos
+        <span class="em-sidebar-badge" id="badge-resources" style="display:none">0</span>
+      </div>
+      <div class="em-sidebar-link" data-panel="historial" onclick="showPanel('historial')">
+        <span class="em-sidebar-link-icon">📋</span> Historial
+      </div>
+      <div class="em-sidebar-link" data-panel="perfil" onclick="showPanel('perfil')">
+        <span class="em-sidebar-link-icon">👤</span> Mi perfil
+      </div>
+    </nav>
+
+    <div class="em-sidebar-footer">
+      <div class="em-sidebar-link logout" onclick="AuthModule.logout()">
+        <span class="em-sidebar-link-icon">🚪</span> Cerrar sesión
+      </div>
+    </div>
+  </aside>
+
+  <!-- Overlay del sidebar (mobile) -->
+  <div class="em-sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- ═══════════════ CONTENIDO PRINCIPAL ═══════════════ -->
+  <main class="em-main-content">
+
+    <!-- Top Bar -->
+    <div class="em-topbar">
+      <div class="em-topbar-left">
+        <button class="em-sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+        <div>
+          <div class="em-topbar-title" id="topbar-title">Inicio</div>
+        </div>
+      </div>
+      <div class="em-topbar-right">
+        <div class="em-topbar-notif" title="Notificaciones">
+          🔔 <div class="em-notif-dot" id="notif-dot" style="display:none"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="em-content-area">
+
+      <!-- ═══════════ PANEL: INICIO ═══════════ -->
+      <div id="panel-inicio" class="em-tab-panel active">
+
+        <!-- Banner de bienvenida -->
+        <div class="em-next-session-card" id="next-session-banner" style="margin-bottom:24px">
+          <div>
+            <div class="em-next-session-label">✨ Próxima sesión</div>
+            <div class="em-next-session-title" id="next-session-title">Cargando...</div>
+            <div class="em-next-session-info">
+              <div class="em-next-session-info-item" id="next-session-date">📅 —</div>
+              <div class="em-next-session-info-item" id="next-session-time">🕐 —</div>
+              <div class="em-next-session-info-item" id="next-session-psy">👨‍⚕️ —</div>
+            </div>
+            <div id="next-session-countdown"></div>
+          </div>
+          <div style="text-align:center">
+            <button class="em-join-btn" id="btn-join-session" style="display:none" onclick="joinSession()">
+              📹 Unirse a sesión
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats rápidas -->
+        <div class="em-stats-grid" style="grid-template-columns:repeat(3,1fr)">
+          <div class="em-stat-card">
+            <div class="em-stat-card-header">
+              <span class="em-stat-card-title">Sesiones totales</span>
+              <div class="em-stat-card-icon mint">📅</div>
+            </div>
+            <div class="em-stat-card-value" id="stat-total-sessions">0</div>
+          </div>
+          <div class="em-stat-card">
+            <div class="em-stat-card-header">
+              <span class="em-stat-card-title">Recursos asignados</span>
+              <div class="em-stat-card-icon blue">📚</div>
+            </div>
+            <div class="em-stat-card-value" id="stat-resources">0</div>
+          </div>
+          <div class="em-stat-card">
+            <div class="em-stat-card-header">
+              <span class="em-stat-card-title">Semanas en terapia</span>
+              <div class="em-stat-card-icon green">🌱</div>
+            </div>
+            <div class="em-stat-card-value" id="stat-weeks">0</div>
+          </div>
+        </div>
+
+        <!-- Mis psicólogos activos -->
+        <div class="em-table-wrapper" style="margin-top:24px">
+          <div class="em-table-header">
+            <span class="em-table-title">👨‍⚕️ Mis psicólogos</span>
+            <button class="em-btn em-btn-primary em-btn-sm" onclick="showPanel('buscar')">+ Nuevo psicólogo</button>
+          </div>
+          <div id="my-psychologists-list" style="padding:16px">
+            <div class="em-empty">
+              <div class="em-empty-icon">🔍</div>
+              <div class="em-empty-title">Aún no tienes psicólogos</div>
+              <div class="em-empty-text">Encuentra un profesional y agenda tu primera sesión</div>
+              <button class="em-btn em-btn-primary" onclick="showPanel('buscar')">Buscar psicólogo</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ PANEL: BUSCAR PSICÓLOGO ═══════════ -->
+      <div id="panel-buscar" class="em-tab-panel">
+        <div class="em-page-header">
+          <div>
+            <div class="em-page-title">🔍 Buscar psicólogo</div>
+            <div class="em-page-subtitle">Encuentra el profesional ideal para ti</div>
+          </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="em-search-bar" style="margin-bottom:24px">
+          <div class="em-form-group" style="flex:1">
+            <label class="em-label">Especialidad</label>
+            <select class="em-select" id="search-specialty">
+              <option value="">Todas</option>
+            </select>
+          </div>
+          <div class="em-form-group" style="flex:1">
+            <label class="em-label">País</label>
+            <select class="em-select" id="search-country">
+              <option value="">Todos</option>
+            </select>
+          </div>
+          <div class="em-form-group" style="flex:1">
+            <label class="em-label">Moneda</label>
+            <select class="em-select" id="search-currency">
+              <option value="">Todas</option>
+            </select>
+          </div>
+          <button class="em-btn em-btn-primary" onclick="searchPsychologists()">🔍 Buscar</button>
+        </div>
+
+        <div class="em-psychologists-grid" id="search-results">
+          <div class="em-skeleton em-skeleton-card"></div>
+          <div class="em-skeleton em-skeleton-card"></div>
+          <div class="em-skeleton em-skeleton-card"></div>
+        </div>
+      </div>
+
+      <!-- ═══════════ PANEL: MIS SESIONES ═══════════ -->
+      <div id="panel-sesiones" class="em-tab-panel">
+        <div class="em-page-header">
+          <div>
+            <div class="em-page-title">📅 Mis sesiones</div>
+            <div class="em-page-subtitle">Gestiona tus consultas agendadas</div>
+          </div>
+        </div>
+
+        <div class="em-dashboard-tabs">
+          <div class="em-dashboard-tab active" data-sub="pendientes" onclick="switchSessionsTab('pendientes')">⏳ Pendientes</div>
+          <div class="em-dashboard-tab" data-sub="proximas" onclick="switchSessionsTab('proximas')">📅 Próximas</div>
+          <div class="em-dashboard-tab" data-sub="completadas" onclick="switchSessionsTab('completadas')">✅ Completadas</div>
+          <div class="em-dashboard-tab" data-sub="canceladas" onclick="switchSessionsTab('canceladas')">❌ Canceladas</div>
+        </div>
+
+        <div id="sessions-list">
+          <div class="em-empty">
+            <div class="em-empty-icon">📅</div>
+            <div class="em-empty-title">Cargando sesiones...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ PANEL: MIS RECURSOS ═══════════ -->
+      <div id="panel-recursos" class="em-tab-panel">
+        <div class="em-page-header">
+          <div>
+            <div class="em-page-title">📚 Mis recursos</div>
+            <div class="em-page-subtitle">Materiales asignados por tu psicólogo</div>
+          </div>
+        </div>
+
+        <div class="em-form-group" style="max-width:280px;margin-bottom:20px">
+          <select class="em-select" id="filter-resource-category" onchange="filterResources()">
+            <option value="">Todas las categorías</option>
+            <option value="pdf">📄 PDFs</option>
+            <option value="video">🎥 Videos</option>
+            <option value="image">🖼️ Imágenes</option>
+            <option value="audio">🎵 Audio</option>
+            <option value="doc">📝 Documentos</option>
+          </select>
+        </div>
+
+        <div class="em-resource-grid" id="resources-grid">
+          <div class="em-empty" style="grid-column:1/-1">
+            <div class="em-empty-icon">📚</div>
+            <div class="em-empty-title">Cargando recursos...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ PANEL: HISTORIAL ═══════════ -->
+      <div id="panel-historial" class="em-tab-panel">
+        <div class="em-page-header">
+          <div>
+            <div class="em-page-title">📋 Historial de sesiones</div>
+            <div class="em-page-subtitle">Revisa el resumen de tus consultas anteriores</div>
+          </div>
+        </div>
+
+        <div class="em-session-cards" id="history-list">
+          <div class="em-empty">
+            <div class="em-empty-icon">📋</div>
+            <div class="em-empty-title">Cargando historial...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ PANEL: PERFIL ═══════════ -->
+      <div id="panel-perfil" class="em-tab-panel">
+        <div class="em-page-header">
+          <div class="em-page-title">👤 Mi perfil</div>
+        </div>
+        <div class="em-card" style="max-width:600px">
+          <div class="em-card-body">
+            <form id="form-profile" style="display:flex;flex-direction:column;gap:16px">
+              <div class="em-form-group">
+                <label class="em-label">Nombre completo</label>
+                <input type="text" class="em-input" id="profile-nombre">
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div class="em-form-group">
+                  <label class="em-label">País</label>
+                  <select class="em-select" id="profile-pais">
+                    <option value="">Seleccionar...</option>
+                  </select>
+                </div>
+                <div class="em-form-group">
+                  <label class="em-label">Teléfono</label>
+                  <input type="tel" class="em-input" id="profile-telefono">
+                </div>
+              </div>
+              <div class="em-form-group">
+                <label class="em-label">Fecha de nacimiento</label>
+                <input type="date" class="em-input" id="profile-fecha-nac">
+              </div>
+              <button type="submit" class="em-btn em-btn-primary">Guardar cambios</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- fin em-content-area -->
+  </main>
+</div>
+
+<!-- ═══════ MODAL: PERFIL DEL PSICÓLOGO (para agendar) ═══════ -->
+<div class="em-modal-overlay" id="modal-psych-profile">
+  <div class="em-modal em-modal-lg">
+    <div class="em-modal-header">
+      <h3 class="em-modal-title" id="modal-psych-name">Perfil del psicólogo</h3>
+      <button class="em-modal-close" onclick="closeModal('modal-psych-profile')">✕</button>
+    </div>
+    <div class="em-modal-body" id="modal-psych-body">
+      <!-- Contenido dinámico -->
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL: AGENDAR SESIÓN ═══════ -->
+<div class="em-modal-overlay" id="modal-book">
+  <div class="em-modal">
+    <div class="em-modal-header">
+      <h3 class="em-modal-title">📅 Agendar sesión</h3>
+      <button class="em-modal-close" onclick="closeModal('modal-book')">✕</button>
+    </div>
+    <div class="em-modal-body">
+      <div id="booking-psych-info" style="margin-bottom:16px"></div>
+      <div id="booking-calendar"></div>
+      <div id="booking-slots"></div>
+      <div id="booking-summary" style="display:none;margin-top:16px">
+        <div class="em-alert em-alert-info">
+          <span>📅</span>
+          <div>
+            Sesión para el <strong id="booking-date-display"></strong>
+            a las <strong id="booking-time-display"></strong>
+            — <strong id="booking-price-display"></strong>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="em-modal-footer">
+      <button class="em-btn em-btn-ghost" onclick="closeModal('modal-book')">Cancelar</button>
+      <button class="em-btn em-btn-primary" id="btn-confirm-book" disabled onclick="confirmBooking()">
+        Continuar al pago →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL: DETALLE DE SESIÓN COMPLETADA ═══════ -->
+<div class="em-modal-overlay" id="modal-session-detail">
+  <div class="em-modal">
+    <div class="em-modal-header">
+      <h3 class="em-modal-title">📋 Resumen de sesión</h3>
+      <button class="em-modal-close" onclick="closeModal('modal-session-detail')">✕</button>
+    </div>
+    <div class="em-modal-body" id="session-detail-body"></div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<!-- Stripe -->
+<script src="https://js.stripe.com/v3/"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/calendar.js"></script>
+<script src="js/payments.js"></script>
+<script src="js/patient.js"></script>
+
+<script>
+  const { db, auth, COLLECTIONS, COUNTRIES, SPECIALTIES, CURRENCIES } = EmotionApp;
+  let currentUser = null;
+  let currentUserData = null;
+  let selectedPsychologist = null;
+  let selectedDate = null;
+  let selectedTime = null;
+  let allSessions = [];
+  let sessionFilter = 'pendientes';
+
+  // ── Poblar selects ────────────────────────────────────────────
+  ['search-country', 'profile-pais'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) COUNTRIES.forEach(c => el.innerHTML += `<option value="${c}">${c}</option>`);
+  });
+  SPECIALTIES.forEach(s => {
+    document.getElementById('search-specialty').innerHTML += `<option value="${s}">${s}</option>`;
+  });
+  Object.entries(CURRENCIES).forEach(([k, v]) => {
+    document.getElementById('search-currency').innerHTML += `<option value="${k}">${k}</option>`;
+  });
+
+  // ── Autenticación ─────────────────────────────────────────────
+  auth.onAuthStateChanged(async (user) => {
+    if (!user) { window.location.href = 'login.html'; return; }
+    currentUser = user;
+    currentUserData = await EmotionApp.getUserData(user.uid);
+
+    if (!currentUserData || currentUserData.rol !== 'patient') {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    // Actualizar sidebar
+    const initials = currentUserData.nombre?.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || '?';
+    document.getElementById('sidebar-avatar').textContent = initials;
+    document.getElementById('sidebar-name').textContent = currentUserData.nombre || 'Paciente';
+    document.getElementById('sidebar-email').textContent = currentUserData.email || '';
+
+    // Poblar perfil
+    document.getElementById('profile-nombre').value = currentUserData.nombre || '';
+    document.getElementById('profile-pais').value = currentUserData.pais || '';
+    document.getElementById('profile-telefono').value = currentUserData.telefono || '';
+    document.getElementById('profile-fecha-nac').value = currentUserData.fechaNacimiento || '';
+
+    // Verificar parámetros de URL
+    const params = new URLSearchParams(window.location.search);
+    const bookId = params.get('book');
+    if (bookId) {
+      showPanel('buscar');
+      setTimeout(() => openBookingModal(bookId), 800);
+    }
+
+    loadDashboard();
+  });
+
+  // ── Cargar dashboard ──────────────────────────────────────────
+  async function loadDashboard() {
+    await Promise.all([
+      loadNextSession(),
+      loadStats(),
+      loadMyPsychologists(),
+      loadSessions(),
+      loadResources()
+    ]);
+  }
+
+  // ── Cargar próxima sesión ─────────────────────────────────────
+  async function loadNextSession() {
+    const today = new Date().toISOString().split('T')[0];
+    try {
+      const snap = await db.collection(COLLECTIONS.SESSIONS)
+        .where('pacienteId', '==', currentUser.uid)
+        .where('estado', 'in', ['confirmed', 'pending'])
+        .where('fecha', '>=', today)
+        .orderBy('fecha').orderBy('hora')
+        .limit(1).get();
+
+      if (snap.empty) {
+        document.getElementById('next-session-banner').style.background =
+          'linear-gradient(135deg, #E8F5F2, #EBF2FF)';
+        document.getElementById('next-session-title').style.color = 'var(--em-text)';
+        document.getElementById('next-session-title').textContent = 'No tienes sesiones próximas';
+        document.getElementById('next-session-date').textContent = '📅 Agenda tu primera consulta';
+        document.getElementById('next-session-time').textContent = '';
+        document.getElementById('next-session-psy').textContent = '';
+        return;
+      }
+
+      const session = snap.docs[0].data();
+      const psych = await EmotionApp.getUserData(session.psicologoId);
+
+      document.getElementById('next-session-title').textContent = psych?.nombre || 'Psicólogo';
+      document.getElementById('next-session-date').textContent = `📅 ${session.fecha}`;
+      document.getElementById('next-session-time').textContent = `🕐 ${session.hora}`;
+      document.getElementById('next-session-psy').textContent = `🎓 ${psych?.especialidad || ''}`;
+
+      CalendarModule.renderCountdown('next-session-countdown', session.fecha, session.hora, () => {
+        document.getElementById('btn-join-session').style.display = 'block';
+        document.getElementById('btn-join-session').onclick = () => {
+          window.location.href = `session.html?session=${snap.docs[0].id}`;
+        };
+      });
+
+      // Mostrar botón si la sesión es en menos de 15 min o ya pasó
+      const sessionTime = new Date(`${session.fecha}T${session.hora}:00`);
+      const diff = sessionTime - new Date();
+      if (diff < 15 * 60 * 1000) {
+        document.getElementById('btn-join-session').style.display = 'block';
+        document.getElementById('btn-join-session').onclick = () => {
+          window.location.href = `session.html?session=${snap.docs[0].id}`;
+        };
+      }
+    } catch (err) { console.error('Error cargando próxima sesión:', err); }
+  }
+
+  // ── Cargar estadísticas ───────────────────────────────────────
+  async function loadStats() {
+    try {
+      const [sessSnap, resSnap] = await Promise.all([
+        db.collection(COLLECTIONS.SESSIONS).where('pacienteId', '==', currentUser.uid).get(),
+        db.collection(COLLECTIONS.PATIENT_RESOURCES).where('pacienteId', '==', currentUser.uid).get()
+      ]);
+
+      document.getElementById('stat-total-sessions').textContent = sessSnap.size;
+      document.getElementById('stat-resources').textContent = resSnap.size;
+
+      // Calcular semanas en terapia desde primera sesión
+      if (!sessSnap.empty) {
+        const firstSession = sessSnap.docs
+          .map(d => new Date(d.data().fecha + 'T12:00:00'))
+          .sort((a,b) => a-b)[0];
+        const weeks = Math.floor((new Date() - firstSession) / (7*24*60*60*1000));
+        document.getElementById('stat-weeks').textContent = Math.max(1, weeks);
+      }
+
+      // Badge de recursos
+      if (resSnap.size > 0) {
+        const badge = document.getElementById('badge-resources');
+        badge.textContent = resSnap.size;
+        badge.style.display = 'block';
+      }
+    } catch (err) { console.error('Error cargando stats:', err); }
+  }
+
+  // ── Mis psicólogos ────────────────────────────────────────────
+  async function loadMyPsychologists() {
+    try {
+      const snap = await db.collection(COLLECTIONS.SESSIONS)
+        .where('pacienteId', '==', currentUser.uid)
+        .where('estado', 'in', ['confirmed', 'completed'])
+        .get();
+
+      const psychIds = [...new Set(snap.docs.map(d => d.data().psicologoId))];
+      if (psychIds.length === 0) return;
+
+      const psychs = await Promise.all(psychIds.map(id => EmotionApp.getUserData(id)));
+      const list = document.getElementById('my-psychologists-list');
+
+      list.innerHTML = psychs.filter(Boolean).map(p => {
+        const initials = p.nombre?.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'P';
+        return `
+          <div class="em-patient-card" onclick="openBookingModal('${p.id}')">
+            ${p.fotoPerfil
+              ? `<img src="${p.fotoPerfil}" class="em-patient-card-avatar" style="object-fit:cover">`
+              : `<div class="em-patient-card-avatar">${initials}</div>`}
+            <div class="em-patient-card-info">
+              <div class="em-patient-card-name">${p.nombre}</div>
+              <div class="em-patient-card-meta">
+                <span>🎓 ${p.especialidad}</span>
+                <span>📍 ${p.pais}</span>
+              </div>
+            </div>
+            <button class="em-btn em-btn-primary em-btn-sm" onclick="event.stopPropagation();openBookingModal('${p.id}')">
+              📅 Agendar
+            </button>
+          </div>
+        `;
+      }).join('');
+    } catch (err) { console.error('Error cargando psicólogos:', err); }
+  }
+
+  // ── Cargar sesiones ───────────────────────────────────────────
+  async function loadSessions() {
+    try {
+      const snap = await db.collection(COLLECTIONS.SESSIONS)
+        .where('pacienteId', '==', currentUser.uid)
+        .orderBy('fecha', 'desc').get();
+
+      allSessions = await Promise.all(snap.docs.map(async d => {
+        const s = { id: d.id, ...d.data() };
+        s.psicologo = await EmotionApp.getUserData(s.psicologoId);
+        return s;
+      }));
+
+      // Badge
+      const pending = allSessions.filter(s => s.estado === 'pending').length;
+      if (pending > 0) {
+        document.getElementById('badge-sessions').textContent = pending;
+        document.getElementById('badge-sessions').style.display = 'block';
+        document.getElementById('notif-dot').style.display = 'block';
+      }
+
+      renderSessions(sessionFilter);
+    } catch (err) { console.error('Error cargando sesiones:', err); }
+  }
+
+  function switchSessionsTab(filter) {
+    sessionFilter = filter;
+    document.querySelectorAll('[data-sub]').forEach(tab => {
+      tab.classList.toggle('active', tab.dataset.sub === filter);
+    });
+    renderSessions(filter);
+  }
+
+  function renderSessions(filter) {
+    const today = new Date().toISOString().split('T')[0];
+    let filtered = allSessions;
+
+    if (filter === 'pendientes') filtered = allSessions.filter(s => s.estado === 'pending');
+    else if (filter === 'proximas') filtered = allSessions.filter(s => s.estado === 'confirmed' && s.fecha >= today);
+    else if (filter === 'completadas') filtered = allSessions.filter(s => s.estado === 'completed');
+    else if (filter === 'canceladas') filtered = allSessions.filter(s => s.estado === 'cancelled');
+
+    const list = document.getElementById('sessions-list');
+    if (filtered.length === 0) {
+      list.innerHTML = `<div class="em-empty"><div class="em-empty-icon">📅</div><div class="em-empty-title">No hay sesiones en esta categoría</div></div>`;
+      return;
+    }
+
+    list.innerHTML = `<div class="em-session-cards">${filtered.map(s => {
+      const dateParts = (s.fecha || '').split('-');
+      const monthNames = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+      const month = monthNames[parseInt(dateParts[1])] || '';
+      const day = dateParts[2] || '—';
+      const statusMap = { pending: 'Pendiente de confirmación', confirmed: 'Confirmada', completed: 'Completada', cancelled: 'Cancelada' };
+      const price = EmotionApp.formatPrice(s.precio || 0, s.moneda || 'USD');
+
+      return `
+        <div class="em-session-card ${s.estado}">
+          <div class="em-session-date-box">
+            <div class="em-session-date-day">${day}</div>
+            <div class="em-session-date-month">${month}</div>
+          </div>
+          <div class="em-session-info">
+            <div class="em-session-title">${s.psicologo?.nombre || 'Psicólogo'}</div>
+            <div class="em-session-meta">
+              <span class="em-session-meta-item">🕐 ${s.hora || '—'}</span>
+              <span class="em-session-meta-item">🎓 ${s.psicologo?.especialidad || ''}</span>
+              <span class="em-session-meta-item">💰 ${price}</span>
+            </div>
+            <span class="em-badge em-badge-${s.estado}">${statusMap[s.estado] || s.estado}</span>
+          </div>
+          <div class="em-session-actions">
+            ${s.estado === 'confirmed' ? `<button class="em-btn em-btn-primary em-btn-sm" onclick="joinSession('${s.id}')">📹 Unirse</button>` : ''}
+            ${s.estado === 'completed' ? `<button class="em-btn em-btn-outline em-btn-sm" onclick="viewSessionDetail('${s.id}')">Ver resumen</button>` : ''}
+            ${s.estado === 'pending' ? `<button class="em-btn em-btn-ghost em-btn-sm" onclick="cancelSession('${s.id}')">Cancelar</button>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('')}</div>`;
+  }
+
+  // ── Cargar recursos del paciente ──────────────────────────────
+  async function loadResources() {
+    try {
+      const prSnap = await db.collection(COLLECTIONS.PATIENT_RESOURCES)
+        .where('pacienteId', '==', currentUser.uid).get();
+
+      if (prSnap.empty) {
+        renderResources([]);
+        return;
+      }
+
+      const resources = await Promise.all(prSnap.docs.map(async d => {
+        const pr = d.data();
+        const resDoc = await db.collection(COLLECTIONS.RESOURCES).doc(pr.recursoId).get();
+        if (!resDoc.exists) return null;
+        return { id: d.id, ...pr, ...resDoc.data(), resId: resDoc.id };
+      }));
+
+      renderResources(resources.filter(Boolean));
+    } catch (err) { console.error('Error cargando recursos:', err); }
+  }
+
+  let allResources = [];
+  function filterResources() {
+    const cat = document.getElementById('filter-resource-category').value;
+    const filtered = cat ? allResources.filter(r => r.tipo === cat) : allResources;
+    renderResources(filtered);
+  }
+
+  function renderResources(resources) {
+    allResources = resources;
+    const grid = document.getElementById('resources-grid');
+    if (resources.length === 0) {
+      grid.innerHTML = `<div class="em-empty" style="grid-column:1/-1"><div class="em-empty-icon">📚</div><div class="em-empty-title">No tienes recursos asignados aún</div><div class="em-empty-text">Tu psicólogo te asignará materiales para trabajar entre sesiones</div></div>`;
+      return;
+    }
+    const iconMap = { pdf: '📄', video: '🎥', image: '🖼️', doc: '📝', audio: '🎵' };
+    grid.innerHTML = resources.map(r => `
+      <div class="em-resource-card">
+        <div class="em-resource-icon-area ${r.tipo}">${iconMap[r.tipo] || '📎'}</div>
+        <div class="em-resource-body">
+          <div class="em-resource-name">${r.nombre}</div>
+          <div class="em-resource-meta">📁 ${r.categoria || 'General'}</div>
+        </div>
+        <div class="em-resource-footer">
+          <a href="${r.url}" target="_blank" class="em-btn em-btn-primary em-btn-sm">Ver / Descargar</a>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ── Buscar psicólogos ─────────────────────────────────────────
+  async function searchPsychologists() {
+    const spec = document.getElementById('search-specialty').value;
+    const country = document.getElementById('search-country').value;
+    const currency = document.getElementById('search-currency').value;
+
+    const grid = document.getElementById('search-results');
+    grid.innerHTML = `<div class="em-skeleton em-skeleton-card"></div><div class="em-skeleton em-skeleton-card"></div><div class="em-skeleton em-skeleton-card"></div>`;
+
+    try {
+      let query = db.collection(COLLECTIONS.USERS)
+        .where('rol', '==', 'psychologist')
+        .where('estado', '==', 'approved');
+      if (spec) query = query.where('especialidad', '==', spec);
+      if (country) query = query.where('pais', '==', country);
+      if (currency) query = query.where('moneda', '==', currency);
+
+      const snap = await query.get();
+      const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      if (list.length === 0) {
+        grid.innerHTML = `<div class="em-empty" style="grid-column:1/-1"><div class="em-empty-icon">🔍</div><div class="em-empty-title">Sin resultados</div><div class="em-empty-text">Prueba con otros filtros</div></div>`;
+        return;
+      }
+
+      grid.innerHTML = list.map(p => {
+        const initials = p.nombre?.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'P';
+        const price = EmotionApp.formatPrice(p.precio || 0, p.moneda || 'USD');
+        return `
+          <article class="em-psychologist-card em-card-hover">
+            <div class="em-psych-card-top">
+              ${p.fotoPerfil ? `<img src="${p.fotoPerfil}" class="em-psych-avatar">` : `<div class="em-psych-avatar-placeholder">${initials}</div>`}
+              <div class="em-psych-name">${p.nombre}</div>
+              <div class="em-psych-specialty-badge">${p.especialidad}</div>
+            </div>
+            <div class="em-psych-card-body">
+              <div class="em-psych-info-row">📍 ${p.pais}</div>
+              <div class="em-psych-info-row">🎓 ${p.anosExperiencia} años de experiencia</div>
+              <p class="em-psych-description">${p.descripcion}</p>
+              <div class="em-psych-meta">
+                <div><div class="em-psych-price">${price}</div><div class="em-psych-price-label">por sesión</div></div>
+              </div>
+            </div>
+            <div class="em-psych-card-footer">
+              <button class="em-btn em-btn-outline em-btn-sm" onclick="window.open('profile.html?id=${p.id}','_blank')">Ver perfil</button>
+              <button class="em-btn em-btn-primary em-btn-sm" onclick="openBookingModal('${p.id}')">📅 Agendar</button>
+            </div>
+          </article>
+        `;
+      }).join('');
+    } catch (err) {
+      console.error('Error buscando psicólogos:', err);
+      grid.innerHTML = `<div class="em-empty" style="grid-column:1/-1"><div class="em-empty-title">Error al buscar</div></div>`;
+    }
+  }
+
+  // ── Modal de agendamiento ─────────────────────────────────────
+  async function openBookingModal(psychId) {
+    selectedPsychologist = await EmotionApp.getUserData(psychId);
+    if (!selectedPsychologist) return;
+
+    selectedDate = null;
+    selectedTime = null;
+
+    const price = EmotionApp.formatPrice(selectedPsychologist.precio, selectedPsychologist.moneda);
+    document.getElementById('booking-psych-info').innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--em-mint-light);border-radius:var(--em-radius)">
+        <div style="font-size:2rem">👨‍⚕️</div>
+        <div>
+          <strong>${selectedPsychologist.nombre}</strong><br>
+          <span style="font-size:0.85rem;color:var(--em-text-light)">${selectedPsychologist.especialidad} · ${price} por sesión</span>
+        </div>
+      </div>
+    `;
+
+    // Inicializar calendario de agendamiento
+    new CalendarModule.CalendarWidget('booking-calendar', {
+      onDateSelect: async (dateStr) => {
+        selectedDate = dateStr;
+        selectedTime = null;
+        document.getElementById('btn-confirm-book').disabled = true;
+        document.getElementById('booking-summary').style.display = 'none';
+
+        const slots = await CalendarModule.getAvailableSlots(psychId, dateStr);
+        CalendarModule.renderTimeSlots('booking-slots', slots, (time) => {
+          selectedTime = time;
+          document.getElementById('btn-confirm-book').disabled = false;
+          document.getElementById('booking-date-display').textContent = dateStr;
+          document.getElementById('booking-time-display').textContent = time;
+          document.getElementById('booking-price-display').textContent = price;
+          document.getElementById('booking-summary').style.display = 'block';
+        });
+      }
+    });
+
+    document.getElementById('modal-book').classList.add('active');
+  }
+
+  async function confirmBooking() {
+    if (!selectedDate || !selectedTime || !selectedPsychologist) return;
+
+    try {
+      const sessionId = await CalendarModule.bookSession(
+        currentUser.uid,
+        selectedPsychologist.id,
+        selectedDate,
+        selectedTime,
+        selectedPsychologist.precio,
+        selectedPsychologist.moneda
+      );
+
+      closeModal('modal-book');
+
+      // Mostrar modal de pago
+      await PaymentsModule.showPaymentModal({
+        sessionId,
+        psicologoNombre: selectedPsychologist.nombre,
+        pacienteEmail: currentUser.email,
+        precio: selectedPsychologist.precio,
+        moneda: selectedPsychologist.moneda,
+        fecha: selectedDate,
+        hora: selectedTime
+      }, async (paymentId) => {
+        EmotionApp.showAlert('¡Sesión confirmada exitosamente!', 'success');
+        await loadDashboard();
+      });
+    } catch (err) {
+      console.error('Error confirmando sesión:', err);
+    }
+  }
+
+  // ── Ver detalle de sesión ─────────────────────────────────────
+  async function viewSessionDetail(sessionId) {
+    const session = allSessions.find(s => s.id === sessionId);
+    if (!session) return;
+
+    const record = await db.collection(COLLECTIONS.SESSION_RECORDS)
+      .where('sesionId', '==', sessionId).limit(1).get();
+
+    const body = document.getElementById('session-detail-body');
+    const recordData = record.empty ? null : record.docs[0].data();
+
+    body.innerHTML = `
+      <div class="em-summary-section">
+        <div class="em-summary-section-title">📅 Información de la sesión</div>
+        <div class="em-summary-content">
+          Fecha: ${session.fecha} a las ${session.hora}<br>
+          Psicólogo: ${session.psicologo?.nombre || '—'}
+        </div>
+      </div>
+      ${recordData?.ejercicios ? `
+        <div class="em-summary-section">
+          <div class="em-summary-section-title">🏋️ Ejercicios recomendados</div>
+          <div class="em-summary-content">${recordData.ejercicios}</div>
+        </div>
+      ` : ''}
+      ${recordData?.recomendaciones ? `
+        <div class="em-summary-section">
+          <div class="em-summary-section-title">💡 Recomendaciones</div>
+          <div class="em-summary-content">${recordData.recomendaciones}</div>
+        </div>
+      ` : ''}
+      ${recordData?.firmaPaciente ? `
+        <div class="em-alert em-alert-success">
+          ✅ Sesión firmada el ${EmotionApp.formatDateTime(recordData.firmaTiempo)}
+        </div>
+      ` : ''}
+      ${!recordData ? `<div class="em-empty"><div class="em-empty-icon">📋</div><div class="em-empty-text">No hay resumen disponible para esta sesión.</div></div>` : ''}
+    `;
+
+    document.getElementById('modal-session-detail').classList.add('active');
+  }
+
+  // ── Cancelar sesión ───────────────────────────────────────────
+  async function cancelSession(sessionId) {
+    if (!confirm('¿Deseas cancelar esta sesión?')) return;
+    try {
+      await db.collection(COLLECTIONS.SESSIONS).doc(sessionId).update({ estado: 'cancelled' });
+      EmotionApp.showAlert('Sesión cancelada.', 'info');
+      await loadSessions();
+    } catch (err) {
+      EmotionApp.showAlert('Error al cancelar la sesión.', 'error');
+    }
+  }
+
+  // ── Unirse a videollamada ─────────────────────────────────────
+  function joinSession(sessionId) {
+    const id = sessionId || new URLSearchParams(window.location.search).get('session');
+    window.location.href = `session.html?session=${id}`;
+  }
+
+  // ── Historial ─────────────────────────────────────────────────
+  async function loadHistory() {
+    try {
+      const snap = await db.collection(COLLECTIONS.SESSIONS)
+        .where('pacienteId', '==', currentUser.uid)
+        .where('estado', '==', 'completed')
+        .orderBy('fecha', 'desc').get();
+
+      const list = document.getElementById('history-list');
+      if (snap.empty) {
+        list.innerHTML = `<div class="em-empty"><div class="em-empty-icon">📋</div><div class="em-empty-title">Sin historial todavía</div><div class="em-empty-text">Aquí aparecerán las sesiones completadas.</div></div>`;
+        return;
+      }
+
+      const sessions = await Promise.all(snap.docs.map(async d => {
+        const s = { id: d.id, ...d.data() };
+        s.psicologo = await EmotionApp.getUserData(s.psicologoId);
+        return s;
+      }));
+
+      list.innerHTML = `<div class="em-session-cards">${sessions.map(s => `
+        <div class="em-session-card completed" onclick="viewSessionDetail('${s.id}')" style="cursor:pointer">
+          <div class="em-session-date-box">
+            <div class="em-session-date-day">${(s.fecha||'').split('-')[2] || '—'}</div>
+            <div class="em-session-date-month">${['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][(s.fecha||'').split('-')[1]||0] || ''}</div>
+          </div>
+          <div class="em-session-info">
+            <div class="em-session-title">${s.psicologo?.nombre || 'Psicólogo'}</div>
+            <div class="em-session-meta">
+              <span class="em-session-meta-item">🕐 ${s.hora}</span>
+              <span class="em-session-meta-item">💰 ${EmotionApp.formatPrice(s.precio||0, s.moneda||'USD')}</span>
+            </div>
+            <span class="em-badge em-badge-completed">Completada</span>
+          </div>
+          <div class="em-session-actions">
+            <button class="em-btn em-btn-outline em-btn-sm">Ver resumen →</button>
+          </div>
+        </div>
+      `).join('')}</div>`;
+    } catch (err) { console.error('Error cargando historial:', err); }
+  }
+
+  // ── Formulario de perfil ──────────────────────────────────────
+  document.getElementById('form-profile').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await db.collection(COLLECTIONS.USERS).doc(currentUser.uid).update({
+        nombre: document.getElementById('profile-nombre').value,
+        pais: document.getElementById('profile-pais').value,
+        telefono: document.getElementById('profile-telefono').value,
+        fechaNacimiento: document.getElementById('profile-fecha-nac').value
+      });
+      EmotionApp.showAlert('Perfil actualizado correctamente.', 'success');
+    } catch (err) {
+      EmotionApp.showAlert('Error al actualizar el perfil.', 'error');
+    }
+  });
+
+  // ── Navegación entre paneles ──────────────────────────────────
+  function showPanel(name) {
+    document.querySelectorAll('.em-tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.em-sidebar-link[data-panel]').forEach(l => l.classList.remove('active'));
+    document.getElementById(`panel-${name}`)?.classList.add('active');
+    document.querySelector(`[data-panel="${name}"]`)?.classList.add('active');
+
+    const titles = { inicio:'Inicio', buscar:'Buscar psicólogo', sesiones:'Mis sesiones',
+      recursos:'Mis recursos', historial:'Historial', perfil:'Mi perfil' };
+    document.getElementById('topbar-title').textContent = titles[name] || name;
+
+    if (name === 'buscar') searchPsychologists();
+    if (name === 'historial') loadHistory();
+    closeSidebar();
+  }
+
+  function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+  // ── Sidebar mobile ────────────────────────────────────────────
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebar-overlay').classList.toggle('open');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('open');
+  }
+</script>
+</body>
+</html>

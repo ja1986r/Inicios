@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Profesional — Emotion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+<div class="em-dashboard">
+
+  <!-- ═══════════════ SIDEBAR ═══════════════ -->
+  <aside class="em-sidebar" id="sidebar">
+    <div class="em-sidebar-brand">
+      <div class="em-logo-icon">💚</div>
+      <div>
+        <div class="em-sidebar-brand-name">Emotion</div>
+        <div class="em-sidebar-brand-role">Panel Profesional</div>
+      </div>
+    </div>
+    <div class="em-sidebar-user">
+      <div class="em-sidebar-avatar" id="sidebar-avatar">P</div>
+      <div>
+        <div class="em-sidebar-user-name" id="sidebar-name">Cargando...</div>
+        <div class="em-sidebar-user-email" id="sidebar-email"></div>
+      </div>
+    </div>
+    <nav class="em-sidebar-nav">
+      <div class="em-sidebar-section-title">Principal</div>
+      <div class="em-sidebar-link active" data-panel="inicio" onclick="showPanel('inicio')">
+        <span class="em-sidebar-link-icon">🏠</span> Inicio
+      </div>
+      <div class="em-sidebar-link" data-panel="agenda" onclick="showPanel('agenda')">
+        <span class="em-sidebar-link-icon">📅</span> Agenda
+        <span class="em-sidebar-badge" id="badge-pending" style="display:none">0</span>
+      </div>
+      <div class="em-sidebar-link" data-panel="pacientes" onclick="showPanel('pacientes')">
+        <span class="em-sidebar-link-icon">👥</span> Mis pacientes
+      </div>
+      <div class="em-sidebar-link" data-panel="recursos" onclick="showPanel('recursos')">
+        <span class="em-sidebar-link-icon">📚</span> Recursos
+      </div>
+      <div class="em-sidebar-section-title">Configuración</div>
+      <div class="em-sidebar-link" data-panel="perfil" onclick="showPanel('perfil')">
+        <span class="em-sidebar-link-icon">✏️</span> Mi perfil
+      </div>
+      <div class="em-sidebar-link" data-panel="disponibilidad" onclick="showPanel('disponibilidad')">
+        <span class="em-sidebar-link-icon">🕐</span> Disponibilidad
+      </div>
+    </nav>
+    <div class="em-sidebar-footer">
+      <div class="em-sidebar-link" onclick="window.open(`profile.html?id=${currentUserId}`,'_blank')">
+        <span class="em-sidebar-link-icon">🌐</span> Ver mi perfil público
+      </div>
+      <div class="em-sidebar-link logout" onclick="AuthModule.logout()">
+        <span class="em-sidebar-link-icon">🚪</span> Cerrar sesión
+      </div>
+    </div>
+  </aside>
+
+  <div class="em-sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- ═══════════════ CONTENIDO PRINCIPAL ═══════════════ -->
+  <main class="em-main-content">
+    <div class="em-topbar">
+      <div class="em-topbar-left">
+        <button class="em-sidebar-toggle" onclick="toggleSidebar()">☰</button>
+        <div class="em-topbar-title" id="topbar-title">Inicio</div>
+      </div>
+      <div class="em-topbar-right">
+        <span id="status-badge"></span>
+        <div class="em-topbar-notif">🔔<div class="em-notif-dot" id="notif-dot" style="display:none"></div></div>
+      </div>
+    </div>
+
+    <div class="em-content-area">
+
+      <!-- ═══════════ INICIO ═══════════ -->
+      <div id="panel-inicio" class="em-tab-panel active">
+        <!-- Banner si está pendiente de aprobación -->
+        <div id="pending-banner" class="em-banner" style="display:none">
+          <div class="em-banner-icon">⏳</div>
+          <div class="em-banner-content">
+            <div class="em-banner-title">Tu perfil está pendiente de aprobación</div>
+            <div class="em-banner-text">Nuestro equipo está revisando tus credenciales. En 24-48 hs recibirás una notificación.</div>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="em-stats-grid">
+          <div class="em-stat-card">
+            <div class="em-stat-card-header">
+              <span class="em-stat-card-title">Pacientes activos</span>
+              <div class="em-stat-card-icon mint">👥</div>
+            </div>
+            <div class="em-stat-card-value" id="stat-patients">0</div>
+          </div>
+          <div class="em-stat-card">
+            <div class="em-stat-card-header">
+              <span class="em-stat-card-title">Sesiones este mes</span>
+              <div class="em-stat-card-icon blue">📅</div>
+            </div>
+            <div class="em-stat-card-value" id="stat-sessions">0</div>
+          </div>
+          <div class="em-stat-card">
+            <div class="em-stat-card-header">
+              <span class="em-stat-card-title">Ingresos del mes</span>
+              <div class="em-stat-card-icon green">💰</div>
+            </div>
+            <div class="em-stat-card-value" id="stat-income">—</div>
+          </div>
+          <div class="em-stat-card">
+            <div class="em-stat-card-header">
+              <span class="em-stat-card-title">Solicitudes pendientes</span>
+              <div class="em-stat-card-icon orange">⏳</div>
+            </div>
+            <div class="em-stat-card-value" id="stat-pending">0</div>
+          </div>
+        </div>
+
+        <!-- Próxima sesión -->
+        <div id="next-session-card" style="margin:24px 0"></div>
+
+        <!-- Sesiones pendientes de confirmación -->
+        <div class="em-table-wrapper">
+          <div class="em-table-header">
+            <span class="em-table-title">⏳ Solicitudes por confirmar</span>
+            <button class="em-btn em-btn-outline em-btn-sm" onclick="showPanel('agenda')">Ver agenda completa</button>
+          </div>
+          <div id="pending-sessions-list" style="padding:8px"></div>
+        </div>
+      </div>
+
+      <!-- ═══════════ AGENDA ═══════════ -->
+      <div id="panel-agenda" class="em-tab-panel">
+        <div class="em-page-header">
+          <div><div class="em-page-title">📅 Mi agenda</div><div class="em-page-subtitle">Gestiona tus consultas</div></div>
+        </div>
+        <div class="em-dashboard-tabs">
+          <div class="em-dashboard-tab active" data-sub="pending" onclick="switchAgendaTab('pending')">⏳ Por confirmar</div>
+          <div class="em-dashboard-tab" data-sub="confirmed" onclick="switchAgendaTab('confirmed')">✅ Confirmadas</div>
+          <div class="em-dashboard-tab" data-sub="completed" onclick="switchAgendaTab('completed')">📋 Historial</div>
+          <div class="em-dashboard-tab" data-sub="cancelled" onclick="switchAgendaTab('cancelled')">❌ Canceladas</div>
+        </div>
+        <div class="em-session-cards" id="agenda-list"></div>
+      </div>
+
+      <!-- ═══════════ PACIENTES ═══════════ -->
+      <div id="panel-pacientes" class="em-tab-panel">
+        <div class="em-page-header">
+          <div><div class="em-page-title">👥 Mis pacientes</div></div>
+          <div class="em-input-group" style="width:280px">
+            <span class="em-input-icon">🔍</span>
+            <input type="text" class="em-input" id="search-patient" placeholder="Buscar paciente..." oninput="filterPatients()">
+          </div>
+        </div>
+        <div id="patients-list" style="display:flex;flex-direction:column;gap:12px"></div>
+      </div>
+
+      <!-- ═══════════ RECURSOS ═══════════ -->
+      <div id="panel-recursos" class="em-tab-panel">
+        <div class="em-page-header">
+          <div><div class="em-page-title">📚 Biblioteca de recursos</div></div>
+          <button class="em-btn em-btn-primary" onclick="openModal('modal-upload-resource')">+ Subir recurso</button>
+        </div>
+
+        <div class="em-dashboard-tabs">
+          <div class="em-dashboard-tab active" data-rsub="all" onclick="switchResourceTab('all')">📁 Todos</div>
+          <div class="em-dashboard-tab" data-rsub="pdf" onclick="switchResourceTab('pdf')">📄 PDFs</div>
+          <div class="em-dashboard-tab" data-rsub="video" onclick="switchResourceTab('video')">🎥 Videos</div>
+          <div class="em-dashboard-tab" data-rsub="image" onclick="switchResourceTab('image')">🖼️ Imágenes</div>
+          <div class="em-dashboard-tab" data-rsub="doc" onclick="switchResourceTab('doc')">📝 Documentos</div>
+        </div>
+
+        <div class="em-resource-grid" id="resources-grid"></div>
+      </div>
+
+      <!-- ═══════════ PERFIL ═══════════ -->
+      <div id="panel-perfil" class="em-tab-panel">
+        <div class="em-page-header"><div class="em-page-title">✏️ Editar mi perfil</div></div>
+        <div class="em-card" style="max-width:700px">
+          <div class="em-card-body">
+            <form id="form-profile" style="display:flex;flex-direction:column;gap:16px">
+              <!-- Foto de perfil actual -->
+              <div style="display:flex;align-items:center;gap:20px;margin-bottom:8px">
+                <div id="current-photo" style="width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,var(--em-mint),var(--em-blue));display:flex;align-items:center;justify-content:center;color:white;font-size:2rem;font-weight:700;overflow:hidden"></div>
+                <div>
+                  <div style="font-weight:700;margin-bottom:4px">Foto de perfil</div>
+                  <button type="button" class="em-btn em-btn-ghost em-btn-sm" onclick="document.getElementById('new-photo-input').click()">
+                    📸 Cambiar foto
+                  </button>
+                  <input type="file" id="new-photo-input" accept="image/*" style="display:none" onchange="uploadNewPhoto(this)">
+                </div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div class="em-form-group">
+                  <label class="em-label">Nombre completo</label>
+                  <input type="text" class="em-input" id="prof-nombre">
+                </div>
+                <div class="em-form-group">
+                  <label class="em-label">País</label>
+                  <select class="em-select" id="prof-pais"></select>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div class="em-form-group">
+                  <label class="em-label">Especialidad</label>
+                  <select class="em-select" id="prof-especialidad"></select>
+                </div>
+                <div class="em-form-group">
+                  <label class="em-label">Años de experiencia</label>
+                  <input type="number" class="em-input" id="prof-experiencia" min="0">
+                </div>
+              </div>
+              <div class="em-form-group">
+                <label class="em-label">Descripción profesional</label>
+                <textarea class="em-textarea" id="prof-descripcion" rows="4"></textarea>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div class="em-form-group">
+                  <label class="em-label">Precio por sesión</label>
+                  <input type="number" class="em-input" id="prof-precio" min="1" step="0.01">
+                </div>
+                <div class="em-form-group">
+                  <label class="em-label">Moneda</label>
+                  <select class="em-select" id="prof-moneda"></select>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div class="em-form-group">
+                  <label class="em-label">Título profesional</label>
+                  <input type="text" class="em-input" id="prof-titulo">
+                </div>
+                <div class="em-form-group">
+                  <label class="em-label">Nº Colegiatura</label>
+                  <input type="text" class="em-input" id="prof-colegiatura">
+                </div>
+              </div>
+              <button type="submit" class="em-btn em-btn-primary">Guardar cambios</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ DISPONIBILIDAD ═══════════ -->
+      <div id="panel-disponibilidad" class="em-tab-panel">
+        <div class="em-page-header">
+          <div><div class="em-page-title">🕐 Mi disponibilidad</div><div class="em-page-subtitle">Configura los horarios en que recibes pacientes</div></div>
+          <button class="em-btn em-btn-primary" onclick="saveAvailability()">💾 Guardar disponibilidad</button>
+        </div>
+        <div class="em-card">
+          <div class="em-card-body">
+            <div id="availability-manager"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ═══════ MODAL: DETALLE DEL PACIENTE ═══════ -->
+<div class="em-modal-overlay" id="modal-patient-detail">
+  <div class="em-modal em-modal-lg">
+    <div class="em-modal-header">
+      <h3 class="em-modal-title" id="modal-patient-name">Paciente</h3>
+      <button class="em-modal-close" onclick="closeModal('modal-patient-detail')">✕</button>
+    </div>
+    <div class="em-modal-body" id="modal-patient-body"></div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL: SUBIR RECURSO ═══════ -->
+<div class="em-modal-overlay" id="modal-upload-resource">
+  <div class="em-modal">
+    <div class="em-modal-header">
+      <h3 class="em-modal-title">📎 Subir recurso</h3>
+      <button class="em-modal-close" onclick="closeModal('modal-upload-resource')">✕</button>
+    </div>
+    <div class="em-modal-body">
+      <form id="form-upload-resource" style="display:flex;flex-direction:column;gap:14px">
+        <div class="em-form-group">
+          <label class="em-label em-required">Nombre del recurso</label>
+          <input type="text" class="em-input" id="res-nombre" required placeholder="Ej: Guía de respiración consciente">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="em-form-group">
+            <label class="em-label em-required">Tipo</label>
+            <select class="em-select" id="res-tipo" required>
+              <option value="">Seleccionar...</option>
+              <option value="pdf">📄 PDF</option>
+              <option value="video">🎥 Video</option>
+              <option value="image">🖼️ Imagen</option>
+              <option value="doc">📝 Documento</option>
+              <option value="audio">🎵 Audio</option>
+            </select>
+          </div>
+          <div class="em-form-group">
+            <label class="em-label">Categoría</label>
+            <input type="text" class="em-input" id="res-categoria" placeholder="Ej: Ansiedad, Relajación...">
+          </div>
+        </div>
+        <div class="em-form-group">
+          <label class="em-label em-required">Archivo</label>
+          <div class="em-upload-area" id="resource-upload-area">
+            <div class="em-upload-icon">📁</div>
+            <p class="em-upload-text"><strong>Haz clic para seleccionar</strong> el archivo</p>
+            <p class="em-upload-hint">PDF, video, imagen, documento — Máx 50MB</p>
+            <input type="file" id="res-file" style="display:none">
+          </div>
+          <div id="res-file-preview" style="display:none" class="em-upload-preview">
+            <div style="font-size:1.5rem">📄</div>
+            <div class="em-upload-filename" id="res-file-name"></div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="em-modal-footer">
+      <button class="em-btn em-btn-ghost" onclick="closeModal('modal-upload-resource')">Cancelar</button>
+      <button class="em-btn em-btn-primary" id="btn-upload-resource" onclick="uploadResource()">📤 Subir recurso</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL: ASIGNAR RECURSO A PACIENTE ═══════ -->
+<div class="em-modal-overlay" id="modal-assign-resource">
+  <div class="em-modal">
+    <div class="em-modal-header">
+      <h3 class="em-modal-title">📤 Asignar recurso a paciente</h3>
+      <button class="em-modal-close" onclick="closeModal('modal-assign-resource')">✕</button>
+    </div>
+    <div class="em-modal-body">
+      <div class="em-form-group">
+        <label class="em-label">Seleccionar paciente</label>
+        <select class="em-select" id="assign-patient-select">
+          <option value="">Seleccionar paciente...</option>
+        </select>
+      </div>
+      <div id="assign-resource-name" style="margin-top:12px;font-size:0.9rem;color:var(--em-text-light)"></div>
+    </div>
+    <div class="em-modal-footer">
+      <button class="em-btn em-btn-ghost" onclick="closeModal('modal-assign-resource')">Cancelar</button>
+      <button class="em-btn em-btn-primary" onclick="confirmAssignResource()">Asignar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/calendar.js"></script>
+<script src="js/psychologist.js"></script>
+
+<script>
+  const { db, auth, storage, COLLECTIONS, COUNTRIES, SPECIALTIES, CURRENCIES } = EmotionApp;
+  let currentUserId = null;
+  let currentUserData = null;
+  let allSessions = [];
+  let allPatients = [];
+  let allResources = [];
+  let resourceFilter = 'all';
+  let agendaFilter = 'pending';
+  let selectedResourceId = null;
+
+  // Poblar selects
+  ['prof-pais'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) COUNTRIES.forEach(c => el.innerHTML += `<option value="${c}">${c}</option>`);
+  });
+  SPECIALTIES.forEach(s => {
+    const el = document.getElementById('prof-especialidad');
+    if (el) el.innerHTML += `<option value="${s}">${s}</option>`;
+  });
+  Object.entries(CURRENCIES).forEach(([k, v]) => {
+    const el = document.getElementById('prof-moneda');
+    if (el) el.innerHTML += `<option value="${k}">${k} — ${v.name}</option>`;
+  });
+
+  // ── Autenticación ─────────────────────────────────────────────
+  auth.onAuthStateChanged(async (user) => {
+    if (!user) { window.location.href = 'login.html'; return; }
+    currentUserId = user.uid;
+    currentUserData = await EmotionApp.getUserData(user.uid);
+
+    if (!currentUserData || currentUserData.rol !== 'psychologist') {
+      window.location.href = 'login.html'; return;
+    }
+
+    // UI del sidebar
+    const initials = currentUserData.nombre?.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'P';
+    const avatarEl = document.getElementById('sidebar-avatar');
+    if (currentUserData.fotoPerfil) {
+      avatarEl.innerHTML = `<img src="${currentUserData.fotoPerfil}" style="width:100%;height:100%;object-fit:cover">`;
+    } else {
+      avatarEl.textContent = initials;
+    }
+    document.getElementById('sidebar-name').textContent = currentUserData.nombre || 'Psicólogo';
+    document.getElementById('sidebar-email').textContent = currentUserData.email || '';
+
+    // Badge de estado
+    const statusBadge = document.getElementById('status-badge');
+    if (currentUserData.estado === 'pending') {
+      statusBadge.innerHTML = `<span class="em-badge em-badge-pending">⏳ Pendiente de aprobación</span>`;
+      document.getElementById('pending-banner').style.display = 'flex';
+    } else if (currentUserData.estado === 'approved') {
+      statusBadge.innerHTML = `<span class="em-badge em-badge-approved">✅ Aprobado</span>`;
+    }
+
+    // Poblar formulario de perfil
+    document.getElementById('prof-nombre').value = currentUserData.nombre || '';
+    document.getElementById('prof-pais').value = currentUserData.pais || '';
+    document.getElementById('prof-especialidad').value = currentUserData.especialidad || '';
+    document.getElementById('prof-experiencia').value = currentUserData.anosExperiencia || '';
+    document.getElementById('prof-descripcion').value = currentUserData.descripcion || '';
+    document.getElementById('prof-precio').value = currentUserData.precio || '';
+    document.getElementById('prof-moneda').value = currentUserData.moneda || '';
+    document.getElementById('prof-titulo').value = currentUserData.titulo || '';
+    document.getElementById('prof-colegiatura').value = currentUserData.numeroColegiatura || '';
+
+    // Foto actual en perfil
+    const photoEl = document.getElementById('current-photo');
+    if (currentUserData.fotoPerfil) {
+      photoEl.innerHTML = `<img src="${currentUserData.fotoPerfil}" style="width:100%;height:100%;object-fit:cover">`;
+    } else {
+      photoEl.textContent = initials;
+    }
+
+    loadDashboard();
+    buildAvailabilityManager();
+  });
+
+  // ── Cargar todo el dashboard ──────────────────────────────────
+  async function loadDashboard() {
+    await Promise.all([loadStats(), loadSessions(), loadPatients(), loadResources()]);
+  }
+
+  // ── Estadísticas ──────────────────────────────────────────────
+  async function loadStats() {
+    try {
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+
+      const [sessSnap, monthSnap, patientsSnap, pendingSnap] = await Promise.all([
+        db.collection(COLLECTIONS.SESSIONS).where('psicologoId','==',currentUserId).where('estado','==','completed').get(),
+        db.collection(COLLECTIONS.SESSIONS).where('psicologoId','==',currentUserId).where('fecha','>=',monthStart).where('estado','==','completed').get(),
+        db.collection(COLLECTIONS.SESSIONS).where('psicologoId','==',currentUserId).where('estado','in',['confirmed','completed']).get(),
+        db.collection(COLLECTIONS.SESSIONS).where('psicologoId','==',currentUserId).where('estado','==','pending').get()
+      ]);
+
+      const uniquePatients = new Set(patientsSnap.docs.map(d => d.data().pacienteId));
+      document.getElementById('stat-patients').textContent = uniquePatients.size;
+      document.getElementById('stat-sessions').textContent = monthSnap.size;
+      document.getElementById('stat-pending').textContent = pendingSnap.size;
+
+      if (pendingSnap.size > 0) {
+        document.getElementById('badge-pending').textContent = pendingSnap.size;
+        document.getElementById('badge-pending').style.display = 'block';
+        document.getElementById('notif-dot').style.display = 'block';
+      }
+
+      // Ingresos del mes
+      const paymentsSnap = await db.collection(COLLECTIONS.PAYMENTS)
+        .where('psicologoId','==',currentUserId).where('fecha','>=',firebase.firestore.Timestamp.fromDate(new Date(now.getFullYear(), now.getMonth(), 1))).get();
+      const income = paymentsSnap.docs.reduce((sum, d) => sum + (d.data().montoPsicologo || 0), 0);
+      document.getElementById('stat-income').textContent = income > 0
+        ? EmotionApp.formatPrice(income, currentUserData.moneda || 'USD')
+        : '—';
+    } catch (err) { console.error('Error cargando stats:', err); }
+  }
+
+  // ── Sesiones ──────────────────────────────────────────────────
+  async function loadSessions() {
+    try {
+      const snap = await db.collection(COLLECTIONS.SESSIONS)
+        .where('psicologoId','==',currentUserId)
+        .orderBy('fecha','desc').get();
+
+      allSessions = await Promise.all(snap.docs.map(async d => {
+        const s = { id: d.id, ...d.data() };
+        s.paciente = await EmotionApp.getUserData(s.pacienteId);
+        return s;
+      }));
+
+      // Próxima sesión confirmada
+      const today = new Date().toISOString().split('T')[0];
+      const next = allSessions.find(s => s.estado === 'confirmed' && s.fecha >= today);
+      if (next) {
+        document.getElementById('next-session-card').innerHTML = `
+          <div class="em-next-session-card">
+            <div>
+              <div class="em-next-session-label">📅 Próxima sesión</div>
+              <div class="em-next-session-title">${next.paciente?.nombre || 'Paciente'}</div>
+              <div class="em-next-session-info">
+                <span class="em-next-session-info-item">📅 ${next.fecha}</span>
+                <span class="em-next-session-info-item">🕐 ${next.hora}</span>
+              </div>
+            </div>
+            <button class="em-join-btn" onclick="window.location.href='session.html?session=${next.id}'">
+              📹 Iniciar sesión
+            </button>
+          </div>
+        `;
+      }
+
+      // Sesiones pendientes en inicio
+      const pending = allSessions.filter(s => s.estado === 'pending').slice(0,5);
+      const pendingList = document.getElementById('pending-sessions-list');
+      if (pending.length === 0) {
+        pendingList.innerHTML = `<div class="em-empty"><div class="em-empty-icon">✅</div><div class="em-empty-text">No hay solicitudes pendientes</div></div>`;
+      } else {
+        pendingList.innerHTML = pending.map(s => renderSessionCard(s, true)).join('');
+      }
+
+      renderAgenda(agendaFilter);
+    } catch (err) { console.error('Error cargando sesiones:', err); }
+  }
+
+  function switchAgendaTab(filter) {
+    agendaFilter = filter;
+    document.querySelectorAll('[data-sub]').forEach(t => t.classList.toggle('active', t.dataset.sub === filter));
+    renderAgenda(filter);
+  }
+
+  function renderAgenda(filter) {
+    const list = document.getElementById('agenda-list');
+    const filtered = allSessions.filter(s => s.estado === filter);
+    if (filtered.length === 0) {
+      list.innerHTML = `<div class="em-empty"><div class="em-empty-icon">📅</div><div class="em-empty-title">Sin sesiones en esta categoría</div></div>`;
+      return;
+    }
+    list.innerHTML = filtered.map(s => renderSessionCard(s, filter === 'pending')).join('');
+  }
+
+  function renderSessionCard(s, showActions) {
+    const dateParts = (s.fecha||'').split('-');
+    const months = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    const price = EmotionApp.formatPrice(s.precio||0, s.moneda||'USD');
+    return `
+      <div class="em-session-card ${s.estado}" style="margin-bottom:8px">
+        <div class="em-session-date-box">
+          <div class="em-session-date-day">${dateParts[2]||'—'}</div>
+          <div class="em-session-date-month">${months[parseInt(dateParts[1])||0]||''}</div>
+        </div>
+        <div class="em-session-info">
+          <div class="em-session-title">${s.paciente?.nombre || 'Paciente'}</div>
+          <div class="em-session-meta">
+            <span class="em-session-meta-item">🕐 ${s.hora||'—'}</span>
+            <span class="em-session-meta-item">💰 ${price}</span>
+            <span class="em-session-meta-item">📍 ${s.paciente?.pais||''}</span>
+          </div>
+        </div>
+        <div class="em-session-actions">
+          ${showActions ? `
+            <button class="em-btn em-btn-primary em-btn-sm" onclick="confirmSession('${s.id}')">✅ Confirmar</button>
+            <button class="em-btn em-btn-danger em-btn-sm" onclick="rejectSession('${s.id}')">❌ Rechazar</button>
+          ` : ''}
+          ${s.estado === 'confirmed' ? `<button class="em-btn em-btn-primary em-btn-sm" onclick="window.location.href='session.html?session=${s.id}'">📹 Iniciar</button>` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  async function confirmSession(id) {
+    try {
+      await db.collection(COLLECTIONS.SESSIONS).doc(id).update({ estado: 'confirmed' });
+      EmotionApp.showAlert('Sesión confirmada.', 'success');
+      loadDashboard();
+    } catch { EmotionApp.showAlert('Error al confirmar la sesión.', 'error'); }
+  }
+
+  async function rejectSession(id) {
+    if (!confirm('¿Rechazar esta solicitud de sesión?')) return;
+    try {
+      await db.collection(COLLECTIONS.SESSIONS).doc(id).update({ estado: 'cancelled' });
+      EmotionApp.showAlert('Sesión rechazada.', 'info');
+      loadDashboard();
+    } catch { EmotionApp.showAlert('Error al rechazar la sesión.', 'error'); }
+  }
+
+  // ── Pacientes ─────────────────────────────────────────────────
+  async function loadPatients() {
+    try {
+      const snap = await db.collection(COLLECTIONS.SESSIONS)
+        .where('psicologoId','==',currentUserId)
+        .where('estado','in',['confirmed','completed']).get();
+
+      const patientIds = [...new Set(snap.docs.map(d => d.data().pacienteId))];
+      allPatients = await Promise.all(patientIds.map(id => EmotionApp.getUserData(id)));
+      allPatients = allPatients.filter(Boolean);
+
+      // Poblar select de asignación de recursos
+      const sel = document.getElementById('assign-patient-select');
+      sel.innerHTML = '<option value="">Seleccionar paciente...</option>';
+      allPatients.forEach(p => sel.innerHTML += `<option value="${p.id}">${p.nombre}</option>`);
+
+      renderPatients(allPatients);
+    } catch (err) { console.error('Error cargando pacientes:', err); }
+  }
+
+  function filterPatients() {
+    const q = document.getElementById('search-patient').value.toLowerCase();
+    renderPatients(allPatients.filter(p => (p.nombre||'').toLowerCase().includes(q)));
+  }
+
+  function renderPatients(patients) {
+    const list = document.getElementById('patients-list');
+    if (patients.length === 0) {
+      list.innerHTML = `<div class="em-empty"><div class="em-empty-icon">👥</div><div class="em-empty-title">Sin pacientes aún</div></div>`;
+      return;
+    }
+    list.innerHTML = patients.map(p => {
+      const initials = p.nombre?.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'P';
+      return `
+        <div class="em-patient-card">
+          <div class="em-patient-card-avatar">${initials}</div>
+          <div class="em-patient-card-info">
+            <div class="em-patient-card-name">${p.nombre}</div>
+            <div class="em-patient-card-meta">
+              <span>✉️ ${p.email}</span>
+              <span>📍 ${p.pais||''}</span>
+            </div>
+          </div>
+          <div class="em-patient-card-actions">
+            <button class="em-btn em-btn-outline em-btn-sm" onclick="viewPatientDetail('${p.id}')">Ver historial</button>
+            <button class="em-btn em-btn-primary em-btn-sm" onclick="openAssignResource('${p.id}')">📤 Asignar recurso</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function viewPatientDetail(patientId) {
+    const patient = allPatients.find(p => p.id === patientId);
+    if (!patient) return;
+
+    const sessSnap = await db.collection(COLLECTIONS.SESSIONS)
+      .where('psicologoId','==',currentUserId)
+      .where('pacienteId','==',patientId)
+      .orderBy('fecha','desc').get();
+
+    document.getElementById('modal-patient-name').textContent = patient.nombre;
+    document.getElementById('modal-patient-body').innerHTML = `
+      <div style="margin-bottom:20px">
+        <div style="font-size:0.82rem;font-weight:700;color:var(--em-text-light);text-transform:uppercase;margin-bottom:12px">
+          📋 Historial de sesiones (${sessSnap.size} sesiones)
+        </div>
+        ${sessSnap.docs.map(d => {
+          const s = d.data();
+          return `<div style="padding:12px;border:1px solid var(--em-gray-100);border-radius:var(--em-radius);margin-bottom:8px">
+            <div style="font-weight:600">${s.fecha} a las ${s.hora}</div>
+            <div style="font-size:0.82rem;color:var(--em-text-light)">${EmotionApp.formatPrice(s.precio||0, s.moneda||'USD')}</div>
+            <span class="em-badge em-badge-${s.estado}">${s.estado}</span>
+          </div>`;
+        }).join('') || '<div class="em-empty"><div class="em-empty-text">Sin sesiones registradas</div></div>'}
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="em-btn em-btn-danger em-btn-sm" onclick="dischargePatient('${patientId}')">🚫 Dar de baja</button>
+        <button class="em-btn em-btn-outline em-btn-sm" onclick="openTransferModal('${patientId}')">↗️ Transferir paciente</button>
+      </div>
+    `;
+    openModal('modal-patient-detail');
+  }
+
+  async function dischargePatient(patientId) {
+    if (!confirm('¿Dar de baja a este paciente? Esta acción es reversible.')) return;
+    try {
+      await db.collection(COLLECTIONS.USERS).doc(patientId).update({ activo: false });
+      EmotionApp.showAlert('Paciente dado de baja.', 'info');
+      closeModal('modal-patient-detail');
+      loadPatients();
+    } catch { EmotionApp.showAlert('Error al dar de baja al paciente.', 'error'); }
+  }
+
+  // ── Recursos ──────────────────────────────────────────────────
+  async function loadResources() {
+    try {
+      const snap = await db.collection(COLLECTIONS.RESOURCES)
+        .where('psicologoId','==',currentUserId)
+        .orderBy('fechaSubida','desc').get();
+      allResources = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderResources(resourceFilter);
+    } catch (err) { console.error('Error cargando recursos:', err); }
+  }
+
+  function switchResourceTab(filter) {
+    resourceFilter = filter;
+    document.querySelectorAll('[data-rsub]').forEach(t => t.classList.toggle('active', t.dataset.rsub === filter));
+    renderResources(filter);
+  }
+
+  function renderResources(filter) {
+    const filtered = filter === 'all' ? allResources : allResources.filter(r => r.tipo === filter);
+    const grid = document.getElementById('resources-grid');
+    const iconMap = { pdf:'📄', video:'🎥', image:'🖼️', doc:'📝', audio:'🎵' };
+    if (filtered.length === 0) {
+      grid.innerHTML = `<div class="em-empty" style="grid-column:1/-1"><div class="em-empty-icon">📚</div><div class="em-empty-title">Sin recursos</div><button class="em-btn em-btn-primary" onclick="openModal('modal-upload-resource')">+ Subir primer recurso</button></div>`;
+      return;
+    }
+    grid.innerHTML = filtered.map(r => `
+      <div class="em-resource-card">
+        <div class="em-resource-icon-area ${r.tipo}">${iconMap[r.tipo]||'📎'}</div>
+        <div class="em-resource-body">
+          <div class="em-resource-name">${r.nombre}</div>
+          <div class="em-resource-meta">📁 ${r.categoria||'General'}</div>
+        </div>
+        <div class="em-resource-footer" style="flex-wrap:wrap;gap:6px">
+          <a href="${r.url}" target="_blank" class="em-btn em-btn-outline em-btn-sm">Ver</a>
+          <button class="em-btn em-btn-primary em-btn-sm" onclick="openAssignResourceById('${r.id}','${r.nombre.replace(/'/g,'')}')">📤 Asignar</button>
+          <button class="em-btn em-btn-danger em-btn-sm" onclick="deleteResource('${r.id}')">🗑️</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Upload de recurso
+  const resArea = document.getElementById('resource-upload-area');
+  const resInput = document.getElementById('res-file');
+  let selectedResourceFile = null;
+
+  resArea.addEventListener('click', () => resInput.click());
+  resInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    selectedResourceFile = file;
+    document.getElementById('res-file-name').textContent = file.name;
+    document.getElementById('res-file-preview').style.display = 'flex';
+    resArea.style.display = 'none';
+  });
+
+  async function uploadResource() {
+    const nombre = document.getElementById('res-nombre').value.trim();
+    const tipo = document.getElementById('res-tipo').value;
+    const categoria = document.getElementById('res-categoria').value.trim();
+
+    if (!nombre || !tipo || !selectedResourceFile) {
+      EmotionApp.showAlert('Completa todos los campos requeridos.', 'error');
+      return;
+    }
+
+    EmotionApp.setLoading(true, 'Subiendo recurso...');
+    try {
+      const ext = selectedResourceFile.name.split('.').pop();
+      const path = `resources/${currentUserId}/${Date.now()}.${ext}`;
+      const ref = storage.ref(path);
+      await ref.put(selectedResourceFile);
+      const url = await ref.getDownloadURL();
+
+      await db.collection(COLLECTIONS.RESOURCES).add({
+        psicologoId: currentUserId,
+        nombre,
+        tipo,
+        categoria: categoria || 'General',
+        url,
+        storagePath: path,
+        fechaSubida: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      EmotionApp.setLoading(false);
+      EmotionApp.showAlert('Recurso subido correctamente.', 'success');
+      closeModal('modal-upload-resource');
+      document.getElementById('form-upload-resource').reset();
+      selectedResourceFile = null;
+      document.getElementById('res-file-preview').style.display = 'none';
+      resArea.style.display = 'block';
+      loadResources();
+    } catch (err) {
+      EmotionApp.setLoading(false);
+      EmotionApp.showAlert('Error al subir el recurso.', 'error');
+    }
+  }
+
+  async function deleteResource(resourceId) {
+    if (!confirm('¿Eliminar este recurso?')) return;
+    try {
+      const res = allResources.find(r => r.id === resourceId);
+      if (res?.storagePath) await storage.ref(res.storagePath).delete().catch(() => {});
+      await db.collection(COLLECTIONS.RESOURCES).doc(resourceId).delete();
+      EmotionApp.showAlert('Recurso eliminado.', 'info');
+      loadResources();
+    } catch { EmotionApp.showAlert('Error al eliminar el recurso.', 'error'); }
+  }
+
+  // Asignar recurso
+  function openAssignResourceById(resourceId, nombre) {
+    selectedResourceId = resourceId;
+    document.getElementById('assign-resource-name').textContent = `Recurso: ${nombre}`;
+    openModal('modal-assign-resource');
+  }
+
+  function openAssignResource(patientId) {
+    document.getElementById('assign-patient-select').value = patientId;
+    selectedResourceId = null;
+    openModal('modal-assign-resource');
+  }
+
+  async function confirmAssignResource() {
+    const patientId = document.getElementById('assign-patient-select').value;
+    if (!patientId || !selectedResourceId) {
+      EmotionApp.showAlert('Selecciona un paciente y un recurso.', 'error');
+      return;
+    }
+    try {
+      await db.collection(COLLECTIONS.PATIENT_RESOURCES).add({
+        pacienteId: patientId,
+        psicologoId: currentUserId,
+        recursoId: selectedResourceId,
+        fechaAsignacion: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      EmotionApp.showAlert('Recurso asignado correctamente.', 'success');
+      closeModal('modal-assign-resource');
+    } catch { EmotionApp.showAlert('Error al asignar el recurso.', 'error'); }
+  }
+
+  // ── Guardar perfil ────────────────────────────────────────────
+  document.getElementById('form-profile').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await db.collection(COLLECTIONS.USERS).doc(currentUserId).update({
+        nombre: document.getElementById('prof-nombre').value,
+        pais: document.getElementById('prof-pais').value,
+        especialidad: document.getElementById('prof-especialidad').value,
+        anosExperiencia: parseInt(document.getElementById('prof-experiencia').value)||0,
+        descripcion: document.getElementById('prof-descripcion').value,
+        precio: parseFloat(document.getElementById('prof-precio').value)||0,
+        moneda: document.getElementById('prof-moneda').value,
+        titulo: document.getElementById('prof-titulo').value,
+        numeroColegiatura: document.getElementById('prof-colegiatura').value
+      });
+      EmotionApp.showAlert('Perfil actualizado.', 'success');
+    } catch { EmotionApp.showAlert('Error al guardar el perfil.', 'error'); }
+  });
+
+  // ── Subir nueva foto ──────────────────────────────────────────
+  async function uploadNewPhoto(input) {
+    const file = input.files[0];
+    if (!file) return;
+    EmotionApp.setLoading(true, 'Subiendo foto...');
+    try {
+      const ref = storage.ref(`psychologists/${currentUserId}/profile-photo`);
+      await ref.put(file);
+      const url = await ref.getDownloadURL();
+      await db.collection(COLLECTIONS.USERS).doc(currentUserId).update({ fotoPerfil: url });
+      document.getElementById('current-photo').innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover">`;
+      EmotionApp.setLoading(false);
+      EmotionApp.showAlert('Foto actualizada.', 'success');
+    } catch {
+      EmotionApp.setLoading(false);
+      EmotionApp.showAlert('Error al subir la foto.', 'error');
+    }
+  }
+
+  // ── Gestión de disponibilidad ─────────────────────────────────
+  const days = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  let availabilityData = {};
+
+  function buildAvailabilityManager() {
+    const saved = currentUserData.availability || {};
+    const container = document.getElementById('availability-manager');
+    const slots = CalendarModule.DEFAULT_SLOTS;
+
+    container.innerHTML = days.map((day, di) => {
+      const daySlots = saved[di] || [];
+      return `
+        <div style="margin-bottom:20px">
+          <div style="font-weight:700;margin-bottom:8px;color:var(--em-text)">${day}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            ${slots.map(slot => `
+              <button type="button"
+                class="em-time-slot ${daySlots.includes(slot) ? 'selected' : ''}"
+                style="min-width:72px"
+                onclick="toggleSlot(this, ${di}, '${slot}')">
+                ${slot}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    availabilityData = JSON.parse(JSON.stringify(saved));
+  }
+
+  function toggleSlot(btn, dayIndex, slot) {
+    btn.classList.toggle('selected');
+    if (!availabilityData[dayIndex]) availabilityData[dayIndex] = [];
+    if (btn.classList.contains('selected')) {
+      availabilityData[dayIndex].push(slot);
+    } else {
+      availabilityData[dayIndex] = availabilityData[dayIndex].filter(s => s !== slot);
+    }
+  }
+
+  async function saveAvailability() {
+    await CalendarModule.saveAvailability(currentUserId, availabilityData);
+  }
+
+  // ── Navegación ────────────────────────────────────────────────
+  function showPanel(name) {
+    document.querySelectorAll('.em-tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.em-sidebar-link[data-panel]').forEach(l => l.classList.remove('active'));
+    document.getElementById(`panel-${name}`)?.classList.add('active');
+    document.querySelector(`[data-panel="${name}"]`)?.classList.add('active');
+    const titles = { inicio:'Inicio', agenda:'Mi agenda', pacientes:'Mis pacientes',
+      recursos:'Biblioteca de recursos', perfil:'Mi perfil', disponibilidad:'Mi disponibilidad' };
+    document.getElementById('topbar-title').textContent = titles[name] || name;
+    closeSidebar();
+  }
+
+  function openModal(id) { document.getElementById(id)?.classList.add('active'); }
+  function closeModal(id) { document.getElementById(id)?.classList.remove('active'); }
+
+  document.querySelectorAll('.em-modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('active'); });
+  });
+
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebar-overlay').classList.toggle('open');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('open');
+  }
+</script>
+</body>
+</html>

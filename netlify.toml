@@ -1,0 +1,48 @@
+# Configuración de Netlify para Emotion - Plataforma de Telemedicina Emocional
+
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+# Variables de entorno (completar en el dashboard de Netlify)
+[build.environment]
+  NODE_VERSION = "18"
+
+# Redirección para perfiles públicos de psicólogos
+[[redirects]]
+  from = "/psicologo/*"
+  to = "/profile.html"
+  status = 200
+
+# Redirección del panel admin
+[[redirects]]
+  from = "/admin"
+  to = "/admin-dashboard.html"
+  status = 200
+
+# Catch-all para SPA
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers de seguridad
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=*, microphone=*"
+    Content-Security-Policy = "default-src 'self' https: wss: data: blob: 'unsafe-inline' 'unsafe-eval'; frame-src https://daily.co https://*.daily.co https://js.stripe.com"
+
+# Cache para assets estáticos
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

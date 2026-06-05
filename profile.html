@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil — Emotion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="em-header">
+    <div class="em-container">
+      <div class="em-header-inner">
+        <a href="index.html" class="em-logo">
+          <div class="em-logo-icon">💚</div>
+          Emotion
+        </a>
+        <div class="em-nav-actions">
+          <a href="login.html?tab=login" class="em-btn em-btn-ghost em-btn-sm">Iniciar sesión</a>
+          <a href="login.html?tab=register" class="em-btn em-btn-primary em-btn-sm">Registrarse</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Loading state -->
+  <div id="profile-loading" style="padding:100px 0;text-align:center">
+    <div class="em-spinner" style="margin:0 auto 20px"></div>
+    <p style="color:var(--em-text-light)">Cargando perfil...</p>
+  </div>
+
+  <!-- Profile Content (hidden until loaded) -->
+  <div id="profile-content" style="display:none">
+
+    <!-- ═══════════════ HERO DEL PERFIL ═══════════════ -->
+    <section class="em-profile-page">
+      <div class="em-profile-hero">
+        <div class="em-container">
+          <div class="em-profile-hero-inner">
+
+            <!-- Foto -->
+            <div id="profile-photo-container">
+              <div class="em-profile-photo-placeholder" id="profile-avatar">P</div>
+            </div>
+
+            <!-- Info principal -->
+            <div class="em-profile-info">
+              <div class="em-hero-tag" style="margin-bottom:16px" id="profile-status-tag">✅ Psicólogo verificado</div>
+              <h1 class="em-profile-name" id="profile-name">Cargando...</h1>
+              <div class="em-profile-specialty" id="profile-specialty">—</div>
+              <div class="em-profile-meta-row" id="profile-meta-row">
+                <!-- Dinámico -->
+              </div>
+              <p class="em-profile-description" id="profile-description">—</p>
+              <div style="display:flex;gap:12px;flex-wrap:wrap">
+                <button class="em-btn em-btn-primary em-btn-lg" id="btn-book">
+                  📅 Agendar consulta
+                </button>
+                <button class="em-btn em-btn-outline em-btn-lg" id="btn-contact">
+                  💬 Escribir mensaje
+                </button>
+              </div>
+            </div>
+
+            <!-- Booking card -->
+            <div class="em-profile-booking-card">
+              <div class="em-booking-price" id="booking-price">—</div>
+              <div class="em-booking-per">por sesión de 50 minutos</div>
+              <div style="border-top:1px solid var(--em-gray-100);padding-top:16px;margin-bottom:16px">
+                <div style="font-size:0.82rem;font-weight:600;color:var(--em-text-light);margin-bottom:10px">PRÓXIMAS DISPONIBILIDADES</div>
+                <div id="booking-next-slots" style="display:flex;flex-direction:column;gap:6px;font-size:0.85rem;color:var(--em-text-light)">
+                  <div>Cargando...</div>
+                </div>
+              </div>
+              <button class="em-btn em-btn-primary em-btn-block em-btn-lg" id="btn-book-card">
+                📅 Reservar sesión
+              </button>
+              <div style="text-align:center;margin-top:12px;font-size:0.78rem;color:var(--em-text-muted)">
+                🔒 Pago seguro con Stripe
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════ CONTENIDO DEL PERFIL ═══════════════ -->
+      <div style="padding:60px 0;background:var(--em-bg)">
+        <div class="em-container">
+          <div style="display:grid;grid-template-columns:2fr 1fr;gap:40px;align-items:start">
+
+            <!-- Columna principal -->
+            <div>
+
+              <!-- Videos de presentación -->
+              <div id="videos-section" style="display:none;margin-bottom:48px">
+                <div class="em-section-tag" style="margin-bottom:12px">🎥 Videos</div>
+                <h2 style="font-size:1.5rem;margin-bottom:24px">Video de presentación</h2>
+                <div id="videos-grid" class="em-video-grid"></div>
+              </div>
+
+              <!-- Sobre mí -->
+              <div style="margin-bottom:48px">
+                <div class="em-section-tag" style="margin-bottom:12px">👨‍⚕️ Profesional</div>
+                <h2 style="font-size:1.5rem;margin-bottom:16px">Sobre mí</h2>
+                <p id="about-description" style="color:var(--em-text);line-height:1.8;font-size:0.95rem">—</p>
+              </div>
+
+              <!-- Credenciales -->
+              <div style="margin-bottom:48px">
+                <div class="em-section-tag" style="margin-bottom:12px">🎓 Formación</div>
+                <h2 style="font-size:1.5rem;margin-bottom:20px">Credenciales profesionales</h2>
+                <div style="display:flex;flex-direction:column;gap:12px" id="credentials-list">
+                  <!-- Dinámico -->
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Columna lateral -->
+            <div>
+              <!-- Especialidad y detalles -->
+              <div class="em-card" style="margin-bottom:20px">
+                <div class="em-card-body">
+                  <div style="font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--em-text-light);margin-bottom:14px">
+                    Detalles del profesional
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:12px" id="details-list">
+                    <!-- Dinámico -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cómo agendar -->
+              <div class="em-card" style="background:linear-gradient(135deg,var(--em-mint-light),var(--em-blue-light));border:none">
+                <div class="em-card-body">
+                  <div style="font-weight:700;margin-bottom:10px">📋 ¿Cómo funciona?</div>
+                  <ol style="padding-left:20px;display:flex;flex-direction:column;gap:8px;font-size:0.85rem;color:var(--em-text)">
+                    <li>Selecciona una fecha y hora disponible</li>
+                    <li>Realiza el pago de forma segura</li>
+                    <li>Recibes confirmación por email</li>
+                    <li>A la hora agendada, únete a la videollamada</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ═══════ MODAL: AGENDAR SESIÓN ═══════ -->
+  <div class="em-modal-overlay" id="modal-book">
+    <div class="em-modal">
+      <div class="em-modal-header">
+        <h3 class="em-modal-title">📅 Agendar sesión</h3>
+        <button class="em-modal-close" onclick="closeModal('modal-book')">✕</button>
+      </div>
+      <div class="em-modal-body">
+        <div id="booking-calendar"></div>
+        <div id="booking-slots"></div>
+        <div id="booking-summary" style="display:none;margin-top:12px">
+          <div class="em-alert em-alert-info">
+            <span>📅</span>
+            <div>
+              <strong id="booking-date-display"></strong> a las <strong id="booking-time-display"></strong>
+              — <strong id="booking-price-display"></strong>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="em-modal-footer">
+        <button class="em-btn em-btn-ghost" onclick="closeModal('modal-book')">Cancelar</button>
+        <button class="em-btn em-btn-primary" id="btn-confirm-book" disabled onclick="confirmBooking()">
+          Continuar al pago →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/calendar.js"></script>
+  <script src="js/payments.js"></script>
+
+  <script>
+    const { db, auth, COLLECTIONS } = EmotionApp;
+    const params = new URLSearchParams(window.location.search);
+    const psychId = params.get('id');
+    const slug = params.get('slug');
+
+    let psychData = null;
+    let selectedDate = null;
+    let selectedTime = null;
+    let currentUser = null;
+
+    // ── Cargar datos del psicólogo ─────────────────────────────
+    async function loadProfile() {
+      if (!psychId && !slug) {
+        window.location.href = 'index.html'; return;
+      }
+
+      try {
+        let doc;
+        if (psychId) {
+          doc = await db.collection(COLLECTIONS.USERS).doc(psychId).get();
+        } else {
+          const snap = await db.collection(COLLECTIONS.USERS).where('slug','==',slug).limit(1).get();
+          doc = snap.docs[0];
+        }
+
+        if (!doc?.exists) { window.location.href = 'index.html'; return; }
+
+        psychData = { id: doc.id, ...doc.data() };
+
+        if (psychData.estado !== 'approved') { window.location.href = 'index.html'; return; }
+
+        renderProfile(psychData);
+      } catch (err) {
+        console.error('Error cargando perfil:', err);
+        window.location.href = 'index.html';
+      }
+    }
+
+    function renderProfile(p) {
+      // Meta tags dinámicos
+      document.title = `${p.nombre} — Emotion`;
+      const initials = p.nombre?.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'P';
+      const price = EmotionApp.formatPrice(p.precio || 0, p.moneda || 'USD');
+
+      // Foto o avatar
+      if (p.fotoPerfil) {
+        document.getElementById('profile-photo-container').innerHTML =
+          `<img src="${p.fotoPerfil}" alt="${p.nombre}" class="em-profile-photo">`;
+      } else {
+        document.getElementById('profile-avatar').textContent = initials;
+      }
+
+      document.getElementById('profile-name').textContent = p.nombre || '—';
+      document.getElementById('profile-specialty').textContent = p.especialidad || '—';
+      document.getElementById('about-description').textContent = p.descripcion || '—';
+      document.getElementById('profile-description').textContent = (p.descripcion || '').slice(0, 200) + (p.descripcion?.length > 200 ? '...' : '');
+      document.getElementById('booking-price').textContent = price;
+      document.getElementById('booking-price-display').textContent = price;
+
+      // Meta row
+      document.getElementById('profile-meta-row').innerHTML = `
+        <div class="em-profile-meta-item">📍 ${p.pais || '—'}</div>
+        <div class="em-profile-meta-item">🎓 ${p.anosExperiencia || 0} años de experiencia</div>
+        <div class="em-profile-meta-item">💰 ${price} por sesión</div>
+        <div class="em-profile-meta-item">🌐 Sesiones online</div>
+      `;
+
+      // Credenciales
+      document.getElementById('credentials-list').innerHTML = `
+        <div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--em-gray-50);border-radius:var(--em-radius);border:1px solid var(--em-gray-100)">
+          <span style="font-size:1.5rem">🎓</span>
+          <div>
+            <div style="font-weight:700">${p.titulo || '—'}</div>
+            <div style="font-size:0.82rem;color:var(--em-text-light)">Título profesional</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--em-gray-50);border-radius:var(--em-radius);border:1px solid var(--em-gray-100)">
+          <span style="font-size:1.5rem">📋</span>
+          <div>
+            <div style="font-weight:700">Nº ${p.numeroColegiatura || '—'}</div>
+            <div style="font-size:0.82rem;color:var(--em-text-light)">Número de colegiatura</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--em-mint-light);border-radius:var(--em-radius);border:1px solid rgba(76,175,154,0.2)">
+          <span style="font-size:1.5rem">✅</span>
+          <div>
+            <div style="font-weight:700;color:var(--em-mint-dark)">Verificado por Emotion</div>
+            <div style="font-size:0.82rem;color:var(--em-mint)">Credenciales validadas por nuestro equipo</div>
+          </div>
+        </div>
+      `;
+
+      // Detalles
+      document.getElementById('details-list').innerHTML = `
+        <div style="display:flex;justify-content:space-between;font-size:0.88rem">
+          <span style="color:var(--em-text-light)">Especialidad</span>
+          <strong>${p.especialidad||'—'}</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.88rem">
+          <span style="color:var(--em-text-light)">País</span>
+          <strong>${p.pais||'—'}</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.88rem">
+          <span style="color:var(--em-text-light)">Experiencia</span>
+          <strong>${p.anosExperiencia||0} años</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.88rem">
+          <span style="color:var(--em-text-light)">Tarifa</span>
+          <strong style="color:var(--em-mint-dark)">${price}</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.88rem">
+          <span style="color:var(--em-text-light)">Modalidad</span>
+          <strong>Online</strong>
+        </div>
+      `;
+
+      // Videos
+      if (p.videoUrl) {
+        document.getElementById('videos-section').style.display = 'block';
+        document.getElementById('videos-grid').innerHTML = `
+          <div class="em-video-card" onclick="window.open('${p.videoUrl}','_blank')">
+            <div class="em-video-overlay">
+              <div class="em-video-play">▶</div>
+            </div>
+            <div style="position:absolute;bottom:12px;left:12px;font-size:0.82rem;color:white;font-weight:600">
+              Video de presentación
+            </div>
+          </div>
+        `;
+      }
+
+      // Botones de agendamiento
+      document.getElementById('btn-book').onclick = openBookingModal;
+      document.getElementById('btn-book-card').onclick = openBookingModal;
+
+      // Ocultar loading y mostrar contenido
+      document.getElementById('profile-loading').style.display = 'none';
+      document.getElementById('profile-content').style.display = 'block';
+
+      // Mostrar próximos slots disponibles
+      showNextAvailableSlots();
+    }
+
+    // ── Próximos slots disponibles ─────────────────────────────
+    async function showNextAvailableSlots() {
+      const slotsContainer = document.getElementById('booking-next-slots');
+      const today = new Date();
+      const slots = [];
+
+      for (let i = 1; i <= 7 && slots.length < 3; i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() + i);
+        const dateStr = date.toISOString().split('T')[0];
+        const available = await CalendarModule.getAvailableSlots(psychData.id, dateStr);
+        if (available.length > 0) {
+          const dayName = CalendarModule.getDayName(dateStr);
+          slots.push({ date: dateStr, dayName, time: available[0] });
+        }
+      }
+
+      if (slots.length === 0) {
+        slotsContainer.innerHTML = `<span style="color:var(--em-text-muted)">Sin disponibilidad próxima</span>`;
+        return;
+      }
+
+      slotsContainer.innerHTML = slots.map(s => `
+        <div onclick="openBookingModalWithDate('${s.date}','${s.time}')"
+          style="padding:8px 12px;background:var(--em-mint-light);border-radius:var(--em-radius);cursor:pointer;transition:background 0.2s;font-size:0.85rem;display:flex;justify-content:space-between"
+          onmouseover="this.style.background='var(--em-mint)';this.style.color='white'"
+          onmouseout="this.style.background='var(--em-mint-light)';this.style.color='inherit'">
+          <span>${s.dayName} ${s.date}</span>
+          <span style="font-weight:700">${s.time}</span>
+        </div>
+      `).join('');
+    }
+
+    // ── Modal de agendamiento ──────────────────────────────────
+    async function openBookingModal() {
+      if (!auth.currentUser) {
+        window.location.href = `login.html?tab=register&redirect=book&psychologist=${psychData.id}`;
+        return;
+      }
+      selectedDate = null;
+      selectedTime = null;
+
+      new CalendarModule.CalendarWidget('booking-calendar', {
+        onDateSelect: async (dateStr) => {
+          selectedDate = dateStr;
+          selectedTime = null;
+          document.getElementById('btn-confirm-book').disabled = true;
+          document.getElementById('booking-summary').style.display = 'none';
+
+          const slots = await CalendarModule.getAvailableSlots(psychData.id, dateStr);
+          CalendarModule.renderTimeSlots('booking-slots', slots, (time) => {
+            selectedTime = time;
+            document.getElementById('btn-confirm-book').disabled = false;
+            document.getElementById('booking-date-display').textContent = dateStr;
+            document.getElementById('booking-time-display').textContent = time;
+            document.getElementById('booking-price-display').textContent = EmotionApp.formatPrice(psychData.precio, psychData.moneda);
+            document.getElementById('booking-summary').style.display = 'block';
+          });
+        }
+      });
+
+      document.getElementById('modal-book').classList.add('active');
+    }
+
+    async function openBookingModalWithDate(date, time) {
+      await openBookingModal();
+    }
+
+    async function confirmBooking() {
+      if (!selectedDate || !selectedTime) return;
+      try {
+        const sessionId = await CalendarModule.bookSession(
+          auth.currentUser.uid,
+          psychData.id,
+          selectedDate,
+          selectedTime,
+          psychData.precio,
+          psychData.moneda
+        );
+
+        closeModal('modal-book');
+
+        await PaymentsModule.showPaymentModal({
+          sessionId,
+          psicologoNombre: psychData.nombre,
+          pacienteEmail: auth.currentUser.email,
+          precio: psychData.precio,
+          moneda: psychData.moneda,
+          fecha: selectedDate,
+          hora: selectedTime
+        }, () => {
+          EmotionApp.showAlert('¡Sesión confirmada!', 'success');
+          setTimeout(() => { window.location.href = 'patient-dashboard.html'; }, 1500);
+        });
+      } catch (err) {
+        console.error('Error reservando sesión:', err);
+      }
+    }
+
+    function closeModal(id) { document.getElementById(id)?.classList.remove('active'); }
+
+    document.querySelectorAll('.em-modal-overlay').forEach(o => {
+      o.addEventListener('click', e => { if (e.target === o) o.classList.remove('active'); });
+    });
+
+    // ── Iniciar ────────────────────────────────────────────────
+    loadProfile();
+
+    // Actualizar botones si está logueado
+    auth.onAuthStateChanged((user) => {
+      currentUser = user;
+      if (user) {
+        const navActions = document.querySelector('.em-nav-actions');
+        if (navActions) navActions.innerHTML = `
+          <a href="patient-dashboard.html" class="em-btn em-btn-primary em-btn-sm">Mi panel</a>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>

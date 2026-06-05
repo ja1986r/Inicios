@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar sesión — Emotion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    .em-auth-page { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; }
+    .em-scroll-panel { overflow-y: auto; padding: 40px 48px; display: flex; flex-direction: column; justify-content: center; }
+    .em-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 768px) {
+      .em-auth-page { grid-template-columns: 1fr; }
+      .em-auth-visual { display: none; }
+      .em-scroll-panel { padding: 32px 20px; }
+      .em-form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="em-auth-page">
+
+    <!-- ═══════════════ PANEL IZQUIERDO (FORMULARIOS) ═══════════════ -->
+    <div class="em-scroll-panel">
+
+      <!-- Logo -->
+      <a href="index.html" class="em-logo" style="margin-bottom:32px;display:inline-flex">
+        <div class="em-logo-icon">💚</div>
+        Emotion
+      </a>
+
+      <!-- Tabs login / registro -->
+      <div class="em-auth-tabs" id="main-tabs">
+        <div class="em-auth-tab active" data-tab="login">Iniciar sesión</div>
+        <div class="em-auth-tab" data-tab="register">Registrarse</div>
+      </div>
+
+      <!-- ═══════════ PANEL LOGIN ═══════════ -->
+      <div id="panel-login">
+        <h2 class="em-auth-title">Bienvenido/a de vuelta 👋</h2>
+        <p class="em-auth-subtitle">Ingresa tus credenciales para continuar</p>
+
+        <form id="form-login" novalidate>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="em-form-group">
+              <label class="em-label em-required">Email</label>
+              <div class="em-input-group">
+                <span class="em-input-icon">✉️</span>
+                <input type="email" class="em-input" id="login-email" placeholder="tu@email.com" required>
+              </div>
+            </div>
+            <div class="em-form-group">
+              <label class="em-label em-required">Contraseña</label>
+              <div class="em-input-group">
+                <span class="em-input-icon">🔒</span>
+                <input type="password" class="em-input" id="login-password" placeholder="••••••••" required>
+                <button type="button" class="em-input-btn" id="toggle-password">👁️</button>
+              </div>
+            </div>
+            <div style="text-align:right;margin-top:-8px">
+              <a href="#" id="forgot-password" style="font-size:0.85rem;color:var(--em-mint);font-weight:500">
+                ¿Olvidaste tu contraseña?
+              </a>
+            </div>
+            <button type="submit" class="em-btn em-btn-primary em-btn-block">
+              Iniciar sesión
+            </button>
+          </div>
+        </form>
+
+        <div class="em-form-divider">o</div>
+        <p style="text-align:center;font-size:0.88rem;color:var(--em-text-light)">
+          ¿No tienes cuenta?
+          <a href="#" class="em-tab-link" data-target="register" style="color:var(--em-mint);font-weight:600">Regístrate aquí</a>
+        </p>
+
+        <!-- Acceso de administrador -->
+        <div class="em-alert em-alert-info" style="margin-top:24px;font-size:0.82rem">
+          <span>🔑</span>
+          <span>¿Eres administrador? <a href="admin-dashboard.html" style="color:var(--em-blue);font-weight:600">Acceder al panel admin</a></span>
+        </div>
+      </div>
+
+      <!-- ═══════════ PANEL REGISTRO ═══════════ -->
+      <div id="panel-register" style="display:none">
+        <h2 class="em-auth-title">Crear cuenta</h2>
+        <p class="em-auth-subtitle">¿Eres paciente o psicólogo?</p>
+
+        <!-- Tabs: Paciente / Psicólogo -->
+        <div class="em-register-tabs" id="register-type-tabs">
+          <div class="em-register-tab active" data-type="patient">
+            🌱 Soy paciente
+          </div>
+          <div class="em-register-tab" data-type="psychologist">
+            👨‍⚕️ Soy psicólogo
+          </div>
+        </div>
+
+        <!-- ─── FORMULARIO PACIENTE ─── -->
+        <div id="form-patient-wrap">
+          <form id="form-patient" novalidate>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div class="em-form-group">
+                <label class="em-label em-required">Nombre completo</label>
+                <input type="text" class="em-input" id="p-nombre" placeholder="Ej: Juan Pérez García" required>
+              </div>
+              <div class="em-form-row">
+                <div class="em-form-group">
+                  <label class="em-label em-required">Email</label>
+                  <input type="email" class="em-input" id="p-email" placeholder="tu@email.com" required>
+                </div>
+                <div class="em-form-group">
+                  <label class="em-label em-required">Teléfono</label>
+                  <input type="tel" class="em-input" id="p-telefono" placeholder="+598 99 000 000">
+                </div>
+              </div>
+              <div class="em-form-row">
+                <div class="em-form-group">
+                  <label class="em-label em-required">País</label>
+                  <select class="em-select" id="p-pais" required>
+                    <option value="">Seleccionar...</option>
+                  </select>
+                </div>
+                <div class="em-form-group">
+                  <label class="em-label">Fecha de nacimiento</label>
+                  <input type="date" class="em-input" id="p-fecha-nac">
+                </div>
+              </div>
+              <div class="em-form-row">
+                <div class="em-form-group">
+                  <label class="em-label em-required">Contraseña</label>
+                  <input type="password" class="em-input" id="p-password" placeholder="Mínimo 6 caracteres" required>
+                </div>
+                <div class="em-form-group">
+                  <label class="em-label em-required">Confirmar contraseña</label>
+                  <input type="password" class="em-input" id="p-confirm-password" placeholder="Repetir contraseña" required>
+                </div>
+              </div>
+              <div class="em-form-group">
+                <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.85rem">
+                  <input type="checkbox" id="p-terms" required style="margin-top:2px;accent-color:var(--em-mint)">
+                  <span>Acepto los <a href="#" style="color:var(--em-mint)">Términos y condiciones</a> y la <a href="#" style="color:var(--em-mint)">Política de privacidad</a></span>
+                </label>
+              </div>
+              <button type="submit" class="em-btn em-btn-primary em-btn-block">
+                🌱 Crear cuenta como paciente
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- ─── FORMULARIO PSICÓLOGO ─── -->
+        <div id="form-psychologist-wrap" style="display:none">
+          <form id="form-psychologist" novalidate enctype="multipart/form-data">
+            <div style="display:flex;flex-direction:column;gap:14px">
+
+              <!-- Información personal -->
+              <h5 style="color:var(--em-mint);display:flex;align-items:center;gap:6px;margin-top:4px">
+                👤 Información personal
+              </h5>
+              <div class="em-form-group">
+                <label class="em-label em-required">Nombre completo</label>
+                <input type="text" class="em-input" id="ps-nombre" placeholder="Ej: Dra. Ana Martínez" required>
+              </div>
+              <div class="em-form-row">
+                <div class="em-form-group">
+                  <label class="em-label em-required">Email</label>
+                  <input type="email" class="em-input" id="ps-email" required placeholder="profesional@email.com">
+                </div>
+                <div class="em-form-group">
+                  <label class="em-label em-required">País</label>
+                  <select class="em-select" id="ps-pais" required>
+                    <option value="">Seleccionar...</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Foto de perfil -->
+              <div class="em-form-group">
+                <label class="em-label">Foto de perfil</label>
+                <div class="em-upload-area" id="photo-upload-area">
+                  <div class="em-upload-icon">📸</div>
+                  <p class="em-upload-text">
+                    <strong>Haz clic para subir</strong> o arrastra tu foto aquí
+                  </p>
+                  <p class="em-upload-hint">JPG, PNG — Máximo 5MB</p>
+                  <input type="file" id="ps-foto" accept="image/*" style="display:none">
+                </div>
+                <div id="photo-preview" style="display:none" class="em-upload-preview">
+                  <img id="photo-preview-img" src="" alt="Preview">
+                  <div>
+                    <div class="em-upload-filename" id="photo-name"></div>
+                    <button type="button" class="em-btn em-btn-ghost em-btn-sm" id="remove-photo">✕ Quitar</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Credenciales profesionales -->
+              <h5 style="color:var(--em-mint);display:flex;align-items:center;gap:6px;margin-top:4px">
+                🎓 Credenciales profesionales
+              </h5>
+              <div class="em-form-row">
+                <div class="em-form-group">
+                  <label class="em-label em-required">Especialidad</label>
+                  <select class="em-select" id="ps-especialidad" required>
+                    <option value="">Seleccionar...</option>
+                  </select>
+                </div>
+                <div class="em-form-group">
+                  <label class="em-label em-required">Años de experiencia</label>
+                  <input type="number" class="em-input" id="ps-experiencia" min="0" max="60" placeholder="Ej: 5" required>
+                </div>
+              </div>
+              <div class="em-form-row">
+                <div class="em-form-group">
+                  <label class="em-label em-required">Título profesional</label>
+                  <input type="text" class="em-input" id="ps-titulo" placeholder="Ej: Licenciado en Psicología" required>
+                </div>
+                <div class="em-form-group">
+                  <label class="em-label em-required">Nº de colegiatura</label>
+                  <input type="text" class="em-input" id="ps-colegiatura" placeholder="Ej: CP-12345" required>
+                </div>
+              </div>
+              <div class="em-form-group">
+                <label class="em-label em-required">Descripción profesional</label>
+                <textarea class="em-textarea" id="ps-descripcion" rows="4" required
+                  placeholder="Describe tu enfoque terapéutico, áreas de especialización y método de trabajo (mínimo 50 caracteres)..."></textarea>
+                <div class="em-form-hint"><span id="desc-count">0</span>/500 caracteres</div>
+              </div>
+
+              <!-- Tarifa -->
+              <h5 style="color:var(--em-mint);display:flex;align-items:center;gap:6px;margin-top:4px">
+                💰 Tarifa por sesión
+              </h5>
+              <div class="em-form-row">
+                <div class="em-form-group">
+                  <label class="em-label em-required">Precio por sesión</label>
+                  <input type="number" class="em-input" id="ps-precio" min="1" step="0.01" placeholder="Ej: 50" required>
+                </div>
+                <div class="em-form-group">
+                  <label class="em-label em-required">Moneda</label>
+                  <select class="em-select" id="ps-moneda" required>
+                    <option value="">Seleccionar...</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Video de presentación -->
+              <h5 style="color:var(--em-mint);display:flex;align-items:center;gap:6px;margin-top:4px">
+                🎥 Video de presentación
+              </h5>
+              <div class="em-form-group">
+                <label class="em-label">Video de presentación (opcional pero recomendado)</label>
+                <div class="em-upload-area" id="video-upload-area">
+                  <div class="em-upload-icon">🎬</div>
+                  <p class="em-upload-text">
+                    <strong>Haz clic para subir</strong> tu video de presentación
+                  </p>
+                  <p class="em-upload-hint">MP4, MOV, AVI — Máximo 100MB</p>
+                  <input type="file" id="ps-video" accept="video/*" style="display:none">
+                </div>
+                <div id="video-preview" style="display:none" class="em-upload-preview">
+                  <div style="font-size:2rem">🎥</div>
+                  <div>
+                    <div class="em-upload-filename" id="video-name"></div>
+                    <button type="button" class="em-btn em-btn-ghost em-btn-sm" id="remove-video">✕ Quitar</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Contraseña -->
+              <h5 style="color:var(--em-mint);display:flex;align-items:center;gap:6px;margin-top:4px">
+                🔒 Acceso a la cuenta
+              </h5>
+              <div class="em-form-row">
+                <div class="em-form-group">
+                  <label class="em-label em-required">Contraseña</label>
+                  <input type="password" class="em-input" id="ps-password" placeholder="Mínimo 6 caracteres" required>
+                </div>
+                <div class="em-form-group">
+                  <label class="em-label em-required">Confirmar contraseña</label>
+                  <input type="password" class="em-input" id="ps-confirm-password" placeholder="Repetir contraseña" required>
+                </div>
+              </div>
+
+              <div class="em-alert em-alert-info">
+                <span>ℹ️</span>
+                <span>Tu perfil será revisado por nuestro equipo antes de ser publicado. Este proceso toma entre 24 y 48 horas hábiles.</span>
+              </div>
+
+              <div class="em-form-group">
+                <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.85rem">
+                  <input type="checkbox" id="ps-terms" required style="margin-top:2px;accent-color:var(--em-mint)">
+                  <span>Acepto los <a href="#" style="color:var(--em-mint)">Términos para profesionales</a></span>
+                </label>
+              </div>
+
+              <button type="submit" class="em-btn em-btn-primary em-btn-block">
+                👨‍⚕️ Enviar solicitud de registro
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="em-form-divider">o</div>
+        <p style="text-align:center;font-size:0.88rem;color:var(--em-text-light)">
+          ¿Ya tienes cuenta?
+          <a href="#" class="em-tab-link" data-target="login" style="color:var(--em-mint);font-weight:600">Iniciar sesión</a>
+        </p>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════ PANEL DERECHO (VISUAL) ═══════════════ -->
+    <div class="em-auth-visual">
+      <div class="em-auth-visual-content">
+        <div style="font-size:4rem;margin-bottom:24px">💚</div>
+        <h2>Cuida tu salud mental</h2>
+        <p>Accede a psicólogos profesionales verificados desde cualquier lugar de Latinoamérica.</p>
+
+        <div style="margin-top:40px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.1);padding:14px 18px;border-radius:12px">
+            <span style="font-size:1.5rem">🎓</span>
+            <div style="text-align:left">
+              <div style="font-weight:700;font-size:0.9rem">Profesionales verificados</div>
+              <div style="font-size:0.8rem;opacity:0.75">Revisados y aprobados por nuestro equipo</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.1);padding:14px 18px;border-radius:12px">
+            <span style="font-size:1.5rem">🔒</span>
+            <div style="text-align:left">
+              <div style="font-weight:700;font-size:0.9rem">Sesiones confidenciales</div>
+              <div style="font-size:0.8rem;opacity:0.75">Tu privacidad es nuestra prioridad</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.1);padding:14px 18px;border-radius:12px">
+            <span style="font-size:1.5rem">💰</span>
+            <div style="text-align:left">
+              <div style="font-weight:700;font-size:0.9rem">Multi-moneda LATAM</div>
+              <div style="font-size:0.8rem;opacity:0.75">Paga en tu moneda local</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Modales -->
+  <div class="em-modal-overlay" id="modal-forgot">
+    <div class="em-modal">
+      <div class="em-modal-header">
+        <h3 class="em-modal-title">Recuperar contraseña</h3>
+        <button class="em-modal-close" data-close="modal-forgot">✕</button>
+      </div>
+      <div class="em-modal-body">
+        <p style="color:var(--em-text-light);margin-bottom:20px;font-size:0.9rem">
+          Ingresa tu email y te enviaremos un link para restablecer tu contraseña.
+        </p>
+        <div class="em-form-group">
+          <label class="em-label">Email</label>
+          <input type="email" class="em-input" id="reset-email" placeholder="tu@email.com">
+        </div>
+      </div>
+      <div class="em-modal-footer">
+        <button class="em-btn em-btn-ghost" data-close="modal-forgot">Cancelar</button>
+        <button class="em-btn em-btn-primary" id="btn-reset-password">Enviar link</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/auth.js"></script>
+
+  <script>
+    const { COUNTRIES, SPECIALTIES, CURRENCIES } = EmotionApp;
+
+    // ── Poblar selects ────────────────────────────────────────────
+    ['p-pais', 'ps-pais'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) COUNTRIES.forEach(c => el.innerHTML += `<option value="${c}">${c}</option>`);
+    });
+    const espSelect = document.getElementById('ps-especialidad');
+    if (espSelect) SPECIALTIES.forEach(s => espSelect.innerHTML += `<option value="${s}">${s}</option>`);
+    const monedaSelect = document.getElementById('ps-moneda');
+    if (monedaSelect) {
+      Object.entries(CURRENCIES).forEach(([k, v]) =>
+        monedaSelect.innerHTML += `<option value="${k}">${k} — ${v.name}</option>`
+      );
+    }
+
+    // ── Leer parámetros URL ───────────────────────────────────────
+    const params = new URLSearchParams(window.location.search);
+    const tabParam = params.get('tab');
+    const roleParam = params.get('role');
+
+    if (tabParam === 'register') {
+      switchMainTab('register');
+      if (roleParam === 'psychologist') switchRegisterType('psychologist');
+    }
+
+    // ── Tabs principales (login / registro) ───────────────────────
+    document.querySelectorAll('.em-auth-tab').forEach(tab => {
+      tab.addEventListener('click', () => switchMainTab(tab.dataset.tab));
+    });
+    document.querySelectorAll('.em-tab-link').forEach(link => {
+      link.addEventListener('click', (e) => { e.preventDefault(); switchMainTab(link.dataset.target); });
+    });
+
+    function switchMainTab(tab) {
+      document.querySelectorAll('.em-auth-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+      document.getElementById('panel-login').style.display = tab === 'login' ? 'block' : 'none';
+      document.getElementById('panel-register').style.display = tab === 'register' ? 'block' : 'none';
+    }
+
+    // ── Tabs de tipo de registro (paciente / psicólogo) ───────────
+    document.querySelectorAll('[data-type]').forEach(tab => {
+      tab.addEventListener('click', () => switchRegisterType(tab.dataset.type));
+    });
+
+    function switchRegisterType(type) {
+      document.querySelectorAll('[data-type]').forEach(t => t.classList.toggle('active', t.dataset.type === type));
+      document.getElementById('form-patient-wrap').style.display = type === 'patient' ? 'block' : 'none';
+      document.getElementById('form-psychologist-wrap').style.display = type === 'psychologist' ? 'block' : 'none';
+    }
+
+    // ── Mostrar/ocultar contraseña ────────────────────────────────
+    document.getElementById('toggle-password').addEventListener('click', () => {
+      const input = document.getElementById('login-password');
+      const btn = document.getElementById('toggle-password');
+      if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+      else { input.type = 'password'; btn.textContent = '👁️'; }
+    });
+
+    // ── Contador de descripción ───────────────────────────────────
+    document.getElementById('ps-descripcion')?.addEventListener('input', function() {
+      document.getElementById('desc-count').textContent = this.value.length;
+    });
+
+    // ── Upload foto ───────────────────────────────────────────────
+    let selectedPhoto = null;
+    let selectedVideo = null;
+
+    const photoArea = document.getElementById('photo-upload-area');
+    const photoInput = document.getElementById('ps-foto');
+    photoArea.addEventListener('click', () => photoInput.click());
+    photoInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (file.size > 5 * 1024 * 1024) {
+        EmotionApp.showAlert('La foto no puede superar los 5MB.', 'error');
+        return;
+      }
+      selectedPhoto = file;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        document.getElementById('photo-preview-img').src = ev.target.result;
+        document.getElementById('photo-name').textContent = file.name;
+        document.getElementById('photo-preview').style.display = 'flex';
+        photoArea.style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    });
+    document.getElementById('remove-photo')?.addEventListener('click', () => {
+      selectedPhoto = null;
+      photoInput.value = '';
+      document.getElementById('photo-preview').style.display = 'none';
+      photoArea.style.display = 'block';
+    });
+
+    // Drag & drop foto
+    photoArea.addEventListener('dragover', (e) => { e.preventDefault(); photoArea.classList.add('dragover'); });
+    photoArea.addEventListener('dragleave', () => photoArea.classList.remove('dragover'));
+    photoArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      photoArea.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        photoInput.files = e.dataTransfer.files;
+        photoInput.dispatchEvent(new Event('change'));
+      }
+    });
+
+    // ── Upload video ──────────────────────────────────────────────
+    const videoArea = document.getElementById('video-upload-area');
+    const videoInput = document.getElementById('ps-video');
+    videoArea.addEventListener('click', () => videoInput.click());
+    videoInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (file.size > 100 * 1024 * 1024) {
+        EmotionApp.showAlert('El video no puede superar los 100MB.', 'error');
+        return;
+      }
+      selectedVideo = file;
+      document.getElementById('video-name').textContent = file.name;
+      document.getElementById('video-preview').style.display = 'flex';
+      videoArea.style.display = 'none';
+    });
+    document.getElementById('remove-video')?.addEventListener('click', () => {
+      selectedVideo = null;
+      videoInput.value = '';
+      document.getElementById('video-preview').style.display = 'none';
+      videoArea.style.display = 'block';
+    });
+
+    // ── Formulario LOGIN ──────────────────────────────────────────
+    document.getElementById('form-login').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      if (!email || !password) {
+        EmotionApp.showAlert('Por favor completa todos los campos.', 'error');
+        return;
+      }
+      const btn = e.target.querySelector('button[type=submit]');
+      btn.classList.add('em-loading');
+      btn.disabled = true;
+      try {
+        await AuthModule.login(email, password);
+      } catch {
+        btn.classList.remove('em-loading');
+        btn.disabled = false;
+      }
+    });
+
+    // ── Formulario PACIENTE ───────────────────────────────────────
+    document.getElementById('form-patient').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!document.getElementById('p-terms').checked) {
+        EmotionApp.showAlert('Debes aceptar los términos y condiciones.', 'error');
+        return;
+      }
+      const btn = e.target.querySelector('button[type=submit]');
+      btn.classList.add('em-loading'); btn.disabled = true;
+      try {
+        await AuthModule.registerPatient({
+          nombre: document.getElementById('p-nombre').value.trim(),
+          email: document.getElementById('p-email').value.trim(),
+          password: document.getElementById('p-password').value,
+          confirmPassword: document.getElementById('p-confirm-password').value,
+          pais: document.getElementById('p-pais').value,
+          telefono: document.getElementById('p-telefono').value,
+          fechaNacimiento: document.getElementById('p-fecha-nac').value
+        });
+      } catch {
+        btn.classList.remove('em-loading'); btn.disabled = false;
+      }
+    });
+
+    // ── Formulario PSICÓLOGO ──────────────────────────────────────
+    document.getElementById('form-psychologist').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!document.getElementById('ps-terms').checked) {
+        EmotionApp.showAlert('Debes aceptar los términos para profesionales.', 'error');
+        return;
+      }
+      const btn = e.target.querySelector('button[type=submit]');
+      btn.classList.add('em-loading'); btn.disabled = true;
+      try {
+        await AuthModule.registerPsychologist({
+          nombre: document.getElementById('ps-nombre').value.trim(),
+          email: document.getElementById('ps-email').value.trim(),
+          password: document.getElementById('ps-password').value,
+          confirmPassword: document.getElementById('ps-confirm-password').value,
+          pais: document.getElementById('ps-pais').value,
+          especialidad: document.getElementById('ps-especialidad').value,
+          anosExperiencia: document.getElementById('ps-experiencia').value,
+          descripcion: document.getElementById('ps-descripcion').value.trim(),
+          titulo: document.getElementById('ps-titulo').value.trim(),
+          numeroColegiatura: document.getElementById('ps-colegiatura').value.trim(),
+          precio: document.getElementById('ps-precio').value,
+          moneda: document.getElementById('ps-moneda').value
+        }, selectedPhoto, selectedVideo);
+      } catch {
+        btn.classList.remove('em-loading'); btn.disabled = false;
+      }
+    });
+
+    // ── Modal recuperar contraseña ────────────────────────────────
+    document.getElementById('forgot-password').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('modal-forgot').classList.add('active');
+    });
+    document.getElementById('btn-reset-password').addEventListener('click', async () => {
+      const email = document.getElementById('reset-email').value.trim();
+      if (!email) { EmotionApp.showAlert('Ingresa tu email.', 'error'); return; }
+      await AuthModule.resetPassword(email);
+      document.getElementById('modal-forgot').classList.remove('active');
+    });
+    document.querySelectorAll('[data-close]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById(btn.dataset.close).classList.remove('active');
+      });
+    });
+    document.querySelectorAll('.em-modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.classList.remove('active');
+      });
+    });
+
+    // ── Si ya está logueado, redirigir ────────────────────────────
+    EmotionApp.auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const data = await EmotionApp.getUserData(user.uid);
+        if (data) {
+          if (data.rol === 'admin') window.location.href = 'admin-dashboard.html';
+          else if (data.rol === 'psychologist') window.location.href = 'psychologist-dashboard.html';
+          else window.location.href = 'patient-dashboard.html';
+        }
+      }
+    });
+  </script>
+</body>
+</html>
