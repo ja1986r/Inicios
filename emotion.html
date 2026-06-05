@@ -1363,8 +1363,15 @@ window.EmotionApp = {
     } else if(o) o.style.display='none';
   },
   generateSlug(name){return name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').trim();},
-  async getUserData(uid){try{const d=await db.collection(this.COLLECTIONS.USERS).doc(uid).get();return d.exists?{id:d.id,...d.data()}:null;}catch{return null;}},
-  async checkAuthAndRedirect(){return new Promise(resolve=>{auth.onAuthStateChanged(async user=>{if(user){const ud=await this.getUserData(user.uid);this.currentUser=user;this.currentUserData=ud;resolve({user,userData:ud});}else resolve({user:null,userData:null});});});},
+  async getUserData(uid){
+    const demoStore=JSON.parse(localStorage.getItem('emotion_demo_users')||'{}');
+    if(demoStore[uid]){const d={...demoStore[uid]};delete d.password;return{id:uid,...d};}
+    try{const d=await db.collection(this.COLLECTIONS.USERS).doc(uid).get();return d.exists?{id:d.id,...d.data()}:null;}catch{return null;}
+  },
+  async checkAuthAndRedirect(){
+    if(this.currentUser&&this.currentUserData) return{user:this.currentUser,userData:this.currentUserData};
+    return new Promise(resolve=>{auth.onAuthStateChanged(async user=>{if(user){const ud=await this.getUserData(user.uid);this.currentUser=user;this.currentUserData=ud;resolve({user,userData:ud});}else resolve({user:null,userData:null});});});
+  },
   async getPlatformCommission(){try{const d=await db.collection(this.COLLECTIONS.SETTINGS).doc('platform').get();return d.exists?d.data().commission||0.15:0.15;}catch{return 0.15;}}
 };
 
@@ -1403,9 +1410,34 @@ const EmotionRouter = {
    ═══════════════════════════════════════════════════════ */
 const AuthModule = (() => {
   const {db,auth,storage,COLLECTIONS,ROLES,PSYCHOLOGIST_STATUS}=EmotionApp;
+
+  function _isFirebaseDemo(){
+    return typeof firebaseConfig!=='undefined'&&(firebaseConfig.apiKey==='TU_API_KEY'||firebaseConfig.apiKey==='');
+  }
+  const _DEMO_KEY='emotion_demo_users';
+  function _demoSave(uid,data){const u=JSON.parse(localStorage.getItem(_DEMO_KEY)||'{}');u[uid]=data;localStorage.setItem(_DEMO_KEY,JSON.stringify(u));}
+  function _demoFind(email){const u=JSON.parse(localStorage.getItem(_DEMO_KEY)||'{}');return Object.values(u).find(x=>x.email===email)||null;}
+  function _demoFindById(uid){const u=JSON.parse(localStorage.getItem(_DEMO_KEY)||'{}');return u[uid]||null;}
+  function _demoSession(data){const {password:_p,...clean}=data;EmotionApp.currentUser={uid:clean.uid,email:clean.email,displayName:clean.nombre};EmotionApp.currentUserData={id:clean.uid,...clean};}
+
   async function login(email,password){
     EmotionApp.setLoading(true,'Iniciando sesión...');
     try{
+      if(_isFirebaseDemo()){
+        const ud=_demoFind(email);
+        if(!ud||ud.password!==password) throw new Error('Email o contraseña incorrectos.');
+        _demoSession(ud);
+        EmotionApp.showAlert(`¡Bienvenido/a, ${ud.nombre?.split(' ')[0]}!`,'success');
+        EmotionApp.setLoading(false);
+        setTimeout(()=>{
+          const p=EmotionRouter.currentParams;
+          if(ud.rol===ROLES.ADMIN) EmotionRouter.navigate('admin');
+          else if(ud.rol===ROLES.PSYCHOLOGIST) EmotionRouter.navigate('psychologist');
+          else if(p.redirect==='book'&&p.psychologist) EmotionRouter.navigate('patient',{book:p.psychologist});
+          else EmotionRouter.navigate('patient');
+        },600);
+        return;
+      }
       const {user}=await auth.signInWithEmailAndPassword(email,password);
       const ud=await EmotionApp.getUserData(user.uid);
       if(!ud) throw new Error('Usuario no encontrado.');
@@ -1436,6 +1468,17 @@ const AuthModule = (() => {
       if(!fd.password||fd.password.length<6) throw new Error('Contraseña mínimo 6 caracteres.');
       if(fd.password!==fd.confirmPassword) throw new Error('Las contraseñas no coinciden.');
       if(!fd.pais) throw new Error('Selecciona tu país.');
+      if(_isFirebaseDemo()){
+        if(_demoFind(fd.email)) throw new Error('Este email ya está registrado.');
+        const uid='demo_pat_'+Date.now();
+        const userData={uid,email:fd.email,nombre:fd.nombre,pais:fd.pais,telefono:fd.telefono||'',fechaNacimiento:fd.fechaNacimiento||'',genero:fd.genero||'',motivoConsulta:fd.motivoConsulta||'',extraInfo:fd.extraInfo||'',terapiaPrevia:fd.terapiaPrevia||'no',prefGeneroTerapeuta:fd.prefGeneroTerapeuta||'sin-preferencia',rol:ROLES.PATIENT,fechaRegistro:new Date().toISOString(),activo:true,password:fd.password};
+        _demoSave(uid,userData);
+        _demoSession(userData);
+        EmotionApp.showAlert('¡Cuenta creada! Bienvenido/a a Emotion 🌱','success');
+        EmotionApp.setLoading(false);
+        setTimeout(()=>EmotionRouter.navigate('patient'),800);
+        return;
+      }
       const {user}=await auth.createUserWithEmailAndPassword(fd.email,fd.password);
       await db.collection(COLLECTIONS.USERS).doc(user.uid).set({uid:user.uid,email:fd.email,nombre:fd.nombre,pais:fd.pais,telefono:fd.telefono||'',fechaNacimiento:fd.fechaNacimiento||'',genero:fd.genero||'',motivoConsulta:fd.motivoConsulta||'',extraInfo:fd.extraInfo||'',terapiaPrevia:fd.terapiaPrevia||'no',prefGeneroTerapeuta:fd.prefGeneroTerapeuta||'sin-preferencia',rol:ROLES.PATIENT,fechaRegistro:firebase.firestore.FieldValue.serverTimestamp(),activo:true});
       await user.updateProfile({displayName:fd.nombre});
@@ -1455,8 +1498,18 @@ const AuthModule = (() => {
   async function registerPsychologist(fd,photoFile,videoFile){
     EmotionApp.setLoading(true,'Creando tu perfil profesional...');
     try{
-      if(!fd.nombre||!fd.email||!fd.password||fd.password.length<6||fd.password!==fd.confirmPassword||!fd.especialidad||!fd.titulo||!fd.numeroColegiatura||!fd.precio||!fd.moneda||!fd.descripcion||fd.descripcion.trim().length<50)
+      if(!fd.nombre||!fd.email||!fd.password||fd.password.length<6||fd.password!==fd.confirmPassword||!fd.especialidad||!fd.titulo||!fd.numeroColegiatura||!fd.precio||!fd.moneda||!fd.descripcion||fd.descripcion.trim().length<80)
         throw new Error('Por favor completa todos los campos requeridos correctamente.');
+      if(_isFirebaseDemo()){
+        if(_demoFind(fd.email)) throw new Error('Este email ya está registrado.');
+        const uid='demo_psy_'+Date.now();
+        const slug=EmotionApp.generateSlug(fd.nombre);
+        const userData={uid,email:fd.email,nombre:fd.nombre,pais:fd.pais||'',telefono:fd.telefono||'',idiomas:fd.idiomas||['español'],especialidad:fd.especialidad,anosExperiencia:parseInt(fd.anosExperiencia)||0,descripcion:fd.descripcion,fotoPerfil:null,precio:parseFloat(fd.precio)||0,moneda:fd.moneda,duracionSesion:fd.duracionSesion||50,modalidades:fd.modalidades||['videollamada'],franjaHoraria:fd.franjaHoraria||'flexible',atieneUrgencias:fd.atieneUrgencias||false,titulo:fd.titulo,universidad:fd.universidad||'',numeroColegiatura:fd.numeroColegiatura,videoUrl:null,rol:ROLES.PSYCHOLOGIST,estado:PSYCHOLOGIST_STATUS.PENDING,slug,fechaRegistro:new Date().toISOString(),activo:true,password:fd.password,membresia:{activa:true,expira:new Date(Date.now()+30*24*3600*1000).toISOString()}};
+        _demoSave(uid,userData);
+        EmotionApp.setLoading(false);
+        document.getElementById('auth-panel').innerHTML=`<div style="text-align:center;padding:40px 0"><div style="font-size:4rem;margin-bottom:20px">⏳</div><h2 style="margin-bottom:12px">¡Registro exitoso!</h2><p style="color:var(--em-text-light);margin-bottom:20px;line-height:1.6">Tu perfil está siendo revisado por nuestro equipo.<br>Te notificaremos cuando sea aprobado (24-48h).</p><button class="em-btn em-btn-primary" onclick="EmotionRouter.navigate('landing')">Volver al inicio</button></div>`;
+        return;
+      }
       const {user}=await auth.createUserWithEmailAndPassword(fd.email,fd.password);
       const uid=user.uid; let fotoUrl=null,videoUrl=null;
       if(photoFile){EmotionApp.setLoading(true,'Subiendo foto...');const r=storage.ref(`psychologists/${uid}/profile-photo`);await r.put(photoFile);fotoUrl=await r.getDownloadURL();}
@@ -1474,9 +1527,16 @@ const AuthModule = (() => {
       EmotionApp.showAlert(msg,'error'); throw err;
     }
   }
-  async function logout(){try{await auth.signOut();EmotionApp.currentUser=null;EmotionApp.currentUserData=null;EmotionRouter.navigate('landing');}catch(e){console.error(e);}}
-  async function resetPassword(email){try{await auth.sendPasswordResetEmail(email);EmotionApp.showAlert('Link de recuperación enviado a tu email.','success');}catch(err){let msg='Error al enviar email.';if(err.code==='auth/user-not-found')msg='No existe cuenta con ese email.';EmotionApp.showAlert(msg,'error');}}
-  return {login,registerPatient,registerPsychologist,logout,resetPassword};
+  async function logout(){
+    EmotionApp.currentUser=null; EmotionApp.currentUserData=null;
+    try{if(!_isFirebaseDemo())await auth.signOut();}catch(e){console.error(e);}
+    EmotionRouter.navigate('landing');
+  }
+  async function resetPassword(email){
+    if(_isFirebaseDemo()){EmotionApp.showAlert('Modo demo: revisa tu email de registro para la contraseña.','info');return;}
+    try{await auth.sendPasswordResetEmail(email);EmotionApp.showAlert('Link de recuperación enviado a tu email.','success');}catch(err){let msg='Error al enviar email.';if(err.code==='auth/user-not-found')msg='No existe cuenta con ese email.';EmotionApp.showAlert(msg,'error');}
+  }
+  return {login,registerPatient,registerPsychologist,logout,resetPassword,_isFirebaseDemo,_demoFindById};
 })();
 window.AuthModule=AuthModule;
 
