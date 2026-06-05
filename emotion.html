@@ -207,6 +207,23 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15}h2{font-siz
 .em-sidebar-tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.08)}.em-sidebar-tab-btn{flex:1;padding:12px;text-align:center;font-size:.85rem;font-weight:600;color:rgba(255,255,255,.5);cursor:pointer;border:none;background:none;transition:color .2s;border-bottom:2px solid transparent}.em-sidebar-tab-btn.active{color:var(--em-mint);border-bottom-color:var(--em-mint)}
 .em-sidebar-panel{flex:1;overflow:hidden;display:none}.em-sidebar-panel.active{display:flex;flex-direction:column}
 @keyframes em-spin{to{transform:rotate(360deg)}}
+/* ── Wizard steps ── */
+.em-wizard-steps{display:flex;align-items:center;margin-bottom:20px}
+.em-wizard-step{display:flex;flex-direction:column;align-items:center;gap:4px}
+.em-wizard-step-num{width:32px;height:32px;border-radius:50%;background:var(--em-gray-200);color:var(--em-text-muted);font-size:.82rem;font-weight:700;display:flex;align-items:center;justify-content:center;transition:var(--em-transition)}
+.em-wizard-step.active .em-wizard-step-num{background:var(--em-mint);color:white;box-shadow:0 4px 12px rgba(76,175,154,.35)}
+.em-wizard-step.done .em-wizard-step-num{background:var(--em-success);color:white}
+.em-wizard-step-label{font-size:.68rem;font-weight:600;color:var(--em-text-muted);text-align:center;white-space:nowrap}
+.em-wizard-step.active .em-wizard-step-label,.em-wizard-step.done .em-wizard-step-label{color:var(--em-mint)}
+.em-wizard-connector{flex:1;height:2px;background:var(--em-gray-200);margin:0 6px;margin-bottom:16px;transition:background .3s}
+.em-wizard-connector.done{background:var(--em-success)}
+.em-wizard-panel{animation:em-fade-in .3s ease forwards}
+/* Radio / checkbox custom opts */
+.em-radio-opt,.em-check-opt{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--em-radius);border:1.5px solid var(--em-gray-200);cursor:pointer;font-size:.85rem;font-weight:500;transition:var(--em-transition);color:var(--em-text);user-select:none}
+.em-radio-opt:hover,.em-check-opt:hover{border-color:var(--em-mint);background:var(--em-mint-light)}
+.em-radio-opt input,.em-check-opt input{accent-color:var(--em-mint);cursor:pointer}
+/* Password strength bar */
+.em-pwd-bar{height:4px;border-radius:100px;transition:width .35s,background .35s}
 </style>
 </head>
 <body>
@@ -376,11 +393,10 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15}h2{font-siz
 <!-- ══════════════════ PAGE: LOGIN ══════════════════ -->
 <div id="page-login" class="em-page em-hidden">
   <div class="em-auth-page">
-    <div id="auth-panel" class="em-auth-panel">
-      <div class="em-logo" style="margin-bottom:32px" onclick="EmotionRouter.navigate('landing')">
+    <div id="auth-panel" class="em-auth-panel" style="overflow-y:auto;max-height:100vh;padding-top:32px;padding-bottom:40px">
+      <div class="em-logo" style="margin-bottom:24px" onclick="EmotionRouter.navigate('landing')">
         <div class="em-logo-icon">🧠</div>Emotion<span>.</span>
       </div>
-      <!-- Tabs login/register -->
       <div class="em-auth-tabs">
         <div class="em-auth-tab active" id="tab-btn-login" onclick="switchAuthTab('login')">Iniciar sesión</div>
         <div class="em-auth-tab" id="tab-btn-register" onclick="switchAuthTab('register')">Registrarse</div>
@@ -391,9 +407,9 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15}h2{font-siz
         <h2 class="em-auth-title">¡Bienvenido/a!</h2>
         <p class="em-auth-subtitle">Ingresa a tu cuenta de Emotion</p>
         <form onsubmit="handleLogin(event)" style="display:flex;flex-direction:column;gap:16px">
-          <div class="em-form-group"><label class="em-label em-required">Email</label><input type="email" class="em-input" id="login-email" placeholder="tu@email.com" required></div>
+          <div class="em-form-group"><label class="em-label em-required">Email</label><input type="email" class="em-input" id="login-email" placeholder="tu@email.com" required autocomplete="email"></div>
           <div class="em-form-group"><label class="em-label em-required">Contraseña</label>
-            <div class="em-input-group"><span class="em-input-icon">🔒</span><input type="password" class="em-input" id="login-password" placeholder="••••••••" required></div>
+            <div class="em-input-group"><span class="em-input-icon">🔒</span><input type="password" class="em-input" id="login-password" placeholder="••••••••" required autocomplete="current-password"><button type="button" class="em-input-btn" onclick="togglePwdView('login-password',this)" title="Ver contraseña">👁</button></div>
           </div>
           <div style="text-align:right"><a style="font-size:.85rem;color:var(--em-mint);cursor:pointer" onclick="showForgotModal()">¿Olvidaste tu contraseña?</a></div>
           <button type="submit" class="em-btn em-btn-primary em-btn-block em-btn-lg" id="btn-login">Iniciar sesión</button>
@@ -403,85 +419,283 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15}h2{font-siz
 
       <!-- REGISTER FORM -->
       <div id="auth-register-form" class="em-hidden">
-        <h2 class="em-auth-title">Crear cuenta</h2>
-        <p class="em-auth-subtitle">Elige tu tipo de cuenta</p>
         <div class="em-register-tabs">
           <div class="em-register-tab active" id="reg-tab-patient" onclick="switchRegisterTab('patient')">👤 Soy paciente</div>
-          <div class="em-register-tab" id="reg-tab-psychologist" onclick="switchRegisterTab('psychologist')">🎓 Soy psicólogo</div>
+          <div class="em-register-tab" id="reg-tab-psychologist" onclick="switchRegisterTab('psychologist')">🎓 Soy psicólogo/a</div>
         </div>
 
-        <!-- PATIENT REGISTER -->
+        <!-- ══ PATIENT REGISTRATION WIZARD (3 steps) ══ -->
         <div id="reg-patient-form">
-          <form onsubmit="handleRegisterPatient(event)" style="display:flex;flex-direction:column;gap:14px">
-            <div class="em-grid em-grid-2 em-gap-12">
-              <div class="em-form-group"><label class="em-label em-required">Nombre completo</label><input type="text" class="em-input" id="pat-nombre" placeholder="Juan García" required></div>
-              <div class="em-form-group"><label class="em-label em-required">Teléfono</label><input type="tel" class="em-input" id="pat-telefono" placeholder="+595 981..."></div>
-            </div>
-            <div class="em-form-group"><label class="em-label em-required">Email</label><input type="email" class="em-input" id="pat-email" placeholder="tu@email.com" required></div>
-            <div class="em-grid em-grid-2 em-gap-12">
-              <div class="em-form-group"><label class="em-label em-required">País</label><select class="em-select" id="pat-pais" required><option value="">Selecciona...</option></select></div>
-              <div class="em-form-group"><label class="em-label">Fecha de nacimiento</label><input type="date" class="em-input" id="pat-dob"></div>
-            </div>
-            <div class="em-form-group"><label class="em-label em-required">Contraseña</label><input type="password" class="em-input" id="pat-password" placeholder="Mínimo 6 caracteres" required></div>
-            <div class="em-form-group"><label class="em-label em-required">Confirmar contraseña</label><input type="password" class="em-input" id="pat-confirm" placeholder="Repite tu contraseña" required></div>
-            <label style="display:flex;align-items:flex-start;gap:8px;font-size:.85rem;cursor:pointer"><input type="checkbox" id="pat-terms" required style="margin-top:2px"><span>Acepto los <a style="color:var(--em-mint)">Términos de uso</a> y la <a style="color:var(--em-mint)">Política de privacidad</a></span></label>
-            <button type="submit" class="em-btn em-btn-primary em-btn-block em-btn-lg" id="btn-reg-patient">Crear mi cuenta</button>
-          </form>
-        </div>
+          <div class="em-wizard-steps" id="pat-wizard-steps">
+            <div class="em-wizard-step active" data-step="1"><div class="em-wizard-step-num">1</div><div class="em-wizard-step-label">Datos</div></div>
+            <div class="em-wizard-connector"></div>
+            <div class="em-wizard-step" data-step="2"><div class="em-wizard-step-num">2</div><div class="em-wizard-step-label">Bienestar</div></div>
+            <div class="em-wizard-connector"></div>
+            <div class="em-wizard-step" data-step="3"><div class="em-wizard-step-num">3</div><div class="em-wizard-step-label">Cuenta</div></div>
+          </div>
 
-        <!-- PSYCHOLOGIST REGISTER -->
+          <!-- Paso 1: Datos personales -->
+          <div class="em-wizard-panel" id="pat-step-1">
+            <h3 style="font-size:1.15rem;font-weight:700;margin-bottom:4px">Datos personales</h3>
+            <p style="font-size:.85rem;color:var(--em-text-light);margin-bottom:18px">Cuéntanos quién eres</p>
+            <div style="display:flex;flex-direction:column;gap:13px">
+              <div class="em-grid em-grid-2 em-gap-12">
+                <div class="em-form-group"><label class="em-label em-required">Nombre completo</label><input type="text" class="em-input" id="pat-nombre" placeholder="Juan García" autocomplete="name"></div>
+                <div class="em-form-group"><label class="em-label em-required">País</label><select class="em-select" id="pat-pais"><option value="">Selecciona...</option></select></div>
+              </div>
+              <div class="em-form-group"><label class="em-label em-required">Email</label><input type="email" class="em-input" id="pat-email" placeholder="tu@email.com" autocomplete="email"></div>
+              <div class="em-grid em-grid-2 em-gap-12">
+                <div class="em-form-group"><label class="em-label">Teléfono</label><input type="tel" class="em-input" id="pat-telefono" placeholder="+595 981 000 000"></div>
+                <div class="em-form-group"><label class="em-label">Fecha de nacimiento</label><input type="date" class="em-input" id="pat-dob"></div>
+              </div>
+              <div class="em-form-group">
+                <label class="em-label em-required">Género</label>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+                  <label class="em-radio-opt"><input type="radio" name="pat-genero" value="masculino"><span>Masculino</span></label>
+                  <label class="em-radio-opt"><input type="radio" name="pat-genero" value="femenino"><span>Femenino</span></label>
+                  <label class="em-radio-opt"><input type="radio" name="pat-genero" value="no-binario"><span>No binario</span></label>
+                  <label class="em-radio-opt"><input type="radio" name="pat-genero" value="prefiero-no-decir"><span>Prefiero no decir</span></label>
+                </div>
+              </div>
+              <button type="button" class="em-btn em-btn-primary em-btn-block em-btn-lg" onclick="patNextStep(1)">Continuar →</button>
+              <p style="text-align:center;font-size:.82rem;color:var(--em-text-light)">¿Ya tienes cuenta? <a style="color:var(--em-mint);cursor:pointer;font-weight:600" onclick="switchAuthTab('login')">Inicia sesión</a></p>
+            </div>
+          </div>
+
+          <!-- Paso 2: Bienestar -->
+          <div class="em-wizard-panel em-hidden" id="pat-step-2">
+            <h3 style="font-size:1.15rem;font-weight:700;margin-bottom:4px">Tu bienestar</h3>
+            <p style="font-size:.85rem;color:var(--em-text-light);margin-bottom:18px">Ayúdanos a encontrar el psicólogo ideal para ti</p>
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <div class="em-form-group">
+                <label class="em-label em-required">Motivo principal de consulta</label>
+                <select class="em-select" id="pat-motivo">
+                  <option value="">Selecciona un motivo...</option>
+                  <option>Ansiedad y estrés</option>
+                  <option>Depresión y tristeza</option>
+                  <option>Problemas de pareja / relaciones</option>
+                  <option>Duelo y pérdidas</option>
+                  <option>Trauma o experiencias difíciles</option>
+                  <option>Autoestima e identidad</option>
+                  <option>Fobias y miedos</option>
+                  <option>Problemas de sueño</option>
+                  <option>Desarrollo personal y crecimiento</option>
+                  <option>Adicciones</option>
+                  <option>Trastornos alimenticios</option>
+                  <option>Otro</option>
+                </select>
+              </div>
+              <div class="em-form-group">
+                <label class="em-label">Cuéntanos un poco más <span style="font-weight:400;color:var(--em-text-light)">(opcional)</span></label>
+                <textarea class="em-textarea" id="pat-extra" placeholder="Describe brevemente lo que te gustaría trabajar en terapia..." style="min-height:80px;resize:none"></textarea>
+              </div>
+              <div class="em-form-group">
+                <label class="em-label em-required">¿Has tenido terapia psicológica antes?</label>
+                <div style="display:flex;gap:12px;margin-top:4px">
+                  <label class="em-radio-opt"><input type="radio" name="pat-terapia-prev" value="si"><span>Sí, he tenido terapia</span></label>
+                  <label class="em-radio-opt"><input type="radio" name="pat-terapia-prev" value="no"><span>No, es primera vez</span></label>
+                </div>
+              </div>
+              <div class="em-form-group">
+                <label class="em-label">¿Tienes preferencia de género del terapeuta?</label>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+                  <label class="em-radio-opt"><input type="radio" name="pat-pref-genero" value="sin-preferencia" checked><span>Sin preferencia</span></label>
+                  <label class="em-radio-opt"><input type="radio" name="pat-pref-genero" value="masculino"><span>Masculino</span></label>
+                  <label class="em-radio-opt"><input type="radio" name="pat-pref-genero" value="femenino"><span>Femenino</span></label>
+                </div>
+              </div>
+              <div style="display:flex;gap:10px">
+                <button type="button" class="em-btn em-btn-ghost em-btn-block" onclick="patGoStep(1)">← Atrás</button>
+                <button type="button" class="em-btn em-btn-primary em-btn-block em-btn-lg" onclick="patNextStep(2)">Continuar →</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Paso 3: Contraseña y cuenta -->
+          <div class="em-wizard-panel em-hidden" id="pat-step-3">
+            <h3 style="font-size:1.15rem;font-weight:700;margin-bottom:4px">Crea tu cuenta</h3>
+            <p style="font-size:.85rem;color:var(--em-text-light);margin-bottom:18px">Último paso: define tu contraseña segura</p>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div class="em-form-group">
+                <label class="em-label em-required">Contraseña</label>
+                <div class="em-input-group"><span class="em-input-icon">🔒</span><input type="password" class="em-input" id="pat-password" placeholder="Mínimo 8 caracteres" autocomplete="new-password" oninput="checkPwdStrength(this,'pat-pwd-strength')"><button type="button" class="em-input-btn" onclick="togglePwdView('pat-password',this)">👁</button></div>
+                <div id="pat-pwd-strength" style="margin-top:6px"></div>
+              </div>
+              <div class="em-form-group">
+                <label class="em-label em-required">Confirmar contraseña</label>
+                <div class="em-input-group"><span class="em-input-icon">🔒</span><input type="password" class="em-input" id="pat-confirm" placeholder="Repite tu contraseña" autocomplete="new-password"><button type="button" class="em-input-btn" onclick="togglePwdView('pat-confirm',this)">👁</button></div>
+              </div>
+              <div style="background:var(--em-mint-light);border-radius:var(--em-radius);padding:12px 14px;font-size:.82rem;color:var(--em-mint-dark)">
+                <strong>Tu perfil quedará activo de inmediato.</strong> Podrás explorar y reservar sesiones con psicólogos.
+              </div>
+              <label style="display:flex;align-items:flex-start;gap:8px;font-size:.85rem;cursor:pointer">
+                <input type="checkbox" id="pat-terms" style="margin-top:3px;accent-color:var(--em-mint)">
+                <span>Acepto los <a style="color:var(--em-mint)">Términos de uso</a> y la <a style="color:var(--em-mint)">Política de privacidad</a> de Emotion</span>
+              </label>
+              <div style="display:flex;gap:10px">
+                <button type="button" class="em-btn em-btn-ghost em-btn-block" onclick="patGoStep(2)">← Atrás</button>
+                <button type="button" class="em-btn em-btn-primary em-btn-block em-btn-lg" id="btn-reg-patient" onclick="submitPatientRegister()">Crear mi cuenta 🌱</button>
+              </div>
+            </div>
+          </div>
+        </div><!-- /reg-patient-form -->
+
+        <!-- ══ PSYCHOLOGIST REGISTRATION WIZARD (4 steps) ══ -->
         <div id="reg-psychologist-form" class="em-hidden">
-          <form onsubmit="handleRegisterPsychologist(event)" style="display:flex;flex-direction:column;gap:14px" enctype="multipart/form-data">
-            <div class="em-grid em-grid-2 em-gap-12">
-              <div class="em-form-group"><label class="em-label em-required">Nombre completo</label><input type="text" class="em-input" id="psy-nombre" placeholder="Dra. Ana López" required></div>
-              <div class="em-form-group"><label class="em-label em-required">País</label><select class="em-select" id="psy-pais" required><option value="">Selecciona...</option></select></div>
-            </div>
-            <div class="em-form-group"><label class="em-label em-required">Email</label><input type="email" class="em-input" id="psy-email" placeholder="tu@email.com" required></div>
-            <div class="em-grid em-grid-2 em-gap-12">
-              <div class="em-form-group"><label class="em-label em-required">Especialidad</label><select class="em-select" id="psy-especialidad" required><option value="">Selecciona...</option></select></div>
-              <div class="em-form-group"><label class="em-label em-required">Años de exp.</label><input type="number" class="em-input" id="psy-anos" min="0" max="50" placeholder="5" required></div>
-            </div>
-            <div class="em-grid em-grid-2 em-gap-12">
-              <div class="em-form-group"><label class="em-label em-required">Título profesional</label><input type="text" class="em-input" id="psy-titulo" placeholder="Psicólogo Clínico" required></div>
-              <div class="em-form-group"><label class="em-label em-required">N° Colegiatura</label><input type="text" class="em-input" id="psy-colegiatura" placeholder="PSY-12345" required></div>
-            </div>
-            <div class="em-grid em-grid-2 em-gap-12">
-              <div class="em-form-group"><label class="em-label em-required">Precio por sesión</label><input type="number" class="em-input" id="psy-precio" min="1" placeholder="50" required></div>
-              <div class="em-form-group"><label class="em-label em-required">Moneda</label><select class="em-select" id="psy-moneda" required><option value="">Selecciona...</option></select></div>
-            </div>
-            <div class="em-form-group">
-              <label class="em-label em-required">Descripción profesional</label>
-              <textarea class="em-textarea" id="psy-descripcion" placeholder="Describe tu enfoque terapéutico, experiencia y cómo puedes ayudar a tus pacientes (mínimo 50 caracteres)..." style="min-height:120px" required></textarea>
-              <div class="em-form-hint"><span id="psy-desc-count">0</span>/500 caracteres</div>
-            </div>
-            <div class="em-form-group">
-              <label class="em-label">Foto de perfil</label>
-              <div class="em-upload-area" id="photo-drop" onclick="document.getElementById('psy-photo').click()">
-                <div class="em-upload-icon">📷</div>
-                <div class="em-upload-text"><strong>Haz clic</strong> o arrastra tu foto aquí</div>
-                <div class="em-upload-hint">JPG, PNG — máx. 5MB</div>
+          <div class="em-wizard-steps" id="psy-wizard-steps">
+            <div class="em-wizard-step active" data-step="1"><div class="em-wizard-step-num">1</div><div class="em-wizard-step-label">Personal</div></div>
+            <div class="em-wizard-connector"></div>
+            <div class="em-wizard-step" data-step="2"><div class="em-wizard-step-num">2</div><div class="em-wizard-step-label">Formación</div></div>
+            <div class="em-wizard-connector"></div>
+            <div class="em-wizard-step" data-step="3"><div class="em-wizard-step-num">3</div><div class="em-wizard-step-label">Práctica</div></div>
+            <div class="em-wizard-connector"></div>
+            <div class="em-wizard-step" data-step="4"><div class="em-wizard-step-num">4</div><div class="em-wizard-step-label">Perfil</div></div>
+          </div>
+
+          <!-- Paso 1: Datos personales -->
+          <div class="em-wizard-panel" id="psy-step-1">
+            <h3 style="font-size:1.15rem;font-weight:700;margin-bottom:4px">Datos personales</h3>
+            <p style="font-size:.85rem;color:var(--em-text-light);margin-bottom:18px">Información básica de contacto</p>
+            <div style="display:flex;flex-direction:column;gap:13px">
+              <div class="em-grid em-grid-2 em-gap-12">
+                <div class="em-form-group"><label class="em-label em-required">Nombre completo</label><input type="text" class="em-input" id="psy-nombre" placeholder="Dra. Ana López" autocomplete="name"></div>
+                <div class="em-form-group"><label class="em-label em-required">País</label><select class="em-select" id="psy-pais"><option value="">Selecciona...</option></select></div>
               </div>
-              <input type="file" id="psy-photo" accept="image/*" style="display:none" onchange="previewPhoto(this)">
-              <div id="photo-preview" class="em-hidden"></div>
-            </div>
-            <div class="em-form-group">
-              <label class="em-label">Video de presentación</label>
-              <div class="em-upload-area" onclick="document.getElementById('psy-video').click()">
-                <div class="em-upload-icon">🎥</div>
-                <div class="em-upload-text"><strong>Subir video</strong> de presentación</div>
-                <div class="em-upload-hint">MP4 — máx. 50MB (opcional)</div>
+              <div class="em-form-group"><label class="em-label em-required">Email profesional</label><input type="email" class="em-input" id="psy-email" placeholder="tu@email.com" autocomplete="email"></div>
+              <div class="em-form-group"><label class="em-label">Teléfono de contacto</label><input type="tel" class="em-input" id="psy-telefono" placeholder="+595 981 000 000"></div>
+              <div class="em-form-group">
+                <label class="em-label em-required">Idiomas en que atiende</label>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+                  <label class="em-check-opt"><input type="checkbox" name="psy-idiomas" value="español" checked><span>Español</span></label>
+                  <label class="em-check-opt"><input type="checkbox" name="psy-idiomas" value="inglés"><span>English</span></label>
+                  <label class="em-check-opt"><input type="checkbox" name="psy-idiomas" value="portugués"><span>Português</span></label>
+                  <label class="em-check-opt"><input type="checkbox" name="psy-idiomas" value="francés"><span>Français</span></label>
+                </div>
               </div>
-              <input type="file" id="psy-video" accept="video/*" style="display:none" onchange="showFileName(this,'video-name')">
-              <div id="video-name" style="font-size:.82rem;color:var(--em-text-light);margin-top:4px"></div>
+              <button type="button" class="em-btn em-btn-primary em-btn-block em-btn-lg" onclick="psyNextStep(1)">Continuar →</button>
+              <p style="text-align:center;font-size:.82rem;color:var(--em-text-light)">¿Ya tienes cuenta? <a style="color:var(--em-mint);cursor:pointer;font-weight:600" onclick="switchAuthTab('login')">Inicia sesión</a></p>
             </div>
-            <div class="em-form-group"><label class="em-label em-required">Contraseña</label><input type="password" class="em-input" id="psy-password" placeholder="Mínimo 6 caracteres" required></div>
-            <div class="em-form-group"><label class="em-label em-required">Confirmar contraseña</label><input type="password" class="em-input" id="psy-confirm" placeholder="Repite tu contraseña" required></div>
-            <label style="display:flex;align-items:flex-start;gap:8px;font-size:.85rem;cursor:pointer"><input type="checkbox" id="psy-terms" required style="margin-top:2px"><span>Acepto los <a style="color:var(--em-mint)">Términos</a> y <a style="color:var(--em-mint)">Política de privacidad</a></span></label>
-            <button type="submit" class="em-btn em-btn-primary em-btn-block em-btn-lg" id="btn-reg-psy">Enviar solicitud</button>
-          </form>
-        </div>
-      </div>
-    </div>
+          </div>
+
+          <!-- Paso 2: Formación y experiencia -->
+          <div class="em-wizard-panel em-hidden" id="psy-step-2">
+            <h3 style="font-size:1.15rem;font-weight:700;margin-bottom:4px">Formación y experiencia</h3>
+            <p style="font-size:.85rem;color:var(--em-text-light);margin-bottom:18px">Tus credenciales profesionales</p>
+            <div style="display:flex;flex-direction:column;gap:13px">
+              <div class="em-grid em-grid-2 em-gap-12">
+                <div class="em-form-group"><label class="em-label em-required">Especialidad principal</label><select class="em-select" id="psy-especialidad"><option value="">Selecciona...</option></select></div>
+                <div class="em-form-group"><label class="em-label em-required">Años de experiencia</label><input type="number" class="em-input" id="psy-anos" min="0" max="60" placeholder="5"></div>
+              </div>
+              <div class="em-grid em-grid-2 em-gap-12">
+                <div class="em-form-group"><label class="em-label em-required">Título profesional</label><input type="text" class="em-input" id="psy-titulo" placeholder="Psicólogo/a Clínico/a"></div>
+                <div class="em-form-group"><label class="em-label em-required">Institución educativa</label><input type="text" class="em-input" id="psy-universidad" placeholder="Universidad Nacional..."></div>
+              </div>
+              <div class="em-form-group"><label class="em-label em-required">N° Colegiatura / Registro profesional</label><input type="text" class="em-input" id="psy-colegiatura" placeholder="PSY-12345 (número oficial de tu colegio profesional)"></div>
+              <div class="em-form-group">
+                <label class="em-label em-required">Enfoque y descripción profesional</label>
+                <textarea class="em-textarea" id="psy-descripcion" placeholder="Describe tu enfoque terapéutico, metodología de trabajo y los tipos de problemáticas que tratas. Esto aparecerá en tu perfil público (mínimo 80 caracteres)..." style="min-height:120px;resize:vertical"></textarea>
+                <div class="em-form-hint"><span id="psy-desc-count">0</span>/800 caracteres</div>
+              </div>
+              <div style="display:flex;gap:10px">
+                <button type="button" class="em-btn em-btn-ghost em-btn-block" onclick="psyGoStep(1)">← Atrás</button>
+                <button type="button" class="em-btn em-btn-primary em-btn-block em-btn-lg" onclick="psyNextStep(2)">Continuar →</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Paso 3: Práctica clínica -->
+          <div class="em-wizard-panel em-hidden" id="psy-step-3">
+            <h3 style="font-size:1.15rem;font-weight:700;margin-bottom:4px">Tu práctica clínica</h3>
+            <p style="font-size:.85rem;color:var(--em-text-light);margin-bottom:18px">Configuración de tu servicio profesional</p>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div class="em-grid em-grid-2 em-gap-12">
+                <div class="em-form-group"><label class="em-label em-required">Precio por sesión</label><input type="number" class="em-input" id="psy-precio" min="1" placeholder="50"></div>
+                <div class="em-form-group"><label class="em-label em-required">Moneda</label><select class="em-select" id="psy-moneda"><option value="">Selecciona...</option></select></div>
+              </div>
+              <div class="em-form-group">
+                <label class="em-label em-required">Duración de sesión</label>
+                <select class="em-select" id="psy-duracion">
+                  <option value="45">45 minutos</option>
+                  <option value="50" selected>50 minutos (estándar)</option>
+                  <option value="60">60 minutos</option>
+                  <option value="90">90 minutos</option>
+                </select>
+              </div>
+              <div class="em-form-group">
+                <label class="em-label em-required">Modalidades de atención</label>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+                  <label class="em-check-opt"><input type="checkbox" name="psy-modalidad" value="videollamada" checked><span>📹 Videollamada</span></label>
+                  <label class="em-check-opt"><input type="checkbox" name="psy-modalidad" value="chat"><span>💬 Chat en vivo</span></label>
+                </div>
+              </div>
+              <div class="em-form-group">
+                <label class="em-label">Franja horaria de atención</label>
+                <select class="em-select" id="psy-franja">
+                  <option value="mañana">🌅 Mañana (8:00 - 12:00)</option>
+                  <option value="tarde" selected>☀️ Tarde (12:00 - 18:00)</option>
+                  <option value="noche">🌙 Noche (18:00 - 22:00)</option>
+                  <option value="flexible">🕐 Flexible / Variable</option>
+                </select>
+              </div>
+              <div class="em-form-group">
+                <label class="em-label">¿Puede atender urgencias o crisis?</label>
+                <label class="em-toggle" style="margin-top:6px"><input type="checkbox" id="psy-urgencias"><div class="em-toggle-switch"></div><span class="em-toggle-label">Sí, puedo atender situaciones de urgencia</span></label>
+              </div>
+              <div style="display:flex;gap:10px">
+                <button type="button" class="em-btn em-btn-ghost em-btn-block" onclick="psyGoStep(2)">← Atrás</button>
+                <button type="button" class="em-btn em-btn-primary em-btn-block em-btn-lg" onclick="psyNextStep(3)">Continuar →</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Paso 4: Perfil público y contraseña -->
+          <div class="em-wizard-panel em-hidden" id="psy-step-4">
+            <h3 style="font-size:1.15rem;font-weight:700;margin-bottom:4px">Perfil y acceso</h3>
+            <p style="font-size:.85rem;color:var(--em-text-light);margin-bottom:18px">Tu imagen profesional y credenciales de acceso</p>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div class="em-form-group">
+                <label class="em-label">Foto de perfil <span style="font-weight:400;color:var(--em-text-light)">(recomendado)</span></label>
+                <div class="em-upload-area" id="photo-drop" onclick="document.getElementById('psy-photo').click()">
+                  <div id="photo-preview-inner"><div class="em-upload-icon">📷</div><div class="em-upload-text"><strong>Haz clic</strong> o arrastra tu foto aquí</div><div class="em-upload-hint">JPG, PNG — máx. 5MB. Foto profesional con buena iluminación.</div></div>
+                </div>
+                <input type="file" id="psy-photo" accept="image/*" style="display:none" onchange="previewRegPhoto(this)">
+              </div>
+              <div class="em-form-group">
+                <label class="em-label">Video de presentación <span style="font-weight:400;color:var(--em-text-light)">(opcional, recomendado)</span></label>
+                <div class="em-upload-area" onclick="document.getElementById('psy-video').click()">
+                  <div class="em-upload-icon">🎥</div>
+                  <div class="em-upload-text"><strong>Subir video</strong> (1-3 minutos)</div>
+                  <div class="em-upload-hint">MP4 — máx. 50MB. Preséntate a tus futuros pacientes.</div>
+                </div>
+                <input type="file" id="psy-video" accept="video/*" style="display:none" onchange="showFileName(this,'video-name')">
+                <div id="video-name" style="font-size:.82rem;color:var(--em-text-light);margin-top:4px"></div>
+              </div>
+              <div class="em-form-group">
+                <label class="em-label em-required">Contraseña</label>
+                <div class="em-input-group"><span class="em-input-icon">🔒</span><input type="password" class="em-input" id="psy-password" placeholder="Mínimo 8 caracteres" autocomplete="new-password" oninput="checkPwdStrength(this,'psy-pwd-strength')"><button type="button" class="em-input-btn" onclick="togglePwdView('psy-password',this)">👁</button></div>
+                <div id="psy-pwd-strength" style="margin-top:6px"></div>
+              </div>
+              <div class="em-form-group">
+                <label class="em-label em-required">Confirmar contraseña</label>
+                <div class="em-input-group"><span class="em-input-icon">🔒</span><input type="password" class="em-input" id="psy-confirm" placeholder="Repite tu contraseña" autocomplete="new-password"><button type="button" class="em-input-btn" onclick="togglePwdView('psy-confirm',this)">👁</button></div>
+              </div>
+              <div style="background:var(--em-warning-light);border-radius:var(--em-radius);padding:12px 14px;font-size:.82rem;color:#744210;border-left:3px solid var(--em-warning)">
+                ⏳ <strong>Revisión en 24-48 horas.</strong> Nuestro equipo verificará tus credenciales antes de activar tu perfil público.
+              </div>
+              <label style="display:flex;align-items:flex-start;gap:8px;font-size:.85rem;cursor:pointer">
+                <input type="checkbox" id="psy-terms" style="margin-top:3px;accent-color:var(--em-mint)">
+                <span>Acepto los <a style="color:var(--em-mint)">Términos</a> y <a style="color:var(--em-mint)">Política de privacidad</a>. Confirmo que mis credenciales son verídicas.</span>
+              </label>
+              <div style="display:flex;gap:10px">
+                <button type="button" class="em-btn em-btn-ghost em-btn-block" onclick="psyGoStep(3)">← Atrás</button>
+                <button type="button" class="em-btn em-btn-primary em-btn-block em-btn-lg" id="btn-reg-psy" onclick="submitPsychologistRegister()">Enviar solicitud 🎓</button>
+              </div>
+            </div>
+          </div>
+        </div><!-- /reg-psychologist-form -->
+      </div><!-- /auth-register-form -->
+    </div><!-- /auth-panel -->
+
     <div class="em-auth-visual">
       <div class="em-auth-visual-content">
         <div style="font-size:5rem;margin-bottom:24px">🧠</div>
@@ -491,6 +705,7 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15}h2{font-siz
           <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.1);padding:14px 18px;border-radius:12px"><span style="font-size:1.5rem">🔒</span><div><div style="font-weight:700;font-size:.9rem">100% Confidencial</div><div style="font-size:.8rem;opacity:.8">Tus datos siempre protegidos</div></div></div>
           <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.1);padding:14px 18px;border-radius:12px"><span style="font-size:1.5rem">✅</span><div><div style="font-weight:700;font-size:.9rem">Psicólogos verificados</div><div style="font-size:.8rem;opacity:.8">Validados por nuestro equipo</div></div></div>
           <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.1);padding:14px 18px;border-radius:12px"><span style="font-size:1.5rem">💳</span><div><div style="font-weight:700;font-size:.9rem">Multi-moneda LATAM</div><div style="font-size:.8rem;opacity:.8">Paga en tu moneda local</div></div></div>
+          <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.1);padding:14px 18px;border-radius:12px"><span style="font-size:1.5rem">📅</span><div><div style="font-weight:700;font-size:.9rem">Agenda flexible</div><div style="font-size:.8rem;opacity:.8">Sesiones cuando tú puedas</div></div></div>
         </div>
       </div>
     </div>
@@ -1091,7 +1306,7 @@ const AuthModule = (() => {
       if(fd.password!==fd.confirmPassword) throw new Error('Las contraseñas no coinciden.');
       if(!fd.pais) throw new Error('Selecciona tu país.');
       const {user}=await auth.createUserWithEmailAndPassword(fd.email,fd.password);
-      await db.collection(COLLECTIONS.USERS).doc(user.uid).set({uid:user.uid,email:fd.email,nombre:fd.nombre,pais:fd.pais,telefono:fd.telefono||'',fechaNacimiento:fd.fechaNacimiento||'',rol:ROLES.PATIENT,fechaRegistro:firebase.firestore.FieldValue.serverTimestamp(),activo:true});
+      await db.collection(COLLECTIONS.USERS).doc(user.uid).set({uid:user.uid,email:fd.email,nombre:fd.nombre,pais:fd.pais,telefono:fd.telefono||'',fechaNacimiento:fd.fechaNacimiento||'',genero:fd.genero||'',motivoConsulta:fd.motivoConsulta||'',extraInfo:fd.extraInfo||'',terapiaPrevia:fd.terapiaPrevia||'no',prefGeneroTerapeuta:fd.prefGeneroTerapeuta||'sin-preferencia',rol:ROLES.PATIENT,fechaRegistro:firebase.firestore.FieldValue.serverTimestamp(),activo:true});
       await user.updateProfile({displayName:fd.nombre});
       EmotionApp.currentUser=user; EmotionApp.currentUserData=await EmotionApp.getUserData(user.uid);
       EmotionApp.showAlert('¡Cuenta creada! Bienvenido/a a Emotion 🌱','success');
@@ -1116,7 +1331,7 @@ const AuthModule = (() => {
       if(photoFile){EmotionApp.setLoading(true,'Subiendo foto...');const r=storage.ref(`psychologists/${uid}/profile-photo`);await r.put(photoFile);fotoUrl=await r.getDownloadURL();}
       if(videoFile){EmotionApp.setLoading(true,'Subiendo video...');const r=storage.ref(`psychologists/${uid}/intro-video`);await r.put(videoFile);videoUrl=await r.getDownloadURL();}
       const slug=EmotionApp.generateSlug(fd.nombre);
-      await db.collection(COLLECTIONS.USERS).doc(uid).set({uid,email:fd.email,nombre:fd.nombre,pais:fd.pais||'',especialidad:fd.especialidad,anosExperiencia:parseInt(fd.anosExperiencia)||0,descripcion:fd.descripcion,fotoPerfil:fotoUrl,precio:parseFloat(fd.precio)||0,moneda:fd.moneda,titulo:fd.titulo,numeroColegiatura:fd.numeroColegiatura,videoUrl,rol:ROLES.PSYCHOLOGIST,estado:PSYCHOLOGIST_STATUS.PENDING,slug,fechaRegistro:firebase.firestore.FieldValue.serverTimestamp(),activo:true});
+      await db.collection(COLLECTIONS.USERS).doc(uid).set({uid,email:fd.email,nombre:fd.nombre,pais:fd.pais||'',telefono:fd.telefono||'',idiomas:fd.idiomas||['español'],especialidad:fd.especialidad,anosExperiencia:parseInt(fd.anosExperiencia)||0,descripcion:fd.descripcion,fotoPerfil:fotoUrl,precio:parseFloat(fd.precio)||0,moneda:fd.moneda,duracionSesion:fd.duracionSesion||50,modalidades:fd.modalidades||['videollamada'],franjaHoraria:fd.franjaHoraria||'flexible',atieneUrgencias:fd.atieneUrgencias||false,titulo:fd.titulo,universidad:fd.universidad||'',numeroColegiatura:fd.numeroColegiatura,videoUrl,rol:ROLES.PSYCHOLOGIST,estado:PSYCHOLOGIST_STATUS.PENDING,slug,fechaRegistro:firebase.firestore.FieldValue.serverTimestamp(),activo:true});
       await user.updateProfile({displayName:fd.nombre});
       EmotionApp.setLoading(false);
       document.getElementById('auth-panel').innerHTML=`<div style="text-align:center;padding:40px 0"><div style="font-size:4rem;margin-bottom:20px">⏳</div><h2 style="margin-bottom:12px">¡Registro exitoso!</h2><p style="color:var(--em-text-light);margin-bottom:20px;line-height:1.6">Tu perfil está siendo revisado por nuestro equipo.<br>Te notificaremos cuando sea aprobado (24-48h).</p><button class="em-btn em-btn-primary" onclick="EmotionRouter.navigate('landing')">Volver al inicio</button></div>`;
@@ -1467,6 +1682,8 @@ function applyLandingFilters(){
    ═══════════════════════════════════════════════════════ */
 window.initPage_login = function(params={}){
   fillSelects();
+  patGoStep(1);
+  psyGoStep(1);
   if(params.tab==='register') switchAuthTab('register');
   else switchAuthTab('login');
   if(params.role==='psychologist') switchRegisterTab('psychologist');
@@ -1484,29 +1701,197 @@ function switchRegisterTab(tab){
   document.getElementById('reg-tab-psychologist').classList.toggle('active',tab==='psychologist');
 }
 function showForgotModal(){document.getElementById('forgot-modal').classList.add('active');}
-async function handleForgotPassword(){const e=document.getElementById('forgot-email').value;if(!e)return;await AuthModule.resetPassword(e);document.getElementById('forgot-modal').classList.remove('active');}
+async function handleForgotPassword(){
+  const e=document.getElementById('forgot-email').value;
+  if(!e){EmotionApp.showAlert('Ingresa tu email.','error');return;}
+  await AuthModule.resetPassword(e);
+  document.getElementById('forgot-modal').classList.remove('active');
+}
 async function handleLogin(e){
   e.preventDefault();
+  const btn=document.getElementById('btn-login');
+  if(btn){btn.disabled=true;btn.classList.add('em-loading');}
   try{await AuthModule.login(document.getElementById('login-email').value,document.getElementById('login-password').value);}catch{}
+  if(btn){btn.disabled=false;btn.classList.remove('em-loading');}
 }
-async function handleRegisterPatient(e){
-  e.preventDefault();
-  await AuthModule.registerPatient({nombre:document.getElementById('pat-nombre').value,email:document.getElementById('pat-email').value,telefono:document.getElementById('pat-telefono').value,pais:document.getElementById('pat-pais').value,fechaNacimiento:document.getElementById('pat-dob').value,password:document.getElementById('pat-password').value,confirmPassword:document.getElementById('pat-confirm').value});
+
+/* Password helpers */
+function togglePwdView(inputId,btn){
+  const inp=document.getElementById(inputId);if(!inp)return;
+  inp.type=inp.type==='password'?'text':'password';
+  btn.textContent=inp.type==='password'?'👁':'🙈';
 }
-async function handleRegisterPsychologist(e){
-  e.preventDefault();
-  const photo=document.getElementById('psy-photo').files[0];
-  const video=document.getElementById('psy-video').files[0];
-  await AuthModule.registerPsychologist({nombre:document.getElementById('psy-nombre').value,email:document.getElementById('psy-email').value,pais:document.getElementById('psy-pais').value,especialidad:document.getElementById('psy-especialidad').value,anosExperiencia:document.getElementById('psy-anos').value,titulo:document.getElementById('psy-titulo').value,numeroColegiatura:document.getElementById('psy-colegiatura').value,precio:document.getElementById('psy-precio').value,moneda:document.getElementById('psy-moneda').value,descripcion:document.getElementById('psy-descripcion').value,password:document.getElementById('psy-password').value,confirmPassword:document.getElementById('psy-confirm').value},photo,video);
+function checkPwdStrength(inp,targetId){
+  const v=inp.value,el=document.getElementById(targetId);if(!el)return;
+  if(!v){el.innerHTML='';return;}
+  let score=0;
+  if(v.length>=8)score++;if(v.length>=12)score++;
+  if(/[A-Z]/.test(v))score++;if(/[0-9]/.test(v))score++;if(/[^A-Za-z0-9]/.test(v))score++;
+  const map={1:['Muy débil','var(--em-error)'],2:['Débil','var(--em-error)'],3:['Regular','var(--em-warning)'],4:['Buena','var(--em-success)'],5:['Muy fuerte','var(--em-success)']};
+  const[label,color]=map[score]||['Muy débil','var(--em-error)'];
+  el.innerHTML=`<div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:4px;background:var(--em-gray-200);border-radius:100px;overflow:hidden"><div style="width:${(score/5)*100}%;height:100%;background:${color};border-radius:100px;transition:width .3s,background .3s"></div></div><span style="font-size:.72rem;font-weight:700;color:${color};white-space:nowrap">${label}</span></div>`;
 }
-function previewPhoto(input){
+
+/* ─── WIZARD: Update step indicator ─── */
+function updateWizardIndicator(stepsId,currentStep){
+  const container=document.getElementById(stepsId);if(!container)return;
+  container.querySelectorAll('.em-wizard-step').forEach((s,i)=>{
+    const n=i+1;
+    s.classList.toggle('active',n===currentStep);
+    s.classList.toggle('done',n<currentStep);
+    if(n<currentStep) s.querySelector('.em-wizard-step-num').textContent='✓';
+    else s.querySelector('.em-wizard-step-num').textContent=n;
+  });
+  container.querySelectorAll('.em-wizard-connector').forEach((c,i)=>{c.classList.toggle('done',i+1<currentStep);});
+}
+
+/* ─── PATIENT WIZARD ─── */
+let _patStep=1;
+function patGoStep(step){
+  _patStep=step;
+  for(let i=1;i<=3;i++) document.getElementById(`pat-step-${i}`)?.classList.toggle('em-hidden',i!==step);
+  updateWizardIndicator('pat-wizard-steps',step);
+}
+function patNextStep(current){
+  if(current===1){
+    const nom=document.getElementById('pat-nombre')?.value.trim();
+    const em=document.getElementById('pat-email')?.value.trim();
+    const pais=document.getElementById('pat-pais')?.value;
+    const gen=document.querySelector('input[name="pat-genero"]:checked');
+    if(!nom||nom.length<3){EmotionApp.showAlert('Ingresa tu nombre completo (mínimo 3 caracteres).','error');return;}
+    if(!em||!em.includes('@')){EmotionApp.showAlert('Ingresa un email válido.','error');return;}
+    if(!pais){EmotionApp.showAlert('Selecciona tu país.','error');return;}
+    if(!gen){EmotionApp.showAlert('Selecciona una opción de género.','error');return;}
+  }
+  if(current===2){
+    const motivo=document.getElementById('pat-motivo')?.value;
+    const prev=document.querySelector('input[name="pat-terapia-prev"]:checked');
+    if(!motivo){EmotionApp.showAlert('Selecciona el motivo principal de consulta.','error');return;}
+    if(!prev){EmotionApp.showAlert('Indica si has tenido terapia antes.','error');return;}
+  }
+  patGoStep(current+1);
+}
+async function submitPatientRegister(){
+  const pwd=document.getElementById('pat-password')?.value;
+  const conf=document.getElementById('pat-confirm')?.value;
+  const terms=document.getElementById('pat-terms')?.checked;
+  if(!pwd||pwd.length<6){EmotionApp.showAlert('La contraseña debe tener al menos 6 caracteres.','error');return;}
+  if(pwd!==conf){EmotionApp.showAlert('Las contraseñas no coinciden.','error');return;}
+  if(!terms){EmotionApp.showAlert('Debes aceptar los términos y condiciones.','error');return;}
+  const btn=document.getElementById('btn-reg-patient');
+  if(btn){btn.disabled=true;btn.classList.add('em-loading');}
+  try{
+    await AuthModule.registerPatient({
+      nombre:document.getElementById('pat-nombre').value.trim(),
+      email:document.getElementById('pat-email').value.trim(),
+      telefono:document.getElementById('pat-telefono')?.value||'',
+      pais:document.getElementById('pat-pais').value,
+      fechaNacimiento:document.getElementById('pat-dob')?.value||'',
+      genero:document.querySelector('input[name="pat-genero"]:checked')?.value||'',
+      motivoConsulta:document.getElementById('pat-motivo').value,
+      extraInfo:document.getElementById('pat-extra')?.value||'',
+      terapiaPrevia:document.querySelector('input[name="pat-terapia-prev"]:checked')?.value||'no',
+      prefGeneroTerapeuta:document.querySelector('input[name="pat-pref-genero"]:checked')?.value||'sin-preferencia',
+      password:pwd,confirmPassword:conf
+    });
+  }catch{if(btn){btn.disabled=false;btn.classList.remove('em-loading');}}
+}
+
+/* ─── PSYCHOLOGIST WIZARD ─── */
+let _psyStep=1;
+function psyGoStep(step){
+  _psyStep=step;
+  for(let i=1;i<=4;i++) document.getElementById(`psy-step-${i}`)?.classList.toggle('em-hidden',i!==step);
+  updateWizardIndicator('psy-wizard-steps',step);
+}
+function psyNextStep(current){
+  if(current===1){
+    const nom=document.getElementById('psy-nombre')?.value.trim();
+    const em=document.getElementById('psy-email')?.value.trim();
+    const pais=document.getElementById('psy-pais')?.value;
+    const idiomas=[...document.querySelectorAll('input[name="psy-idiomas"]:checked')];
+    if(!nom||nom.length<3){EmotionApp.showAlert('Ingresa tu nombre completo.','error');return;}
+    if(!em||!em.includes('@')){EmotionApp.showAlert('Ingresa un email profesional válido.','error');return;}
+    if(!pais){EmotionApp.showAlert('Selecciona tu país.','error');return;}
+    if(!idiomas.length){EmotionApp.showAlert('Selecciona al menos un idioma de atención.','error');return;}
+  }
+  if(current===2){
+    const esp=document.getElementById('psy-especialidad')?.value;
+    const anos=document.getElementById('psy-anos')?.value;
+    const tit=document.getElementById('psy-titulo')?.value.trim();
+    const uni=document.getElementById('psy-universidad')?.value.trim();
+    const col=document.getElementById('psy-colegiatura')?.value.trim();
+    const desc=document.getElementById('psy-descripcion')?.value.trim();
+    if(!esp){EmotionApp.showAlert('Selecciona tu especialidad principal.','error');return;}
+    if(anos===''||anos<0){EmotionApp.showAlert('Ingresa los años de experiencia.','error');return;}
+    if(!tit){EmotionApp.showAlert('Ingresa tu título profesional.','error');return;}
+    if(!uni){EmotionApp.showAlert('Ingresa tu institución educativa.','error');return;}
+    if(!col){EmotionApp.showAlert('Ingresa tu N° de colegiatura.','error');return;}
+    if(!desc||desc.length<80){EmotionApp.showAlert('La descripción debe tener al menos 80 caracteres.','error');return;}
+  }
+  if(current===3){
+    const precio=document.getElementById('psy-precio')?.value;
+    const moneda=document.getElementById('psy-moneda')?.value;
+    const modalidades=[...document.querySelectorAll('input[name="psy-modalidad"]:checked')];
+    if(!precio||parseFloat(precio)<=0){EmotionApp.showAlert('Ingresa un precio válido por sesión.','error');return;}
+    if(!moneda){EmotionApp.showAlert('Selecciona la moneda.','error');return;}
+    if(!modalidades.length){EmotionApp.showAlert('Selecciona al menos una modalidad de atención.','error');return;}
+  }
+  psyGoStep(current+1);
+}
+async function submitPsychologistRegister(){
+  const pwd=document.getElementById('psy-password')?.value;
+  const conf=document.getElementById('psy-confirm')?.value;
+  const terms=document.getElementById('psy-terms')?.checked;
+  if(!pwd||pwd.length<6){EmotionApp.showAlert('La contraseña debe tener al menos 6 caracteres.','error');return;}
+  if(pwd!==conf){EmotionApp.showAlert('Las contraseñas no coinciden.','error');return;}
+  if(!terms){EmotionApp.showAlert('Debes aceptar los términos y confirmar que tus credenciales son verídicas.','error');return;}
+  const btn=document.getElementById('btn-reg-psy');
+  if(btn){btn.disabled=true;btn.classList.add('em-loading');}
+  const photo=document.getElementById('psy-photo')?.files[0];
+  const video=document.getElementById('psy-video')?.files[0];
+  try{
+    await AuthModule.registerPsychologist({
+      nombre:document.getElementById('psy-nombre').value.trim(),
+      email:document.getElementById('psy-email').value.trim(),
+      telefono:document.getElementById('psy-telefono')?.value||'',
+      pais:document.getElementById('psy-pais').value,
+      idiomas:[...document.querySelectorAll('input[name="psy-idiomas"]:checked')].map(i=>i.value),
+      especialidad:document.getElementById('psy-especialidad').value,
+      anosExperiencia:document.getElementById('psy-anos').value,
+      titulo:document.getElementById('psy-titulo').value.trim(),
+      universidad:document.getElementById('psy-universidad').value.trim(),
+      numeroColegiatura:document.getElementById('psy-colegiatura').value.trim(),
+      descripcion:document.getElementById('psy-descripcion').value.trim(),
+      precio:document.getElementById('psy-precio').value,
+      moneda:document.getElementById('psy-moneda').value,
+      duracionSesion:parseInt(document.getElementById('psy-duracion')?.value)||50,
+      modalidades:[...document.querySelectorAll('input[name="psy-modalidad"]:checked')].map(i=>i.value),
+      franjaHoraria:document.getElementById('psy-franja')?.value||'flexible',
+      atieneUrgencias:document.getElementById('psy-urgencias')?.checked||false,
+      password:pwd,confirmPassword:conf
+    },photo,video);
+  }catch{if(btn){btn.disabled=false;btn.classList.remove('em-loading');}}
+}
+
+function previewRegPhoto(input){
   if(!input.files[0])return;
   const reader=new FileReader();
-  reader.onload=e=>{const prev=document.getElementById('photo-preview');prev.innerHTML=`<img src="${e.target.result}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;margin-top:8px">`;prev.classList.remove('em-hidden');};
+  reader.onload=e=>{
+    const inner=document.getElementById('photo-preview-inner');
+    if(inner)inner.innerHTML=`<img src="${e.target.result}" style="width:88px;height:88px;border-radius:50%;object-fit:cover;border:3px solid var(--em-mint);margin-bottom:6px"><div style="font-size:.82rem;color:var(--em-success);font-weight:600">✅ Foto seleccionada</div>`;
+  };
   reader.readAsDataURL(input.files[0]);
 }
-function showFileName(input,targetId){const el=document.getElementById(targetId);if(el&&input.files[0])el.textContent='📎 '+input.files[0].name;}
-document.getElementById('psy-descripcion')?.addEventListener('input',function(){const c=document.getElementById('psy-desc-count');if(c)c.textContent=this.value.length;});
+function showFileName(input,targetId){
+  const el=document.getElementById(targetId);
+  if(el&&input.files[0])el.innerHTML=`<span style="color:var(--em-success)">📎 ${input.files[0].name}</span>`;
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('psy-descripcion')?.addEventListener('input',function(){
+    const c=document.getElementById('psy-desc-count');if(c)c.textContent=this.value.length;
+  });
+});
 
 /* ═══════════════════════════════════════════════════════
    PAGE: PATIENT DASHBOARD — INIT & LOGIC
