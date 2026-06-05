@@ -465,6 +465,14 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15}h2{font-siz
           <button type="submit" class="em-btn em-btn-primary em-btn-block em-btn-lg" id="btn-login">Iniciar sesión</button>
           <p style="text-align:center;font-size:.85rem;color:var(--em-text-light)">¿No tienes cuenta? <a style="color:var(--em-mint);cursor:pointer;font-weight:600" onclick="switchAuthTab('register')">Regístrate gratis</a></p>
           <p style="text-align:center;font-size:.8rem;color:var(--em-text-muted);margin-top:4px">¿Tienes código institucional? <a style="color:rgba(128,90,213,.9);cursor:pointer;font-weight:600" onclick="EmotionRouter.navigate('institutional-register')">Acceso institucional →</a></p>
+          <div id="demo-credentials" style="margin-top:12px;background:rgba(56,178,172,.08);border:1px solid rgba(56,178,172,.3);border-radius:10px;padding:12px 14px">
+            <div style="font-size:.75rem;font-weight:700;color:var(--em-primary);margin-bottom:8px;letter-spacing:.05em">🧪 MODO DEMO — CUENTAS DE PRUEBA</div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="font-size:.8rem;display:flex;justify-content:space-between;align-items:center"><span>🔑 Admin</span><a style="cursor:pointer;color:var(--em-mint);font-family:monospace;font-size:.78rem" onclick="fillDemo('admin@emotion.demo','admin123')">admin@emotion.demo / admin123</a></div>
+              <div style="font-size:.8rem;display:flex;justify-content:space-between;align-items:center"><span>🎓 Psicólogo</span><a style="cursor:pointer;color:var(--em-mint);font-family:monospace;font-size:.78rem" onclick="fillDemo('psicologo@emotion.demo','psi123456')">psicologo@emotion.demo / psi123456</a></div>
+              <div style="font-size:.8rem;display:flex;justify-content:space-between;align-items:center"><span>👤 Paciente</span><a style="cursor:pointer;color:var(--em-mint);font-family:monospace;font-size:.78rem" onclick="fillDemo('paciente@emotion.demo','pac123456')">paciente@emotion.demo / pac123456</a></div>
+            </div>
+          </div>
         </form>
       </div>
 
@@ -1923,7 +1931,7 @@ const AuthModule = (() => {
       users[uid]={...userData,password:fd.password};
       localStorage.setItem('emotion_demo_users',JSON.stringify(users));
       await InstitutionalModule.acceptInvitation(fd.codigo,uid);
-      _demoSession(uid,userData);
+      _demoSession(userData);
       return uid;
     }
     const cred=await auth.createUserWithEmailAndPassword(fd.email,fd.password);
@@ -2209,12 +2217,29 @@ const InstitutionalModule = (() => {
     if(!AuthModule._isFirebaseDemo())return;
     const clinics=_demoRead(_KCLI);
     if(Object.keys(clinics).length)return;
+    // Seed demo clinic + region
     const clinicId='demo_clinic_1';
     clinics[clinicId]={nombre:'Clínica Demo LATAM',pais:'Argentina',region:'demo_region_1',directorId:'',estado:'active',fechaCreacion:new Date().toISOString()};
     _demoWrite(_KCLI,clinics);
     const regions=_demoRead(_KREG);
     regions['demo_region_1']={nombre:'Sudamérica',directorId:'',paises:['Argentina','Chile','Uruguay','Paraguay','Bolivia'],estado:'active'};
     _demoWrite(_KREG,regions);
+    // Seed demo users (admin, psychologist, patient)
+    const _USERS_KEY='emotion_demo_users';
+    const users=JSON.parse(localStorage.getItem(_USERS_KEY)||'{}');
+    if(!Object.values(users).find(u=>u.rol==='admin')){
+      const adminUid='demo_admin_1';
+      users[adminUid]={uid:adminUid,email:'admin@emotion.demo',password:'admin123',nombre:'Admin Demo',rol:'admin',estado:'active',fechaRegistro:new Date().toISOString()};
+    }
+    if(!Object.values(users).find(u=>u.rol==='psychologist')){
+      const psyUid='demo_psy_1';
+      users[psyUid]={uid:psyUid,email:'psicologo@emotion.demo',password:'psi123456',nombre:'Dra. Laura Méndez',rol:'psychologist',estado:'approved',pais:'Argentina',especialidad:'Ansiedad y estrés',anosExperiencia:8,descripcion:'Psicóloga clínica con 8 años de experiencia en terapia cognitivo-conductual y mindfulness. Atención individualizada.',titulo:'Licenciada en Psicología',universidad:'UBA',numeroColegiatura:'PSI-1234',precio:50,moneda:'USD',idiomas:['español'],modalidades:['videollamada'],duracionSesion:50,activo:true,slug:'laura-mendez',fechaRegistro:new Date().toISOString()};
+    }
+    if(!Object.values(users).find(u=>u.rol==='patient')){
+      const patUid='demo_pat_1';
+      users[patUid]={uid:patUid,email:'paciente@emotion.demo',password:'pac123456',nombre:'Carlos Rivera',rol:'patient',pais:'Argentina',activo:true,fechaRegistro:new Date().toISOString()};
+    }
+    localStorage.setItem(_USERS_KEY,JSON.stringify(users));
   }
 
   async function createInvitation(email,rol,clinicaId,directorId){
@@ -2454,6 +2479,9 @@ window.initPage_login = function(params={}){
   if(params.tab==='register') switchAuthTab('register');
   else switchAuthTab('login');
   if(params.role==='psychologist') switchRegisterTab('psychologist');
+  // Show demo credentials panel only in demo mode
+  const demoBox=document.getElementById('demo-credentials');
+  if(demoBox) demoBox.style.display=AuthModule._isFirebaseDemo()?'block':'none';
 };
 function switchAuthTab(tab){
   document.getElementById('auth-login-form').classList.toggle('em-hidden',tab!=='login');
@@ -2480,6 +2508,13 @@ async function handleLogin(e){
   if(btn){btn.disabled=true;btn.classList.add('em-loading');}
   try{await AuthModule.login(document.getElementById('login-email').value,document.getElementById('login-password').value);}catch{}
   if(btn){btn.disabled=false;btn.classList.remove('em-loading');}
+}
+function fillDemo(email,pwd){
+  const ei=document.getElementById('login-email');
+  const pi=document.getElementById('login-password');
+  if(ei)ei.value=email;
+  if(pi)pi.value=pwd;
+  document.getElementById('btn-login')?.focus();
 }
 
 /* Password helpers */
@@ -3215,7 +3250,17 @@ async function loadPsyData(){
     }
     // Pending sessions
     const pc=document.getElementById('psy-pending-sessions');
-    if(pc){pc.innerHTML=pending.length?await Promise.all(pending.map(async s=>{const pat=await EmotionApp.getUserData(s.pacienteId);return `<div class="em-session-card pending"><div class="em-session-date-box"><div class="em-session-date-day">${s.fecha?.split('-')[2]||'—'}</div></div><div class="em-session-info"><div class="em-session-title">Solicitud de ${pat?.nombre||'Paciente'}</div><div class="em-session-meta"><span class="em-session-meta-item">📅 ${s.fecha}</span><span class="em-session-meta-item">🕐 ${s.hora}</span></div></div><div class="em-session-actions"><button class="em-btn em-btn-primary em-btn-sm" onclick="confirmPsySession('${s.id}')">✅ Confirmar</button><button class="em-btn em-btn-ghost em-btn-sm" onclick="rejectPsySession('${s.id}')">❌</button></div></div>`;}).then(a=>a.join('')):`<div class="em-empty"><div class="em-empty-icon">✅</div><div class="em-empty-text">Sin solicitudes pendientes</div></div>`;}
+    if(pc){
+      if(!pending.length){
+        pc.innerHTML=`<div class="em-empty"><div class="em-empty-icon">✅</div><div class="em-empty-text">Sin solicitudes pendientes</div></div>`;
+      }else{
+        const rows=await Promise.all(pending.map(async s=>{
+          const pat=await EmotionApp.getUserData(s.pacienteId);
+          return `<div class="em-session-card pending"><div class="em-session-date-box"><div class="em-session-date-day">${(s.fecha||'').split('-')[2]||'—'}</div></div><div class="em-session-info"><div class="em-session-title">Solicitud de ${pat?.nombre||'Paciente'}</div><div class="em-session-meta"><span class="em-session-meta-item">📅 ${s.fecha}</span><span class="em-session-meta-item">🕐 ${s.hora}</span></div></div><div class="em-session-actions"><button class="em-btn em-btn-primary em-btn-sm" onclick="confirmPsySession('${s.id}')">✅ Confirmar</button><button class="em-btn em-btn-ghost em-btn-sm" onclick="rejectPsySession('${s.id}')">❌</button></div></div>`;
+        }));
+        pc.innerHTML=rows.join('');
+      }
+    }
   }catch(e){console.error(e);}
 }
 async function confirmPsySession(id){
