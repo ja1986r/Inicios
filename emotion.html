@@ -222,8 +222,47 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15}h2{font-siz
 .em-radio-opt,.em-check-opt{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--em-radius);border:1.5px solid var(--em-gray-200);cursor:pointer;font-size:.85rem;font-weight:500;transition:var(--em-transition);color:var(--em-text);user-select:none}
 .em-radio-opt:hover,.em-check-opt:hover{border-color:var(--em-mint);background:var(--em-mint-light)}
 .em-radio-opt input,.em-check-opt input{accent-color:var(--em-mint);cursor:pointer}
-/* Password strength bar */
-.em-pwd-bar{height:4px;border-radius:100px;transition:width .35s,background .35s}
+/* ── Resource & Video cards ── */
+.em-res-card{background:white;border-radius:var(--em-radius-lg);overflow:hidden;box-shadow:var(--em-shadow-sm);border:1px solid var(--em-gray-100);transition:var(--em-transition);display:flex;flex-direction:column}
+.em-res-card:hover{box-shadow:var(--em-shadow);transform:translateY(-2px)}
+.em-res-icon-area{height:88px;display:flex;align-items:center;justify-content:center;font-size:2.4rem;position:relative}
+.em-res-icon-area.pdf{background:linear-gradient(135deg,#FFF5F5,#FED7D7)}.em-res-icon-area.video{background:linear-gradient(135deg,#EBF2FF,#BEE3F8)}.em-res-icon-area.image{background:linear-gradient(135deg,#F0FFF4,#C6F6D5)}.em-res-icon-area.doc{background:linear-gradient(135deg,#FFFFF0,#FEFCBF)}.em-res-icon-area.audio{background:linear-gradient(135deg,#FAF5FF,#E9D8FD)}.em-res-icon-area.link{background:linear-gradient(135deg,var(--em-gray-50),var(--em-gray-100))}
+.em-res-pub-dot{position:absolute;top:8px;right:8px;width:9px;height:9px;border-radius:50%;background:var(--em-success);box-shadow:0 0 0 2px white}
+.em-res-pub-dot.priv{background:var(--em-gray-300)}
+.em-res-body{padding:12px 14px;flex:1}
+.em-res-name{font-size:.88rem;font-weight:700;color:var(--em-text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.em-res-meta{font-size:.74rem;color:var(--em-text-light);display:flex;gap:8px}
+.em-res-footer{padding:8px 12px;border-top:1px solid var(--em-gray-100);display:flex;gap:5px}
+.em-res-footer .em-btn{flex:1;font-size:.74rem;padding:5px 6px}
+.em-video-card{background:#1A202C;border-radius:var(--em-radius-lg);overflow:hidden;box-shadow:var(--em-shadow);transition:var(--em-transition)}
+.em-video-card:hover{transform:translateY(-3px);box-shadow:var(--em-shadow-lg)}
+.em-video-thumb{height:150px;background:linear-gradient(135deg,#2D3748,#4A5568);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;overflow:hidden}
+.em-video-thumb img{width:100%;height:100%;object-fit:cover}
+.em-video-play{position:absolute;width:52px;height:52px;background:rgba(76,175,154,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;transition:transform .2s}
+.em-video-thumb:hover .em-video-play{transform:scale(1.12)}
+.em-video-body{padding:12px 14px}
+.em-video-title{font-size:.88rem;font-weight:700;color:white;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.em-video-meta{font-size:.74rem;color:rgba(255,255,255,.45)}
+.em-video-footer{padding:8px 12px;border-top:1px solid rgba(255,255,255,.07);display:flex;gap:5px}
+.em-video-footer .em-btn{flex:1;font-size:.74rem;padding:5px 6px}
+/* Membership badge */
+.em-membership{margin:10px 12px;padding:9px 12px;border-radius:var(--em-radius);display:flex;align-items:center;gap:8px;font-size:.78rem}
+.em-membership.active{background:rgba(56,161,105,.15);border:1px solid rgba(56,161,105,.25);color:#2F855A}
+.em-membership.trial{background:rgba(76,175,154,.12);border:1px solid rgba(76,175,154,.3);color:var(--em-mint)}
+.em-membership.expired{background:rgba(229,62,62,.12);border:1px solid rgba(229,62,62,.2);color:#C53030}
+.em-membership-icon{font-size:1rem;flex-shrink:0}
+/* Resource grid */
+.em-res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.em-vid-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+/* Profile resources section */
+.em-profile-section{padding:48px 0}
+.em-profile-section+.em-profile-section{padding-top:0}
+/* Upload modal drop zone */
+.em-drop-zone{border:2.5px dashed var(--em-gray-300);border-radius:var(--em-radius-lg);padding:36px 24px;text-align:center;cursor:pointer;transition:var(--em-transition);background:var(--em-gray-50)}
+.em-drop-zone:hover,.em-drop-zone.over{border-color:var(--em-mint);background:var(--em-mint-light)}
+.em-drop-zone-icon{font-size:2.5rem;margin-bottom:10px}
+.em-upload-progress{height:6px;background:var(--em-gray-200);border-radius:100px;overflow:hidden;margin-top:12px}
+.em-upload-progress-bar{height:100%;background:linear-gradient(to right,var(--em-mint),var(--em-blue));border-radius:100px;transition:width .2s}
 </style>
 </head>
 <body>
@@ -832,15 +871,17 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15}h2{font-siz
     <aside class="em-sidebar" id="psy-sidebar">
       <div class="em-sidebar-brand"><div class="em-logo-icon">🧠</div><div><div class="em-sidebar-brand-name">Emotion</div><div class="em-sidebar-brand-role">Panel Psicólogo</div></div></div>
       <div class="em-sidebar-user"><div class="em-sidebar-avatar" id="psy-sidebar-avatar">P</div><div><div class="em-sidebar-user-name" id="psy-sidebar-name">Cargando...</div><div class="em-sidebar-user-email" id="psy-sidebar-email">—</div></div></div>
+      <div id="psy-membership-badge" class="em-membership trial"><span class="em-membership-icon">⭐</span><div><div style="font-weight:700;line-height:1.2">Plan Básico</div><div style="opacity:.75;font-size:.7rem" id="psy-membership-status">Activo</div></div></div>
       <nav class="em-sidebar-nav">
         <div class="em-sidebar-section-title">Principal</div>
-        <div class="em-sidebar-link active" onclick="showPsyPanel('inicio')"><span class="em-sidebar-link-icon">🏠</span>Inicio</div>
-        <div class="em-sidebar-link" onclick="showPsyPanel('agenda')"><span class="em-sidebar-link-icon">📅</span>Agenda<span class="em-sidebar-badge em-badge-red" id="psy-badge-pending">0</span></div>
-        <div class="em-sidebar-link" onclick="showPsyPanel('pacientes')"><span class="em-sidebar-link-icon">👥</span>Mis pacientes</div>
-        <div class="em-sidebar-link" onclick="showPsyPanel('recursos')"><span class="em-sidebar-link-icon">📚</span>Recursos</div>
-        <div class="em-sidebar-section-title">Configuración</div>
-        <div class="em-sidebar-link" onclick="showPsyPanel('perfil')"><span class="em-sidebar-link-icon">👤</span>Mi perfil</div>
-        <div class="em-sidebar-link" onclick="showPsyPanel('disponibilidad')"><span class="em-sidebar-link-icon">🕐</span>Disponibilidad</div>
+        <div class="em-sidebar-link active" id="psy-nav-inicio" onclick="showPsyPanel('inicio')"><span class="em-sidebar-link-icon">🏠</span>Inicio</div>
+        <div class="em-sidebar-link" id="psy-nav-agenda" onclick="showPsyPanel('agenda')"><span class="em-sidebar-link-icon">📅</span>Agenda<span class="em-sidebar-badge em-badge-red" id="psy-badge-pending">0</span></div>
+        <div class="em-sidebar-link" id="psy-nav-pacientes" onclick="showPsyPanel('pacientes')"><span class="em-sidebar-link-icon">👥</span>Mis pacientes</div>
+        <div class="em-sidebar-link" id="psy-nav-recursos" onclick="showPsyPanel('recursos')"><span class="em-sidebar-link-icon">📚</span>Recursos y videos</div>
+        <div class="em-sidebar-section-title">Mi espacio</div>
+        <div class="em-sidebar-link" id="psy-nav-landing" onclick="showPsyPanel('landing')"><span class="em-sidebar-link-icon">🌐</span>Mi landing</div>
+        <div class="em-sidebar-link" id="psy-nav-perfil" onclick="showPsyPanel('perfil')"><span class="em-sidebar-link-icon">👤</span>Mi perfil</div>
+        <div class="em-sidebar-link" id="psy-nav-disponibilidad" onclick="showPsyPanel('disponibilidad')"><span class="em-sidebar-link-icon">🕐</span>Disponibilidad</div>
       </nav>
       <div class="em-sidebar-footer"><div class="em-sidebar-link logout" onclick="doLogout()"><span class="em-sidebar-link-icon">🚪</span>Cerrar sesión</div></div>
     </aside>
@@ -878,11 +919,75 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15}h2{font-siz
           <div class="em-page-header"><h2 class="em-page-title">👥 Mis pacientes</h2><input type="search" class="em-search-input" placeholder="Buscar paciente..." onkeyup="filterPsyPatients(this.value)"></div>
           <div id="psy-patients-list" style="display:flex;flex-direction:column;gap:12px"></div>
         </div>
-        <!-- PANEL: RECURSOS -->
+        <!-- PANEL: RECURSOS Y VIDEOS -->
         <div id="psy-panel-recursos" class="em-dashboard-panel em-hidden">
-          <div class="em-page-header"><h2 class="em-page-title">📚 Recursos</h2><button class="em-btn em-btn-primary" onclick="openUploadResourceModal()">+ Subir recurso</button></div>
-          <div class="em-resource-grid" id="psy-resources-grid"><div class="em-empty"><div class="em-empty-icon">📚</div><div class="em-empty-text">Aún no has subido recursos</div></div></div>
+          <div class="em-page-header">
+            <h2 class="em-page-title">📚 Recursos y videos</h2>
+            <div style="display:flex;gap:8px">
+              <button class="em-btn em-btn-outline em-btn-sm" onclick="openUploadModal('video')">🎥 Subir video</button>
+              <button class="em-btn em-btn-primary em-btn-sm" onclick="openUploadModal('resource')">📎 Subir recurso</button>
+            </div>
+          </div>
+          <!-- Tabs: recursos / videos -->
+          <div class="em-dashboard-tabs" style="margin-bottom:20px">
+            <div class="em-dashboard-tab active" id="tab-res" onclick="switchResTab('recursos',this)">📎 Recursos <span id="res-count-badge" class="em-sidebar-badge" style="background:var(--em-blue)">0</span></div>
+            <div class="em-dashboard-tab" id="tab-vid" onclick="switchResTab('videos',this)">🎥 Videos <span id="vid-count-badge" class="em-sidebar-badge" style="background:var(--em-blue)">0</span></div>
+          </div>
+          <!-- Resources grid -->
+          <div id="res-panel-recursos">
+            <div id="psy-res-grid" class="em-res-grid">
+              <div class="em-empty" style="grid-column:1/-1"><div class="em-empty-icon">📎</div><div class="em-empty-title">Sin recursos todavía</div><div class="em-empty-text">Sube PDFs, imágenes, audios o documentos para compartir con tus pacientes.</div></div>
+            </div>
+          </div>
+          <!-- Videos grid -->
+          <div id="res-panel-videos" class="em-hidden">
+            <div id="psy-vid-grid" class="em-vid-grid">
+              <div class="em-empty" style="grid-column:1/-1"><div class="em-empty-icon">🎥</div><div class="em-empty-title">Sin videos todavía</div><div class="em-empty-text">Sube videos educativos o de presentación para mostrar en tu landing.</div></div>
+            </div>
+          </div>
         </div>
+
+        <!-- PANEL: MI LANDING -->
+        <div id="psy-panel-landing" class="em-dashboard-panel em-hidden">
+          <div class="em-page-header">
+            <h2 class="em-page-title">🌐 Mi landing</h2>
+            <button class="em-btn em-btn-outline em-btn-sm" id="btn-view-landing" onclick="viewMyLanding()">👁 Ver mi perfil público</button>
+          </div>
+          <!-- Membership status card -->
+          <div id="psy-landing-membership" class="em-banner em-banner-icon" style="margin-bottom:20px"></div>
+          <!-- Bio pública editable -->
+          <div class="em-card" style="margin-bottom:20px">
+            <div class="em-card-header"><h4>✏️ Descripción pública</h4><button class="em-btn em-btn-primary em-btn-sm" onclick="saveLandingBio()">Guardar</button></div>
+            <div class="em-card-body">
+              <div class="em-form-group"><label class="em-label">Texto de presentación (aparece en tu perfil público)</label><textarea class="em-textarea" id="psy-landing-bio" style="min-height:140px;resize:vertical" placeholder="Describe tu enfoque, cómo trabajas y qué tipo de pacientes puedes ayudar..."></textarea><div class="em-form-hint"><span id="landing-bio-count">0</span>/1000 caracteres</div></div>
+              <div class="em-grid em-grid-2 em-gap-16" style="margin-top:16px">
+                <div class="em-form-group"><label class="em-label">Frase de cabecera</label><input type="text" class="em-input" id="psy-landing-tagline" placeholder="Ej: Especialista en ansiedad y relaciones..."></div>
+                <div class="em-form-group"><label class="em-label">Enlace a red social / web</label><input type="url" class="em-input" id="psy-landing-link" placeholder="https://..."></div>
+              </div>
+            </div>
+          </div>
+          <!-- Resources visibility -->
+          <div class="em-card" style="margin-bottom:20px">
+            <div class="em-card-header"><h4>📎 Recursos públicos en mi landing</h4></div>
+            <div class="em-card-body">
+              <p style="font-size:.88rem;color:var(--em-text-light);margin-bottom:16px">Marca qué recursos quieres mostrar en tu perfil público. Los recursos marcados como <strong>Público</strong> son visibles para cualquier visitante.</p>
+              <div id="psy-landing-resources-list">
+                <div class="em-empty"><div class="em-empty-icon">📎</div><div class="em-empty-text">No hay recursos. Sube desde la sección "Recursos y videos".</div></div>
+              </div>
+            </div>
+          </div>
+          <!-- Videos visibility -->
+          <div class="em-card">
+            <div class="em-card-header"><h4>🎥 Videos en mi landing</h4></div>
+            <div class="em-card-body">
+              <p style="font-size:.88rem;color:var(--em-text-light);margin-bottom:16px">Los videos marcados como <strong>Público</strong> se muestran en tu perfil como galería de videos.</p>
+              <div id="psy-landing-videos-list">
+                <div class="em-empty"><div class="em-empty-icon">🎥</div><div class="em-empty-text">No hay videos. Sube desde la sección "Recursos y videos".</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- PANEL: PERFIL -->
         <div id="psy-panel-perfil" class="em-dashboard-panel em-hidden">
           <div class="em-page-header"><h2 class="em-page-title">👤 Mi perfil profesional</h2></div>
@@ -1147,23 +1252,49 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15}h2{font-siz
         </div>
       </div>
     </section>
-    <section style="padding:60px 0">
+    <section style="padding:56px 0 0">
       <div class="em-container">
-        <div style="display:grid;grid-template-columns:1fr 340px;gap:32px">
+        <div style="display:grid;grid-template-columns:1fr 320px;gap:32px;align-items:start">
           <div>
-            <div class="em-card" style="margin-bottom:24px"><div class="em-card-header"><h3>Sobre mí</h3></div><div class="em-card-body"><p id="profile-about">—</p></div></div>
-            <div class="em-card"><div class="em-card-header"><h3>Credenciales</h3></div><div class="em-card-body">
-              <div style="display:flex;flex-direction:column;gap:12px">
-                <div style="display:flex;align-items:center;gap:12px"><span style="font-size:1.5rem">🎓</span><div><div style="font-weight:600" id="profile-titulo">—</div><div style="font-size:.82rem;color:var(--em-text-light)">Título profesional</div></div></div>
-                <div style="display:flex;align-items:center;gap:12px"><span style="font-size:1.5rem">📋</span><div><div style="font-weight:600" id="profile-colegiatura">—</div><div style="font-size:.82rem;color:var(--em-text-light)">Número de colegiatura</div></div></div>
-                <div style="display:flex;align-items:center;gap:12px"><span style="font-size:1.5rem">✅</span><div><div style="font-weight:600;color:var(--em-success)">Verificado por Emotion</div><div style="font-size:.82rem;color:var(--em-text-light)">Credenciales validadas</div></div></div>
+            <div class="em-card" style="margin-bottom:20px"><div class="em-card-header"><h3>Sobre mí</h3></div><div class="em-card-body"><p id="profile-about" style="line-height:1.8">—</p><div id="profile-tagline" style="margin-top:12px;font-style:italic;color:var(--em-mint-dark);font-weight:600"></div></div></div>
+            <div class="em-card" style="margin-bottom:20px"><div class="em-card-header"><h3>Credenciales y formación</h3></div><div class="em-card-body">
+              <div style="display:flex;flex-direction:column;gap:14px">
+                <div style="display:flex;align-items:center;gap:12px"><span style="font-size:1.4rem">🎓</span><div><div style="font-weight:700" id="profile-titulo">—</div><div style="font-size:.82rem;color:var(--em-text-light)">Título profesional</div></div></div>
+                <div style="display:flex;align-items:center;gap:12px"><span style="font-size:1.4rem">🏛️</span><div><div style="font-weight:700" id="profile-universidad">—</div><div style="font-size:.82rem;color:var(--em-text-light)">Institución educativa</div></div></div>
+                <div style="display:flex;align-items:center;gap:12px"><span style="font-size:1.4rem">📋</span><div><div style="font-weight:700" id="profile-colegiatura">—</div><div style="font-size:.82rem;color:var(--em-text-light)">N° de colegiatura</div></div></div>
+                <div style="display:flex;align-items:center;gap:12px"><span style="font-size:1.4rem">🌍</span><div><div style="font-weight:700" id="profile-idiomas">—</div><div style="font-size:.82rem;color:var(--em-text-light)">Idiomas de atención</div></div></div>
+                <div style="display:flex;align-items:center;gap:12px"><span style="font-size:1.4rem">✅</span><div><div style="font-weight:700;color:var(--em-success)">Verificado por Emotion</div><div style="font-size:.82rem;color:var(--em-text-light)">Credenciales validadas por nuestro equipo</div></div></div>
               </div>
             </div></div>
           </div>
           <div>
-            <div class="em-card"><div class="em-card-header"><h4>Especialidades</h4></div><div class="em-card-body" id="profile-specialties-list">—</div></div>
+            <div class="em-card" style="margin-bottom:16px"><div class="em-card-header"><h4>Especialidad</h4></div><div class="em-card-body" id="profile-specialties-list">—</div></div>
+            <div class="em-card" style="margin-bottom:16px"><div class="em-card-header"><h4>Modalidades</h4></div><div class="em-card-body" id="profile-modalidades">—</div></div>
+            <div class="em-card"><div class="em-card-header"><h4>Información</h4></div><div class="em-card-body">
+              <div style="display:flex;flex-direction:column;gap:10px;font-size:.88rem">
+                <div style="display:flex;justify-content:space-between"><span style="color:var(--em-text-light)">Duración sesión</span><strong id="profile-duracion">50 min</strong></div>
+                <div style="display:flex;justify-content:space-between"><span style="color:var(--em-text-light)">Experiencia</span><strong><span id="profile-anos-info">—</span> años</strong></div>
+                <div style="display:flex;justify-content:space-between"><span style="color:var(--em-text-light)">Urgencias</span><strong id="profile-urgencias">—</strong></div>
+              </div>
+            </div></div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- Videos section -->
+    <section id="profile-videos-section" class="em-profile-section em-hidden" style="padding:48px 0 0">
+      <div class="em-container">
+        <div class="em-section-header"><div class="em-section-tag">✦ Contenido</div><h2 class="em-section-title">Videos del psicólogo</h2></div>
+        <div id="profile-vid-grid" class="em-vid-grid"></div>
+      </div>
+    </section>
+
+    <!-- Public resources section -->
+    <section id="profile-resources-section" class="em-profile-section em-hidden" style="padding:48px 0">
+      <div class="em-container">
+        <div class="em-section-header"><div class="em-section-tag">✦ Materiales</div><h2 class="em-section-title">Recursos disponibles</h2><p class="em-section-subtitle">Material terapéutico compartido por este profesional.</p></div>
+        <div id="profile-res-grid" class="em-res-grid"></div>
       </div>
     </section>
   </div>
@@ -1894,6 +2025,255 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 /* ═══════════════════════════════════════════════════════
+   RESOURCE & VIDEO MANAGEMENT
+   ═══════════════════════════════════════════════════════ */
+const RESOURCE_ICONS={pdf:'📄',doc:'📝',docx:'📝',image:'🖼️',png:'🖼️',jpg:'🖼️',jpeg:'🖼️',gif:'🖼️',audio:'🎵',mp3:'🎵',wav:'🎵',video:'🎬',mp4:'🎬',link:'🔗'};
+const RESOURCE_TYPES={pdf:'pdf',doc:'doc',docx:'doc',txt:'doc',png:'image',jpg:'image',jpeg:'image',gif:'image',webp:'image',mp3:'audio',wav:'audio',ogg:'audio',mp4:'video',webm:'video',mov:'video'};
+
+let _psyResources=[],_psyVideos=[],_uploadFile=null,_uploadType='resource',_assignResourceId=null;
+
+/* ─── Upload Modal ─── */
+function openUploadModal(tipo){
+  _uploadType=tipo;_uploadFile=null;
+  const isVideo=tipo==='video';
+  document.getElementById('upload-modal-title').textContent=isVideo?'🎥 Subir video':'📎 Subir recurso';
+  document.getElementById('upload-drop-icon').textContent=isVideo?'🎥':'📁';
+  document.getElementById('upload-drop-hint').textContent=isVideo?'MP4, WebM, MOV — máx. 100MB':'PDF, DOC, PNG, JPG, MP3 — máx. 50MB';
+  document.getElementById('upload-file-input').accept=isVideo?'video/*':'application/pdf,image/*,audio/*,.doc,.docx,.txt';
+  document.getElementById('upload-nombre').value='';
+  document.getElementById('upload-descripcion').value='';
+  document.getElementById('upload-drop-text').innerHTML='<strong>Haz clic</strong> o arrastra el archivo aquí';
+  document.getElementById('upload-progress-wrap').classList.add('em-hidden');
+  document.getElementById('btn-do-upload').disabled=true;
+  document.querySelector('input[name="upload-vis"][value="publico"]').checked=true;
+  document.getElementById('upload-modal').classList.add('active');
+}
+function closeUploadModal(){document.getElementById('upload-modal').classList.remove('active');_uploadFile=null;}
+function handleFileDrop(e){
+  e.preventDefault();document.getElementById('upload-drop-zone').classList.remove('over');
+  const file=e.dataTransfer.files[0];if(file)selectUploadFile(file);
+}
+function handleFileSelected(input){if(input.files[0])selectUploadFile(input.files[0]);}
+function selectUploadFile(file){
+  _uploadFile=file;
+  document.getElementById('upload-drop-text').innerHTML=`<strong style="color:var(--em-mint)">✅ ${file.name}</strong>`;
+  document.getElementById('upload-drop-hint').textContent=`${(file.size/1024/1024).toFixed(2)} MB`;
+  if(!document.getElementById('upload-nombre').value) document.getElementById('upload-nombre').value=file.name.replace(/\.[^.]+$/,'');
+  document.getElementById('btn-do-upload').disabled=false;
+}
+async function doUpload(){
+  if(!_uploadFile){EmotionApp.showAlert('Selecciona un archivo.','error');return;}
+  const nombre=document.getElementById('upload-nombre').value.trim();
+  if(!nombre){EmotionApp.showAlert('Ingresa un nombre para el recurso.','error');return;}
+  const uid=EmotionApp.currentUser?.uid;if(!uid)return;
+  const btn=document.getElementById('btn-do-upload');btn.disabled=true;btn.classList.add('em-loading');
+  document.getElementById('upload-progress-wrap').classList.remove('em-hidden');
+  try{
+    const ext=_uploadFile.name.split('.').pop().toLowerCase();
+    const tipo=RESOURCE_TYPES[ext]||(_uploadType==='video'?'video':'doc');
+    const path=`psychologists/${uid}/${_uploadType==='video'?'videos':'resources'}/${Date.now()}_${_uploadFile.name}`;
+    const ref=EmotionApp.storage.ref(path);
+    const task=ref.put(_uploadFile);
+    task.on('state_changed',snap=>{
+      const pct=Math.round(snap.bytesTransferred/snap.totalBytes*100);
+      document.getElementById('upload-prog-bar').style.width=pct+'%';
+      document.getElementById('upload-prog-pct').textContent=pct+'%';
+      document.getElementById('upload-prog-label').textContent='Subiendo...';
+    });
+    await task;
+    const url=await ref.getDownloadURL();
+    const publico=document.querySelector('input[name="upload-vis"]:checked')?.value==='publico';
+    const docData={psicologoId:uid,nombre,descripcion:document.getElementById('upload-descripcion').value,tipo,ext,url,path,tamaño:_uploadFile.size,publico,assignedTo:[],fechaSubida:firebase.firestore.FieldValue.serverTimestamp(),vistas:0};
+    await EmotionApp.db.collection('resources').add(docData);
+    EmotionApp.showAlert(`${_uploadType==='video'?'Video':'Recurso'} subido exitosamente.`,'success');
+    closeUploadModal();
+    await loadPsyResources();
+  }catch(err){
+    EmotionApp.showAlert('Error al subir: '+err.message,'error');
+    btn.disabled=false;btn.classList.remove('em-loading');
+  }
+}
+
+/* ─── Load & Render ─── */
+async function loadPsyResources(){
+  const uid=EmotionApp.currentUser?.uid;if(!uid)return;
+  try{
+    const snap=await EmotionApp.db.collection('resources').where('psicologoId','==',uid).orderBy('fechaSubida','desc').get();
+    const all=snap.docs.map(d=>({id:d.id,...d.data()}));
+    _psyResources=all.filter(r=>r.tipo!=='video');
+    _psyVideos=all.filter(r=>r.tipo==='video');
+    renderPsyResources(_psyResources);
+    renderPsyVideos(_psyVideos);
+    document.getElementById('res-count-badge').textContent=_psyResources.length;
+    document.getElementById('vid-count-badge').textContent=_psyVideos.length;
+    renderLandingResourcesList();
+    renderLandingVideosList();
+  }catch(e){console.error('loadPsyResources:',e);}
+}
+function renderPsyResources(list){
+  const grid=document.getElementById('psy-res-grid');if(!grid)return;
+  if(!list.length){grid.innerHTML=`<div class="em-empty" style="grid-column:1/-1"><div class="em-empty-icon">📎</div><div class="em-empty-title">Sin recursos todavía</div><div class="em-empty-text">Sube PDFs, imágenes, audios o documentos.</div></div>`;return;}
+  grid.innerHTML=list.map(r=>`
+    <div class="em-res-card">
+      <div class="em-res-icon-area ${r.tipo||'doc'}">
+        ${RESOURCE_ICONS[r.ext]||RESOURCE_ICONS[r.tipo]||'📄'}
+        <div class="em-res-pub-dot ${r.publico?'':'priv'}" title="${r.publico?'Público':'Privado'}"></div>
+      </div>
+      <div class="em-res-body">
+        <div class="em-res-name" title="${escapeHtml(r.nombre)}">${escapeHtml(r.nombre)}</div>
+        <div class="em-res-meta"><span>${r.ext?.toUpperCase()||'—'}</span><span>${r.tamaño?(r.tamaño/1024/1024).toFixed(1)+'MB':''}</span></div>
+      </div>
+      <div class="em-res-footer">
+        <button class="em-btn em-btn-outline em-btn-sm" onclick="toggleResPublic('${r.id}',${!r.publico})" title="${r.publico?'Hacer privado':'Hacer público'}">${r.publico?'🔒':'🌐'}</button>
+        <button class="em-btn em-btn-secondary em-btn-sm" onclick="openAssignModal('${r.id}')" title="Asignar a paciente">👤</button>
+        <a class="em-btn em-btn-ghost em-btn-sm" href="${r.url}" target="_blank" title="Ver">👁</a>
+        <button class="em-btn em-btn-danger em-btn-sm" onclick="deleteResource('${r.id}','${r.path||''}')" title="Eliminar">🗑</button>
+      </div>
+    </div>`).join('');
+}
+function renderPsyVideos(list){
+  const grid=document.getElementById('psy-vid-grid');if(!grid)return;
+  if(!list.length){grid.innerHTML=`<div class="em-empty" style="grid-column:1/-1"><div class="em-empty-icon">🎥</div><div class="em-empty-title">Sin videos todavía</div><div class="em-empty-text">Sube videos educativos o de presentación.</div></div>`;return;}
+  grid.innerHTML=list.map(v=>`
+    <div class="em-video-card">
+      <div class="em-video-thumb" onclick="playVideo('${v.url}','${escapeHtml(v.nombre)}','${escapeHtml(v.descripcion||'')}')">
+        <div class="em-video-play">▶</div>
+        <div style="position:absolute;top:8px;right:8px"><span style="background:${v.publico?'var(--em-success)':'rgba(255,255,255,.3)'};color:white;font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:8px">${v.publico?'PÚBLICO':'PRIVADO'}</span></div>
+      </div>
+      <div class="em-video-body"><div class="em-video-title">${escapeHtml(v.nombre)}</div><div class="em-video-meta">${v.tamaño?(v.tamaño/1024/1024).toFixed(1)+'MB':''}</div></div>
+      <div class="em-video-footer">
+        <button class="em-btn em-btn-outline em-btn-sm" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.2)" onclick="toggleResPublic('${v.id}',${!v.publico})">${v.publico?'🔒 Privado':'🌐 Público'}</button>
+        <button class="em-btn em-btn-danger em-btn-sm" onclick="deleteResource('${v.id}','${v.path||''}')">🗑 Eliminar</button>
+      </div>
+    </div>`).join('');
+}
+function switchResTab(tab,el){
+  document.querySelectorAll('#psy-panel-recursos .em-dashboard-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('res-panel-recursos').classList.toggle('em-hidden',tab!=='recursos');
+  document.getElementById('res-panel-videos').classList.toggle('em-hidden',tab!=='videos');
+}
+
+/* ─── Delete resource ─── */
+async function deleteResource(id,path){
+  if(!confirm('¿Eliminar este recurso permanentemente?'))return;
+  try{
+    await EmotionApp.db.collection('resources').doc(id).delete();
+    if(path){try{await EmotionApp.storage.ref(path).delete();}catch{}}
+    EmotionApp.showAlert('Recurso eliminado.','success');
+    await loadPsyResources();
+  }catch{EmotionApp.showAlert('Error al eliminar.','error');}
+}
+
+/* ─── Toggle public/private ─── */
+async function toggleResPublic(id,val){
+  try{
+    await EmotionApp.db.collection('resources').doc(id).update({publico:val});
+    await loadPsyResources();
+    EmotionApp.showAlert(val?'Recurso marcado como público.':'Recurso marcado como privado.','success');
+  }catch{EmotionApp.showAlert('Error.','error');}
+}
+
+/* ─── Assign to patient ─── */
+function openAssignModal(resourceId){
+  _assignResourceId=resourceId;
+  const modal=document.getElementById('assign-modal');modal.classList.add('active');
+  renderAssignPatients(_psyPatients||[]);
+}
+function renderAssignPatients(list){
+  const container=document.getElementById('assign-patients-list');if(!container)return;
+  if(!list.length){container.innerHTML='<div class="em-empty" style="padding:20px"><div class="em-empty-text">No tienes pacientes activos todavía.</div></div>';return;}
+  container.innerHTML=list.map(p=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--em-radius);border:1.5px solid var(--em-gray-200);cursor:pointer;transition:var(--em-transition)" onmouseenter="this.style.borderColor='var(--em-mint)'" onmouseleave="this.style.borderColor='var(--em-gray-200)'" onclick="assignResourceToPatient('${p.uid||p.id}','${escapeHtml(p.nombre||'')}')">
+      <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--em-mint),var(--em-blue));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex-shrink:0">${(p.nombre||'P')[0]}</div>
+      <div><div style="font-weight:600;font-size:.9rem">${escapeHtml(p.nombre||'—')}</div><div style="font-size:.78rem;color:var(--em-text-light)">${p.email||''}</div></div>
+    </div>`).join('');
+}
+function filterAssignPatients(q){renderAssignPatients((_psyPatients||[]).filter(p=>(p.nombre||'').toLowerCase().includes(q.toLowerCase())));}
+async function assignResourceToPatient(patientId,patientName){
+  if(!_assignResourceId)return;
+  try{
+    await EmotionApp.db.collection('resources').doc(_assignResourceId).update({assignedTo:firebase.firestore.FieldValue.arrayUnion(patientId)});
+    document.getElementById('assign-modal').classList.remove('active');
+    EmotionApp.showAlert(`Recurso asignado a ${patientName}.`,'success');
+  }catch{EmotionApp.showAlert('Error al asignar.','error');}
+}
+
+/* ─── Video player ─── */
+function playVideo(url,title,desc){
+  document.getElementById('vp-title').textContent=title;
+  document.getElementById('vp-desc').textContent=desc;
+  const v=document.getElementById('video-player-el');v.src=url;v.load();
+  document.getElementById('video-player-modal').classList.add('active');
+}
+function closeVideoPlayer(){
+  document.getElementById('video-player-modal').classList.remove('active');
+  const v=document.getElementById('video-player-el');v.pause();v.src='';
+}
+
+/* ─── Landing panel ─── */
+function renderLandingResourcesList(){
+  const c=document.getElementById('psy-landing-resources-list');if(!c)return;
+  if(!_psyResources.length){c.innerHTML='<div class="em-empty"><div class="em-empty-icon">📎</div><div class="em-empty-text">Sin recursos. Sube desde "Recursos y videos".</div></div>';return;}
+  c.innerHTML=_psyResources.map(r=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--em-radius);border:1px solid var(--em-gray-100);margin-bottom:8px">
+      <span style="font-size:1.3rem">${RESOURCE_ICONS[r.ext]||'📄'}</span>
+      <div style="flex:1;min-width:0"><div style="font-weight:600;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(r.nombre)}</div><div style="font-size:.76rem;color:var(--em-text-light)">${r.ext?.toUpperCase()}</div></div>
+      <label class="em-toggle" style="margin:0"><input type="checkbox" ${r.publico?'checked':''} onchange="toggleResPublic('${r.id}',this.checked)"><div class="em-toggle-switch"></div></label>
+      <span style="font-size:.76rem;color:${r.publico?'var(--em-success)':'var(--em-gray-400)'};">${r.publico?'Público':'Privado'}</span>
+    </div>`).join('');
+}
+function renderLandingVideosList(){
+  const c=document.getElementById('psy-landing-videos-list');if(!c)return;
+  if(!_psyVideos.length){c.innerHTML='<div class="em-empty"><div class="em-empty-icon">🎥</div><div class="em-empty-text">Sin videos.</div></div>';return;}
+  c.innerHTML=_psyVideos.map(v=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--em-radius);border:1px solid var(--em-gray-100);margin-bottom:8px">
+      <span style="font-size:1.3rem">🎬</span>
+      <div style="flex:1;min-width:0"><div style="font-weight:600;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(v.nombre)}</div><div style="font-size:.76rem;color:var(--em-text-light)">${v.tamaño?(v.tamaño/1024/1024).toFixed(1)+'MB':''}</div></div>
+      <label class="em-toggle" style="margin:0"><input type="checkbox" ${v.publico?'checked':''} onchange="toggleResPublic('${v.id}',this.checked)"><div class="em-toggle-switch"></div></label>
+      <span style="font-size:.76rem;color:${v.publico?'var(--em-success)':'var(--em-gray-400)'};">${v.publico?'Público':'Privado'}</span>
+    </div>`).join('');
+}
+async function saveLandingBio(){
+  const uid=EmotionApp.currentUser?.uid;if(!uid)return;
+  const bio=document.getElementById('psy-landing-bio')?.value;
+  const tagline=document.getElementById('psy-landing-tagline')?.value;
+  const link=document.getElementById('psy-landing-link')?.value;
+  try{
+    await EmotionApp.db.collection(EmotionApp.COLLECTIONS.USERS).doc(uid).update({bioPublica:bio,tagline,enlaceWeb:link});
+    EmotionApp.showAlert('Landing actualizada.','success');
+  }catch{EmotionApp.showAlert('Error al guardar.','error');}
+}
+function viewMyLanding(){
+  const uid=EmotionApp.currentUser?.uid;if(!uid)return;
+  EmotionRouter.navigate('profile',{psychologistId:uid});
+}
+function loadLandingPanel(ud){
+  const bio=document.getElementById('psy-landing-bio');if(bio)bio.value=ud.bioPublica||ud.descripcion||'';
+  const tag=document.getElementById('psy-landing-tagline');if(tag)tag.value=ud.tagline||'';
+  const lnk=document.getElementById('psy-landing-link');if(lnk)lnk.value=ud.enlaceWeb||'';
+  const cnt=document.getElementById('landing-bio-count');if(cnt&&bio)cnt.textContent=bio.value.length;
+  bio?.addEventListener('input',function(){const c=document.getElementById('landing-bio-count');if(c)c.textContent=this.value.length;});
+  const mb=document.getElementById('psy-landing-membership');
+  if(mb){
+    const m=ud.membresia||{};
+    const activa=m.activa!==false;
+    const expira=m.expira?.toDate?m.expira.toDate():null;
+    const daysLeft=expira?Math.ceil((expira-new Date())/86400000):null;
+    mb.innerHTML=activa
+      ?`<span style="font-size:1.4rem">✅</span><div><div style="font-weight:700">Membresía activa${daysLeft?` — quedan ${daysLeft} días`:''}</div><div style="font-size:.82rem;color:var(--em-text-light)">Tu perfil público está visible en la plataforma.</div></div>`
+      :`<span style="font-size:1.4rem">⚠️</span><div><div style="font-weight:700;color:var(--em-error)">Membresía vencida</div><div style="font-size:.82rem;color:var(--em-text-light)">Renueva tu membresía para mantener tu perfil público activo.</div></div><button class="em-btn em-btn-primary em-btn-sm" style="margin-left:auto">Renovar</button>`;
+  }
+  const sideBadge=document.getElementById('psy-membership-badge');
+  if(sideBadge){
+    const m=ud.membresia||{};
+    const activa=m.activa!==false;
+    sideBadge.className='em-membership '+(activa?'active':'expired');
+    document.getElementById('psy-membership-status').textContent=activa?'Membresía activa':'Membresía vencida';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
    PAGE: PATIENT DASHBOARD — INIT & LOGIC
    ═══════════════════════════════════════════════════════ */
 let _patData=null,_patSessions=[],_patBookingPsych=null,_patSelectedDate=null,_patSelectedTime=null;
@@ -2055,6 +2435,7 @@ window.initPage_psychologist = async function(){
   const av=document.getElementById('psy-sidebar-avatar');if(av)av.textContent=(userData.nombre||'P')[0].toUpperCase();
   const nm=document.getElementById('psy-sidebar-name');if(nm)nm.textContent=userData.nombre||'Psicólogo';
   const em=document.getElementById('psy-sidebar-email');if(em)em.textContent=userData.email||'';
+  loadLandingPanel(userData);
   if(userData.estado===EmotionApp.PSYCHOLOGIST_STATUS.PENDING){
     document.getElementById('psy-pending-banner').innerHTML=`<div class="em-banner"><div class="em-banner-icon">⏳</div><div class="em-banner-content"><div class="em-banner-title">Perfil pendiente de aprobación</div><div class="em-banner-text">Nuestro equipo está revisando tu perfil. Te notificaremos cuando sea aprobado (24-48h).</div></div></div>`;
   }
@@ -2062,14 +2443,16 @@ window.initPage_psychologist = async function(){
   await loadPsyData();
 };
 function showPsyPanel(panel){
-  document.querySelectorAll('.em-dashboard-panel').forEach(p=>p.classList.add('em-hidden'));
+  document.querySelectorAll('#page-psychologist .em-dashboard-panel').forEach(p=>p.classList.add('em-hidden'));
   document.getElementById(`psy-panel-${panel}`)?.classList.remove('em-hidden');
   document.querySelectorAll('#psy-sidebar .em-sidebar-link').forEach(l=>l.classList.remove('active'));
-  const titles={inicio:'Inicio',agenda:'Agenda',pacientes:'Mis pacientes',recursos:'Recursos',perfil:'Mi perfil',disponibilidad:'Disponibilidad'};
+  document.getElementById(`psy-nav-${panel}`)?.classList.add('active');
+  const titles={inicio:'Inicio',agenda:'Agenda',pacientes:'Mis pacientes',recursos:'Recursos y videos',landing:'Mi landing',perfil:'Mi perfil',disponibilidad:'Disponibilidad'};
   const tt=document.getElementById('psy-topbar-title');if(tt)tt.textContent=titles[panel]||panel;
   if(panel==='agenda')loadPsySessions('pending');
   if(panel==='pacientes')loadPsyPatients();
   if(panel==='disponibilidad')buildAvailabilityManager();
+  if(panel==='recursos')loadPsyResources();
   document.getElementById('psy-sidebar')?.classList.remove('open');
   document.getElementById('psy-overlay')?.classList.remove('open');
 }
@@ -2410,22 +2793,71 @@ window.initPage_profile = async function(params={}){
     const ud=await EmotionApp.getUserData(psychId);if(!ud){EmotionApp.showAlert('Perfil no encontrado.','error');return;}
     _profileData=ud;
     const initials=(ud.nombre||'P').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
-    if(ud.fotoPerfil){document.getElementById('profile-photo-area').innerHTML=`<img src="${ud.fotoPerfil}" class="em-profile-photo" alt="${ud.nombre}">`;}
+    if(ud.fotoPerfil) document.getElementById('profile-photo-area').innerHTML=`<img src="${ud.fotoPerfil}" class="em-profile-photo" alt="${ud.nombre}">`;
     else{const av=document.getElementById('profile-avatar-text');if(av)av.textContent=initials;}
     setText('profile-name',ud.nombre||'—');
     setText('profile-specialty',ud.especialidad||'—');
     setText('profile-pais',ud.pais||'—');
     setText('profile-anos',ud.anosExperiencia||'0');
-    setText('profile-description',ud.descripcion||'—');
-    setText('profile-about',ud.descripcion||'—');
+    setText('profile-anos-info',ud.anosExperiencia||'0');
+    setText('profile-description',ud.bioPublica||ud.descripcion||'—');
+    setText('profile-about',ud.bioPublica||ud.descripcion||'—');
     setText('profile-titulo',ud.titulo||'—');
+    setText('profile-universidad',ud.universidad||'—');
     setText('profile-colegiatura',ud.numeroColegiatura||'—');
     setText('profile-titulo-badge',ud.titulo||'—');
+    setText('profile-duracion',(ud.duracionSesion||50)+' min');
+    setText('profile-urgencias',ud.atieneUrgencias?'Sí, atiende urgencias':'No');
     setText('profile-price',EmotionApp.formatPrice(ud.precio||0,ud.moneda||'USD'));
-    const slist=document.getElementById('profile-specialties-list');if(slist)slist.innerHTML=`<span class="em-badge em-badge-mint">${ud.especialidad||'—'}</span>`;
+    const booking_per=document.querySelector('#page-profile .em-booking-per');if(booking_per)booking_per.textContent=`por sesión de ${ud.duracionSesion||50} min`;
+    const taglineEl=document.getElementById('profile-tagline');if(taglineEl&&ud.tagline)taglineEl.textContent=`"${ud.tagline}"`;
+    // Idiomas
+    const idiomasEl=document.getElementById('profile-idiomas');
+    if(idiomasEl) idiomasEl.textContent=(ud.idiomas||['Español']).join(' · ');
+    // Modalidades
+    const modEl=document.getElementById('profile-modalidades');
+    if(modEl) modEl.innerHTML=(ud.modalidades||['videollamada']).map(m=>m==='videollamada'?'📹 Videollamada':'💬 Chat').map(l=>`<div style="padding:4px 0;font-size:.88rem">${l}</div>`).join('');
+    // Specialty list
+    const slist=document.getElementById('profile-specialties-list');
+    if(slist) slist.innerHTML=`<span class="em-badge em-badge-mint" style="margin-bottom:8px;display:inline-block">${ud.especialidad||'—'}</span><div style="font-size:.85rem;color:var(--em-text-light);margin-top:8px">${ud.anosExperiencia||0} años de experiencia</div>`;
     showProfileSlots(psychId);
+    // Load public resources and videos
+    await loadProfileResources(psychId);
   }catch(e){console.error(e);}
 };
+async function loadProfileResources(psychId){
+  try{
+    const snap=await EmotionApp.db.collection('resources').where('psicologoId','==',psychId).where('publico','==',true).orderBy('fechaSubida','desc').get();
+    const all=snap.docs.map(d=>({id:d.id,...d.data()}));
+    const videos=all.filter(r=>r.tipo==='video');
+    const resources=all.filter(r=>r.tipo!=='video');
+    // Render videos
+    const vsec=document.getElementById('profile-videos-section');
+    const vgrid=document.getElementById('profile-vid-grid');
+    if(videos.length&&vsec&&vgrid){
+      vsec.classList.remove('em-hidden');
+      vgrid.innerHTML=videos.map(v=>`
+        <div class="em-video-card">
+          <div class="em-video-thumb" onclick="playVideo('${v.url}','${escapeHtml(v.nombre)}','${escapeHtml(v.descripcion||'')}')">
+            <div class="em-video-play">▶</div>
+          </div>
+          <div class="em-video-body"><div class="em-video-title">${escapeHtml(v.nombre)}</div><div class="em-video-meta">${v.descripcion?v.descripcion.substring(0,60)+'...':''}</div></div>
+        </div>`).join('');
+    }
+    // Render resources
+    const rsec=document.getElementById('profile-resources-section');
+    const rgrid=document.getElementById('profile-res-grid');
+    if(resources.length&&rsec&&rgrid){
+      rsec.classList.remove('em-hidden');
+      rgrid.innerHTML=resources.map(r=>`
+        <div class="em-res-card">
+          <div class="em-res-icon-area ${r.tipo||'doc'}">${RESOURCE_ICONS[r.ext]||RESOURCE_ICONS[r.tipo]||'📄'}</div>
+          <div class="em-res-body"><div class="em-res-name" title="${escapeHtml(r.nombre)}">${escapeHtml(r.nombre)}</div><div class="em-res-meta"><span>${r.ext?.toUpperCase()||''}</span></div></div>
+          <div class="em-res-footer"><a class="em-btn em-btn-primary em-btn-sm" href="${r.url}" target="_blank">⬇ Descargar</a></div>
+        </div>`).join('');
+    }
+  }catch(e){console.error('loadProfileResources:',e);}
+}
 async function showProfileSlots(psychId){
   const el=document.getElementById('slots-preview');if(!el)return;
   const today=new Date();
@@ -2482,5 +2914,68 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 });
 </script>
+
+<!-- ══ MODAL: UPLOAD RESOURCE / VIDEO ══ -->
+<div class="em-modal-overlay" id="upload-modal">
+  <div class="em-modal">
+    <div class="em-modal-header">
+      <h3 class="em-modal-title" id="upload-modal-title">📎 Subir recurso</h3>
+      <button class="em-modal-close" onclick="closeUploadModal()">✕</button>
+    </div>
+    <div class="em-modal-body">
+      <div class="em-form-group" style="margin-bottom:16px">
+        <label class="em-label em-required">Nombre / Título</label>
+        <input type="text" class="em-input" id="upload-nombre" placeholder="Ej: Ejercicios de respiración para ansiedad">
+      </div>
+      <div class="em-form-group" style="margin-bottom:16px">
+        <label class="em-label">Descripción <span style="font-weight:400;color:var(--em-text-light)">(opcional)</span></label>
+        <textarea class="em-textarea" id="upload-descripcion" placeholder="Describe brevemente este material..." style="min-height:72px;resize:none"></textarea>
+      </div>
+      <div class="em-form-group" style="margin-bottom:16px">
+        <label class="em-label">Visibilidad</label>
+        <div style="display:flex;gap:10px;margin-top:4px">
+          <label class="em-radio-opt"><input type="radio" name="upload-vis" value="publico" checked><span>🌐 Público (en mi landing)</span></label>
+          <label class="em-radio-opt"><input type="radio" name="upload-vis" value="privado"><span>🔒 Privado</span></label>
+        </div>
+      </div>
+      <div class="em-drop-zone" id="upload-drop-zone" onclick="document.getElementById('upload-file-input').click()" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="handleFileDrop(event)">
+        <div class="em-drop-zone-icon" id="upload-drop-icon">📁</div>
+        <div id="upload-drop-text"><strong>Haz clic</strong> o arrastra el archivo aquí</div>
+        <div id="upload-drop-hint" style="font-size:.82rem;color:var(--em-text-muted);margin-top:4px">PDF, DOC, PNG, JPG, MP3, MP4 — máx. 100MB</div>
+      </div>
+      <input type="file" id="upload-file-input" style="display:none" onchange="handleFileSelected(this)">
+      <div id="upload-progress-wrap" class="em-hidden" style="margin-top:12px">
+        <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:4px"><span id="upload-prog-label">Subiendo...</span><span id="upload-prog-pct">0%</span></div>
+        <div class="em-upload-progress"><div class="em-upload-progress-bar" id="upload-prog-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div class="em-modal-footer">
+      <button class="em-btn em-btn-ghost" onclick="closeUploadModal()">Cancelar</button>
+      <button class="em-btn em-btn-primary" id="btn-do-upload" onclick="doUpload()" disabled>Subir archivo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: ASSIGN RESOURCE TO PATIENT ══ -->
+<div class="em-modal-overlay" id="assign-modal">
+  <div class="em-modal">
+    <div class="em-modal-header"><h3 class="em-modal-title">👤 Asignar recurso a paciente</h3><button class="em-modal-close" onclick="document.getElementById('assign-modal').classList.remove('active')">✕</button></div>
+    <div class="em-modal-body">
+      <p style="color:var(--em-text-light);margin-bottom:16px;font-size:.9rem">Selecciona el paciente al que deseas asignar este recurso. Podrá verlo en su panel.</p>
+      <input type="search" class="em-search-input" placeholder="Buscar paciente..." style="width:100%;margin-bottom:12px" id="assign-search" oninput="filterAssignPatients(this.value)">
+      <div id="assign-patients-list" style="display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto"></div>
+    </div>
+    <div class="em-modal-footer"><button class="em-btn em-btn-ghost" onclick="document.getElementById('assign-modal').classList.remove('active')">Cerrar</button></div>
+  </div>
+</div>
+
+<!-- ══ MODAL: VIDEO PLAYER ══ -->
+<div class="em-modal-overlay" id="video-player-modal">
+  <div class="em-modal" style="max-width:780px;background:#0D1117">
+    <div class="em-modal-header" style="background:#161B22;border-color:rgba(255,255,255,.08)"><h3 class="em-modal-title" id="vp-title" style="color:white">Video</h3><button class="em-modal-close" onclick="closeVideoPlayer()" style="background:rgba(255,255,255,.1);color:white">✕</button></div>
+    <div style="padding:0"><video id="video-player-el" controls style="width:100%;max-height:480px;background:#000;display:block"></video></div>
+    <div style="padding:14px 20px;background:#161B22"><p id="vp-desc" style="font-size:.88rem;color:rgba(255,255,255,.6)"></p></div>
+  </div>
+</div>
 </body>
 </html>
